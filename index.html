@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Bolão Portal SimonSports</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f6f8;
+margin:0;
+padding:20px
+}
+
+.container{
+max-width:900px;
+margin:auto
+}
+
+h1{
+text-align:center
+}
+
+.jogo{
+background:white;
+padding:15px;
+margin-bottom:12px;
+border-radius:8px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1)
+}
+
+.times{
+font-size:18px;
+font-weight:bold
+}
+
+.inputs{
+margin-top:10px
+}
+
+input{
+width:40px;
+padding:5px;
+font-size:16px;
+text-align:center
+}
+
+button{
+margin-top:20px;
+padding:10px 25px;
+border:none;
+background:#1f8ef1;
+color:white;
+font-size:16px;
+border-radius:6px;
+cursor:pointer
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bolão Portal SimonSports</h1>
+
+<div id="jogos"></div>
+
+<button onclick="enviar()">Enviar Palpites</button>
+
+</div>
+
+<script>
+
+const PLANILHA =
+"https://docs.google.com/spreadsheets/d/1G8JH8FYZHZM7E43ye-bVSG7YJXDvbE9WjmIAjkMOl2Q/export?format=csv&gid=1626888136"
+
+let jogos=[]
+
+fetch(PLANILHA)
+.then(r=>r.text())
+.then(text=>{
+
+let linhas=text.split("\n")
+
+linhas.shift()
+
+linhas.forEach(l=>{
+
+let c=l.split(",")
+
+if(!c[3]) return
+
+let casa=c[3]
+let fora=c[4]
+
+jogos.push({casa,fora})
+
+document.getElementById("jogos").innerHTML+=`
+
+<div class="jogo">
+
+<div class="times">
+
+${casa} x ${fora}
+
+</div>
+
+<div class="inputs">
+
+<input id="c${jogos.length}" placeholder="0">
+
+x
+
+<input id="f${jogos.length}" placeholder="0">
+
+</div>
+
+</div>
+
+`
+
+})
+
+})
+
+function enviar(){
+
+let palpites=[]
+
+jogos.forEach((j,i)=>{
+
+let g1=document.getElementById("c"+(i+1)).value
+let g2=document.getElementById("f"+(i+1)).value
+
+palpites.push({
+
+casa:j.casa,
+fora:j.fora,
+g1:g1,
+g2:g2
+
+})
+
+})
+
+console.log(palpites)
+
+alert("Palpites registrados")
+
+}
+
+</script>
+
+</body>
+
+</html>
