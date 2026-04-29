@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bolão - Portal SimonSports</title>
+<meta name="description" content="Bolão Portal SimonSports com campeonatos, palpites, ranking e integração com Google Sheets.">
+</head>
+<body>
+<!-- ================== Bolão (página Blogger) ================== -->
+<style>
+  :root{
+    --bg:#0f172a; --card:#0b1224; --ink:#0a0a0a; --txt:#0f172a; --muted:#6b7280;
+    --pill:#0ea5e9; --btn:#0b1224; --btnText:#e5e7eb; --accent:#38bdf8;
+    --ok:#16a34a; --danger:#ef4444; --chip:#111827; --chipText:#e5e7eb;
+  }
+  .bolao-wrap{max-width:1060px;margin:24px auto;padding:12px 16px;}
+  .pane{background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(2,8,23,.08);padding:28px 28px 32px;}
+  .pane h1{font:700 28px/1.2 system-ui;margin:0 0 18px;color:#111827}
+  .sub{font:600 20px/1.3 system-ui;color:#111827;margin:8px 0 22px}
+  .hello{color:#94a3b8;font:600 16px/1.1 system-ui;margin:0 0 18px}
+  .controls{display:grid;grid-template-columns:1fr 1fr auto auto auto;gap:14px;align-items:center}
+  .pill-time{font:700 18px/1.2 system-ui;background:var(--pill);color:#032438;padding:10px 16px;border-radius:14px;box-shadow:0 4px 0 rgba(0,0,0,.12)}
+  .btn{background:var(--btn);color:var(--btnText);border:none;border-radius:12px;padding:10px 16px;font:600 14px system-ui;cursor:pointer}
+  .btn.alt{background:#9ca3af;color:#0b1224}
+  .btn.google{background:#1f2937}
+  .btn.warn{background:#f59e0b;color:#0b1224}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  select,.select{appearance:none;background:#0b1224;color:#EAF2FF;border:none;padding:12px 14px;border-radius:12px;font:600 14px system-ui}
+  label{color:#6b7280;font:600 14px system-ui;margin:0 6px}
+  .hr{border-top:1px dashed #e5e7eb;margin:26px 0}
+  .topbar{display:grid;grid-template-columns:1fr auto;gap:14px;margin-bottom:14px}
+  .topbar .right{display:flex;gap:10px;align-items:center;justify-content:flex-end}
+  .login-chip{color:#64748b;font:600 14px system-ui}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:900px){ .grid{grid-template-columns:1fr} }
+  .card{background:#0b1224;color:#EAF2FF;border-radius:16px;padding:14px 14px}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .row+.row{margin-top:10px}
+  .datetime{font:600 12px;opacity:.9}
+  .eta{font:700 12px;background:var(--pill);color:#032438;padding:6px 8px;border-radius:10px;white-space:nowrap}
+  .eta.enc{background:#f1b4b8;color:#5c1a1f}
+  .team{font:600 15px}
+  .score-bubble{min-width:74px;display:flex;align-items:center;justify-content:center;gap:6px;background:#111827;color:#e5e7eb;border-radius:999px;padding:6px 10px;font:700 14px}
+  .mid-vs{opacity:.5;font:700 11px;letter-spacing:.2em}
+  .inp-wrap{display:flex;align-items:center;gap:10px}
+  .inp{width:72px;height:36px;border-radius:10px;background:#111827;color:#e5e7eb;border:1px solid #1f2937;text-align:center;font:700 15px;padding:0}
+  .pts{background:#064e3b;color:#d1fae5;border-radius:999px;padding:6px 10px;font:700 12px}
+  .save{background:#16a34a;color:#eaffec;border:none;border-radius:10px;padding:8px 12px;font:700 13px;cursor:pointer}
+  .save:disabled{opacity:.6;cursor:not-allowed}
+  .rightRail{display:flex;align-items:center;gap:8px}
+  .empty{color:#9aa4b2;font:600 14px}
+  .badge{display:inline-block;background:#111827;color:#e5e7eb;border-radius:999px;padding:2px 10px;font:700 12px;margin-left:6px}
+  .chip{background:var(--chip);color:var(--chipText);border-radius:999px;padding:4px 8px;font:700 11px}
+  .pill-yellow{background:#facc15;color:#1f2937;border-radius:999px;padding:8px 12px;font:800 14px;display:inline-block}
+  /* modal PA */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:9999}
+  .modal.open{display:flex}
+  .modal-card{background:#fff;max-width:520px;width:calc(100% - 24px);border-radius:14px;padding:16px;box-shadow:0 16px 80px rgba(0,0,0,.25)}
+  .modal h3{margin:0 0 10px;font:800 18px system-ui}
+  .modal .row{margin:10px 0}
+  .modal .inp{background:#f3f4f6;color:#111827;border-color:#e5e7eb}
+</style>
+
+<div class="bolao-wrap">
+  <div class="pane">
+    <h1>Bolão</h1>
+    <div class="sub">Bolões Esportivos</div>
+
+    <div class="topbar">
+      <div class="login-chip">Olá, <span id="nick">visitante</span></div>
+      <div class="right">
+        <span class="pill-time" id="clock">--/--/---- --:--:--</span>
+        <button class="btn" id="btnCriar" type="button">Criar bolão</button>
+        <button class="btn alt" id="btnConvidar" type="button" disabled>Convidar</button>
+        <button class="btn google" id="btnLogin" type="button">Entrar com Google</button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="select" id="selCampWrap">
+        <label for="selCamp">Campeonato</label>
+        <select id="selCamp" aria-label="Campeonato"></select>
+      </div>
+      <div class="select" id="selRodWrap">
+        <label for="selRod">Rodada</label>
+        <select id="selRod" aria-label="Rodada"></select>
+      </div>
+      <button class="btn" id="btnCarregar" type="button">Carregar jogos</button>
+      <button class="btn alt" id="btnRanking" type="button">Ranking</button>
+      <button class="btn alt" id="btnTodos" type="button">Palpites de todos</button>
+    </div>
+
+    <div style="margin-top:10px">
+      <button class="pill-yellow" id="btnPA" type="button">P.A.</button>
+    </div>
+
+    <div class="hr"></div>
+
+    <div id="msg" class="empty" role="status" aria-live="polite">Selecione um campeonato e uma rodada.</div>
+    <div id="lista" class="grid" hidden></div>
+  </div>
+</div>
+
+<!-- ======= Modal Palpite Automático ======= -->
+<div class="modal" id="paModal" aria-hidden="true">
+  <div class="modal-card">
+    <h3>Palpite Automático (P.A.)</h3>
+    <div class="row">
+      <div class="inp-wrap">
+        <label style="min-width:110px">Gols mandante</label>
+        <input id="paGM" type="number" min="0" inputmode="numeric" class="inp" placeholder="ex.: 1">
+      </div>
+      <div class="inp-wrap">
+        <label style="min-width:110px">Gols visitante</label>
+        <input id="paGV" type="number" min="0" inputmode="numeric" class="inp" placeholder="ex.: 1">
+      </div>
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="paAplicarAgora" checked> Aplicar agora em jogos já bloqueados que estejam sem palpite</label>
+    </div>
+    <div class="row" style="justify-content:flex-end;gap:8px">
+      <button class="btn alt" id="paFechar">Fechar</button>
+      <button class="btn warn" id="paRemover">Remover P.A.</button>
+      <button class="btn" style="background:#16a34a" id="paSalvar">Salvar P.A.</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SCRIPTS ===================== -->
+<script>
+  /********* INÍCIO: CONFIG & REFS *********/
+  const API_BASE = 'https://script.google.com/macros/s/AKfycbxbFTg0YODAo1oSX6OQe4HPbMnkrMsXQP93oJsTj4ilhA2fTiZgxk-4qKv1XPiNyyaC/exec';
+
+  const $ = s => document.querySelector(s);
+  const elNick = $('#nick'), elMsg = $('#msg'), elLista = $('#lista'),
+        elCamp = $('#selCamp'), elRod = $('#selRod'),
+        btnLogin = $('#btnLogin'), btnConvidar = $('#btnConvidar');
+
+  const state = { uid:'GUEST', nome:'visitante', pa:null };
+  /********* FIM: CONFIG & REFS *********/
+</script>
+
+<script>
+  /********* INÍCIO: RELÓGIO *********/
+  const p2 = n => String(n).padStart(2,'0');
+  function fmtClock(d){ return `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}`; }
+  function tick(){ $('#clock').textContent = fmtClock(new Date()); }
+  setInterval(tick, 1000); tick();
+  /********* FIM: RELÓGIO *********/
+</script>
+
+<script>
+  /********* INÍCIO: TOAST *********/
+  function toast(txt){ elMsg.textContent = txt; elMsg.hidden = false; elLista.hidden = true; }
+  /********* FIM: TOAST *********/
+</script>
+
+<script>
+  /********* INÍCIO: HELPERS API *********/
+  function withDualAction(action, extraQS=''){
+    const glue = extraQS && extraQS.trim().length ? '&' : '';
+    return `?a=${encodeURIComponent(action)}&action=${encodeURIComponent(action)}${glue}${extraQS}`;
+  }
+
+  async function apiGet(qs){
+    const uid = state.uid || localStorage.getItem('BOL_UID') || 'GUEST';
+    const sep = qs.includes('?') ? '&' : '?';
+    const url = `${API_BASE}${qs}${sep}uid=${encodeURIComponent(uid)}`;
+    let res;
+    try{
+      res = await fetch(url, { method:'GET', redirect:'follow', credentials:'omit' });
+    }catch(e){
+      throw new Error(`Falha de rede (${e.message}) — ${url}`);
+    }
+    if(!res.ok){
+      const txt = await res.text().catch(()=> '');
+      throw new Error(`${res.status} ${res.statusText} — ${txt.slice(0,140)}`);
+    }
+    try{
+      const j = await res.json();
+      return (j && j.data !== undefined) ? j.data : j;
+    }catch(_){
+      const t = await res.text().catch(()=> '');
+      throw new Error(`Resposta não-JSON: ${t.slice(0,200)}`);
+    }
+  }
+  /********* FIM: HELPERS API *********/
+</script>
+
+<script>
+  /********* INÍCIO: PARSER DE DATA (BRASIL) + COUNTDOWN VIVO *********/
+
+  // Mantém a HORA DA PLANILHA (Brasília) exatamente como está,
+  // evitando deslocamentos de fuso do navegador.
+  function parseDateSafe(str) {
+    if (!str) return null;
+    const s = String(str).trim().replace(/\s+/g,' ');
+
+    // dd/MM/yyyy HH:mm
+    const m1 = s.match(/^(\d{2})\/(\d{2})\/(\d{4})[ T](\d{2}):(\d{2})$/);
+    if (m1) {
+      let [, dd, mm, yyyy, HH, MM] = m1.map(Number);
+      // construído em UTC somando +3h => neutraliza conversão e preserva Brasília
+      return new Date(Date.UTC(yyyy, mm - 1, dd, HH + 3, MM));
+    }
+
+    // yyyy-MM-dd HH:mm
+    const m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/);
+    if (m2) {
+      let [, yyyy, mm, dd, HH, MM] = m2.map(Number);
+      return new Date(Date.UTC(yyyy, mm - 1, dd, HH + 3, MM));
+    }
+
+    // ISO (com timezone) ou qualquer outra – deixa o JS interpretar
+    return new Date(s);
+  }
+
+  function liveCountdown(target) {
+    if (!target) return '';
+    const now=new Date(); let ms=target-now;
+    if(ms<=0) return 'encerrado';
+    const s=Math.floor(ms/1000)%60, m=Math.floor(ms/60000)%60, h=Math.floor(ms/3600000)%24,
+          d=Math.floor(ms/86400000);
+    const p=[]; if(d) p.push(d+'d'); if(h||d) p.push(h+'h'); p.push(m+'min'); p.push(s+'s');
+    return p.join(' ');
+  }
+
+  let __etaTimer = null;
+  function startEtaTicker(){
+    if(__etaTimer) clearInterval(__etaTimer);
+    const tick = () => {
+      document.querySelectorAll('.js-eta').forEach(el=>{
+        const status=(el.dataset.status||'').toLowerCase();
+        if(status!=='agendado'){ el.classList.add('enc'); return; }
+        const iso=el.dataset.t||''; if(!iso) return;
+        const dt=new Date(iso);
+        const txt = liveCountdown(dt);
+        if(dt - new Date() <=0){
+          el.textContent='encerrado'; el.classList.add('enc'); el.dataset.status='encerrado';
+        }else{
+          el.textContent=txt; el.classList.remove('enc');
+        }
+      });
+    };
+    tick();
+    __etaTimer = setInterval(tick, 1000);
+  }
+  /********* FIM: PARSER + COUNTDOWN *********/
+</script>
+
+<script>
+  /********* INÍCIO: CATÁLOGO & RODADAS *********/
+  async function loadCatalog(){
+    try{
+      const items = await apiGet(withDualAction('catalogo'));
+      elCamp.innerHTML = '';
+      (items||[])
+        .sort((a,b)=>((a.sigla==='SUP')-(b.sigla==='SUP'))||String(a.sigla).localeCompare(String(b.sigla)))
+        .forEach(it=>{
+          const o=document.createElement('option');
+          o.value=it.sigla; o.textContent=it.nome||it.sigla;
+          elCamp.appendChild(o);
+        });
+
+      // usa #HASH (ex.: /bolao.html#ESP) vindo da Home
+      const hashCamp = (location.hash||'').replace('#','').trim().toUpperCase();
+      if(hashCamp){
+        const opt = [...elCamp.options].find(o=>o.value===hashCamp);
+        if(opt) elCamp.value = hashCamp;
+      }
+
+      await loadRodadas(elCamp.value);
+      elMsg.textContent = 'Selecione um campeonato e uma rodada.';
+    }catch(e){
+      // fallback de catálogo mínimo
+      elCamp.innerHTML = '';
+      ['BRA','ENG','ESP','FRA','ITA','SUP'].forEach(sig=>{
+        const o=document.createElement('option'); o.value=sig;
+        o.textContent = ({BRA:'Brasileirão',ENG:'Premier League',ESP:'LaLiga',FRA:'Ligue 1',ITA:'Serie A',SUP:'Super Bolão'})[sig];
+        elCamp.appendChild(o);
+      });
+      await loadRodadas(elCamp.value);
+      elMsg.textContent = 'Catálogo indisponível. ' + e.message;
+      console.warn(e);
+    }
+  }
+
+  async function loadRodadas(sigla){
+    try{
+      const data = await apiGet(withDualAction('rodadas', `camp=${encodeURIComponent(sigla)}`));
+      let nums = Array.isArray(data) ? data.map(x => (typeof x==='number'?x:(x.n||x.rodada||x))).filter(Boolean) : [];
+
+      // fallback se a API não retornar
+      if(!nums.length){
+        const totals = { BRA:38, ENG:38, ESP:38, FRA:38, ITA:38, SUP:10 };
+        const N = totals[sigla] || 38;
+        nums = Array.from({length:N}, (_,i)=>i+1);
+      }
+
+      elRod.innerHTML='';
+      nums.forEach(n=>{
+        const o=document.createElement('option');
+        o.value=n; o.textContent=`${n}ª Rodada`;
+        elRod.appendChild(o);
+      });
+    }catch(e){
+      elRod.innerHTML = `<option value="1">1ª Rodada</option>`;
+      console.warn(e);
+    }
+  }
+  elCamp.addEventListener('change', async e=>{
+    await loadRodadas(e.target.value);
+    // mantém o comportamento atual: só muda rodadas; o usuário decide carregar jogos
+  });
+  /********* FIM: CATÁLOGO & RODADAS *********/
+</script>
+
+<script>
+  /********* INÍCIO: RENDER DOS JOGOS *********/
+  const PLACE = '–'; // marcador visual para “sem placar”
+
+  function numOrEmpty(v, st){
+    // Para jogos não iniciados (agendado), exibir “–” em vez de 0
+    if (st==='agendado' || v==='' || v===null || v===undefined) return PLACE;
+    const n = Number(v);
+    return Number.isFinite(n) ? String(n) : PLACE;
+  }
+
+  function palpiteField(id, value, disabled){
+    const v = (value===''||value==null||value==undefined) ? '' : String(value);
+    return `<input class="inp" type="number" min="0" inputmode="numeric" data-id="${id}" value="${v}" ${disabled?'disabled':''}>`;
+  }
+
+  async function carregarJogos(){
+    const camp = elCamp.value;
+    let rodada = elRod.value;
+
+    if(!rodada){
+      await loadRodadas(camp);
+      rodada = elRod.value;
+      if(!rodada){ toast('Rodadas indisponíveis para este campeonato.'); return; }
+    }
+
+    elMsg.hidden=false; elMsg.textContent='Carregando...'; elLista.hidden=true;
+
+    try{
+      const rows = await apiGet(withDualAction('jogos', `camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}`));
+      if(!rows || !rows.length){
+        elMsg.textContent=`Nenhum jogo encontrado para ${camp} • ${rodada}ª rodada.`;
+        return;
+      }
+
+      // ordena por data/hora crescente
+      rows.sort((a,b)=>{
+        const da = parseDateSafe(a.data_jogo || a.data || '');
+        const db = parseDateSafe(b.data_jogo || b.data || '');
+        return (da?.getTime()||0) - (db?.getTime()||0);
+      });
+
+      elLista.innerHTML = rows.map((g,idx)=>{
+        const d = parseDateSafe(g.data_jogo || g.data || g.horario || g.inicio || '');
+        const dts = d ? (d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})) : '--';
+        const status = String(g.status||'agendado').toLowerCase();
+
+        const home = g.mandante||g.home||g.time_mandante||'-';
+        const away = g.visitante||g.away||g.time_visitante||'-';
+        const gm = numOrEmpty(g.gols_mandante_oficial ?? g.gm ?? g.gols_mandante, status);
+        const gv = numOrEmpty(g.gols_visitante_oficial ?? g.gv ?? g.gols_visitante, status);
+
+        const id = g.id || `${camp}_${rodada}_${idx}`;
+
+        // countdown vivo (span com data)
+        const etaHTML = `<span class="eta js-eta" data-status="${status}" data-t="${d?d.toISOString():''}">
+          ${status==='agendado' ? liveCountdown(d) : 'encerrado'}
+        </span>`;
+
+        // PA: se jogo bloqueado e sem palpite, mostro “P.A.” ao salvar (feito no backend)
+        const disabled = status !== 'agendado';
+
+        return `
+          <div class="card" data-jogo="${id}">
+            <!-- linha 1: data à esquerda / ETA à direita -->
+            <div class="row">
+              <div class="datetime">${dts}</div>
+              <div>${etaHTML}</div>
+            </div>
+
+            <!-- linha 2: mandante + placar oficial + palpite do mandante -->
+            <div class="row">
+              <div class="team">${home}</div>
+              <div class="score-bubble"><span>${gm}</span><span class="mid-vs">x</span><span>${gv}</span></div>
+              <div class="inp-wrap">
+                ${palpiteField(id+'_gm', '', disabled)}
+              </div>
+            </div>
+
+            <!-- linha 3: visitante + palpite do visitante -->
+            <div class="row">
+              <div class="team">${away}</div>
+              <div></div>
+              <div class="inp-wrap">
+                ${palpiteField(id+'_gv', '', disabled)}
+              </div>
+            </div>
+
+            <!-- linha 4: pontos + salvar alinhados à direita -->
+            <div class="row">
+              <div class="team" style="opacity:.65">Seu palpite</div>
+              <div class="rightRail">
+                <span class="pts" data-pts="${id}">0 pts</span>
+                <button class="save" data-save="${id}" ${disabled?'disabled':''}>Salvar</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      elMsg.hidden=true; elLista.hidden=false;
+
+      // listeners de salvar
+      elLista.querySelectorAll('button[data-save]').forEach(btn=>{
+        btn.addEventListener('click', async ()=>{
+          const id = btn.dataset.save;
+          const gmEl = elLista.querySelector(`input[data-id="${id}_gm"]`);
+          const gvEl = elLista.querySelector(`input[data-id="${id}_gv"]`);
+          const gm = gmEl?.value ?? '';
+          const gv = gvEl?.value ?? '';
+
+          try{
+            await apiGet(withDualAction('salvarPalpite', `camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}&id=${encodeURIComponent(id)}&gm=${encodeURIComponent(gm)}&gv=${encodeURIComponent(gv)}`));
+            // feedback simples local
+            const chip = elLista.querySelector(`.pts[data-pts="${id}"]`);
+            if (chip) chip.textContent = chip.textContent; // mantém
+            btn.blur();
+          }catch(e){
+            toast('Erro ao salvar: ' + e.message);
+          }
+        });
+      });
+
+      // inicia o ticker da contagem
+      startEtaTicker();
+    }catch(e){
+      elMsg.textContent = 'Erro: ' + e.message;
+      console.warn(e);
+    }
+  }
+  document.getElementById('btnCarregar').addEventListener('click', carregarJogos);
+  /********* FIM: RENDER DOS JOGOS *********/
+</script>
+
+<script>
+  /********* INÍCIO: P.A. (modal básico) *********/
+  const paModal = $('#paModal');
+  function openPA(){ paModal.classList.add('open'); paModal.setAttribute('aria-hidden','false'); }
+  function closePA(){ paModal.classList.remove('open'); paModal.setAttribute('aria-hidden','true'); }
+
+  $('#btnPA').addEventListener('click', openPA);
+  $('#paFechar').addEventListener('click', closePA);
+  $('#paRemover').addEventListener('click', async ()=>{
+    state.pa = null;
+    try{ await apiGet(withDualAction('paRemover')); }catch(_){}
+    closePA();
+  });
+  $('#paSalvar').addEventListener('click', async ()=>{
+    const gm = Number($('#paGM').value||0);
+    const gv = Number($('#paGV').value||0);
+    const aplicar = $('#paAplicarAgora').checked ? 1 : 0;
+    state.pa = { gm, gv, ts: Date.now() };
+    try{
+      await apiGet(withDualAction('paSalvar', `gm=${gm}&gv=${gv}&aplicar=${aplicar}`));
+      closePA();
+    }catch(e){
+      alert('Erro ao salvar P.A.: ' + e.message);
+    }
+  });
+  /********* FIM: P.A. *********/
+</script>
+
+<script>
+  /********* INÍCIO: RANKING / PALPITES DE TODOS (links existentes) *********/
+  document.getElementById('btnRanking').addEventListener('click', async ()=>{
+    try{
+      await apiGet(withDualAction('ranking'));
+      alert('Ranking atualizado (visualização conforme sua implementação atual).');
+    }catch(e){ alert('Erro no ranking: '+e.message); }
+  });
+  document.getElementById('btnTodos').addEventListener('click', async ()=>{
+    try{
+      await apiGet(withDualAction('palpitesDeTodos'));
+      alert('Palpites de todos atualizados (visualização conforme sua implementação atual).');
+    }catch(e){ alert('Erro: '+e.message); }
+  });
+  /********* FIM: RANKING / PALPITES DE TODOS *********/
+</script>
+
+<script>
+  /********* INÍCIO: CRIAR BOLÃO & CONVITES *********/
+  document.getElementById('btnCriar').addEventListener('click', async ()=>{
+    if (state.uid==='GUEST'){ toast('Entre com Google antes de criar.'); return; }
+    const titulo = prompt('Título do bolão:','Meu Bolão'); if(!titulo) return;
+    const camp = elCamp.value || 'BRA';
+    try{
+      await apiGet(withDualAction('criarBolao', `titulo=${encodeURIComponent(titulo)}&camps=${encodeURIComponent(camp)}`));
+      btnConvidar.disabled = false;
+      toast('Bolão criado!');
+    }catch(e){ toast('Erro: '+e.message); }
+  });
+
+  btnConvidar.addEventListener('click', async ()=>{
+    const url = (location.origin || '') + 'bolao.html';
+    try{
+      await navigator.clipboard.writeText(`Participe do meu bolão: ${url}`);
+      toast('Link copiado para a área de transferência!');
+    }catch(_){
+      window.prompt('Copie o link abaixo:', url);
+    }
+  });
+  /********* FIM: CRIAR BOLÃO & CONVITES *********/
+</script>
+
+<script>
+  /********* INÍCIO: BOOT *********/
+  (async function init(){ await loadCatalog(); })();
+  /********* FIM: BOOT *********/
+</script>
+
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" defer></script>
+
+<script>
+  /********* INÍCIO: FIREBASE (compat) *********/
+  document.addEventListener('DOMContentLoaded', function(){
+    const firebaseConfig = {
+      apiKey: "AIzaSyCrzPnWfKVsshLqcPRfizcOR2asyStrHCA",
+      authDomain: "bolao-esportivo-30732.firebaseapp.com",
+      projectId: "bolao-esportivo-30732",
+      storageBucket: "bolao-esportivo-30732.appspot.com",
+      messagingSenderId: "27951826845",
+      appId: "1:27951826845:web:a939530927c887ec9c9174"
+    };
+
+    if (!firebase.apps?.length) firebase.initializeApp(firebaseConfig);
+
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    function updateUserUI(uid, nome){
+      state.uid = uid || 'GUEST';
+      state.nome = nome || (uid==='GUEST'?'visitante':uid);
+      document.getElementById('nick').textContent = state.nome;
+      document.getElementById('btnConvidar').disabled = (state.uid==='GUEST');
+      document.getElementById('btnLogin').textContent = (state.uid==='GUEST') ? 'Entrar com Google' : 'Sair';
+      try { localStorage.setItem('BOL_UID', state.uid); } catch(_) {}
+    }
+
+    auth.onAuthStateChanged(async (user)=>{
+      if(user){
+        updateUserUI(user.uid, user.displayName || user.email);
+        try{ await apiGet(withDualAction('signup', `name=${encodeURIComponent(state.nome)}`)); }catch(_){}
+      }else{
+        updateUserUI('GUEST','visitante');
+      }
+    });
+
+    document.getElementById('btnLogin').addEventListener('click', async ()=>{
+      if (state.uid==='GUEST'){
+        try{
+          if (/Mobi|Android/i.test(navigator.userAgent)) await auth.signInWithRedirect(provider);
+          else await auth.signInWithPopup(provider);
+        }catch(e){ toast('Falha no login: '+e.message); }
+      }else{
+        try{ await auth.signOut(); toast('Você saiu.'); }
+        catch(e){ toast('Erro ao sair: '+e.message); }
+      }
+    });
+  });
+  /********* FIM: FIREBASE (compat) *********/
+</script>
+
+</body>
+</html>
