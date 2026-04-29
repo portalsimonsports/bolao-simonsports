@@ -1,164 +1,399 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bolão Portal SimonSports</title>
-
-<style>
-
-body{
-font-family:Arial;
-background:#f4f6f8;
-margin:0;
-padding:20px
-}
-
-.container{
-max-width:900px;
-margin:auto
-}
-
-h1{
-text-align:center
-}
-
-.jogo{
-background:white;
-padding:15px;
-margin-bottom:12px;
-border-radius:8px;
-box-shadow:0 2px 6px rgba(0,0,0,0.1)
-}
-
-.times{
-font-size:18px;
-font-weight:bold
-}
-
-.inputs{
-margin-top:10px
-}
-
-input{
-width:40px;
-padding:5px;
-font-size:16px;
-text-align:center
-}
-
-button{
-margin-top:20px;
-padding:10px 25px;
-border:none;
-background:#1f8ef1;
-color:white;
-font-size:16px;
-border-radius:6px;
-cursor:pointer
-}
-
-</style>
-
+<meta name="description" content="Bolão Portal SimonSports com campeonatos, palpites, ranking e integração com Google Sheets.">
 </head>
-
 <body>
+<!-- =========================================================
+= = = = = = HOME – Plataforma de Bolões Esportivos (dinâmico) = = = = = =
+   Estrutura com separadores por bloco/função para facilitar manutenção
+   Observação: este snippet é “page fragment” (sem <html>/<head>/<body>)
+========================================================= -->
 
-<div class="container">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<h1>Bolão Portal SimonSports</h1>
+<!-- =========================[ INÍCIO: CSS GLOBAL ]========================= -->
+<style>
+  :root{
+    --prim:#1f8a36; --escuro:#0f172a; --claro:#f6f7fb; --card:#ffffff;
+  }
+  *{box-sizing:border-box}
+  body .home-wrap{font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;color:#0b1020;line-height:1.6}
+  .container{max-width:1050px;margin:0 auto;padding:24px}
+  .btn{display:inline-block;padding:12px 18px;border-radius:10px;font-weight:600;text-decoration:none;cursor:pointer}
+  .btn-primary{background:var(--prim);color:#fff;box-shadow:0 6px 18px rgba(31,138,54,.25)}
+  .btn-ghost{border:2px solid var(--prim);color:var(--prim);background:#fff}
+  .tag{display:inline-block;font-size:12px;padding:6px 10px;border-radius:999px;background:#e8f6ed;color:#1e7f33;font-weight:700;letter-spacing:.02em}
+  .right{float:right}
 
-<div id="jogos"></div>
+  /* header/login */
+  .topbar{background:#fff;border-bottom:1px solid #e8eaf1}
+  .topbar .row{max-width:1050px;margin:0 auto;padding:8px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+  .user{font-size:14px;color:#445}
 
-<button onclick="enviar()">Enviar Palpites</button>
+  /* HERO */
+  .hero{
+    background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.55)),
+               url('https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;
+    color:#fff; padding:72px 16px 56px; text-align:center;
+  }
+  .hero h1{font-size:clamp(28px,5vw,44px);margin:10px 0 12px}
+  .hero p{opacity:.95;margin:0 auto 18px;max-width:720px}
+  .hero .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px}
 
-</div>
+  .sec-title{font-size:clamp(20px,3.4vw,28px);margin:0 0 14px}
+  .sec-sub{color:#5b6475;margin:-6px 0 22px}
 
+  .grid{display:grid;gap:18px}
+  .g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  @media (max-width:900px){.g-3{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:640px){.g-3{grid-template-columns:1fr}}
+
+  .card{background:var(--card);border-radius:14px;padding:18px 18px 16px;
+        box-shadow:0 1px 0 #eef1f4,0 10px 24px rgba(16,24,40,.06)}
+  .card h3{margin:6px 0 10px;font-size:18px}
+  .card p, .card li{color:#4a5363}
+  .card ul, .card ol{margin:0 0 4px 18px}
+
+  .sec-light{background:var(--claro)}
+  .sec-dark{background:var(--escuro);color:#d9e1ef}
+  .sec-dark .card{background:#0b1226;color:#dbe5ff;border:1px solid #1c2747}
+  .sec-dark .card p,.sec-dark .card li{color:#b7c2de}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#0c132a;color:#b7c2de;font-weight:600}
+
+  /* Lista dinâmica */
+  .list{display:grid;gap:12px}
+  .list a{display:flex;justify-content:space-between;align-items:center;
+          padding:14px 16px;border-radius:12px;background:#fff;text-decoration:none;color:#182033;
+          border:1px solid #e6e9ef}
+  .list a:hover{border-color:#c7d5c9;box-shadow:0 8px 18px rgba(32,120,55,.08)}
+  .meta{font-size:12px;color:#5b6475}
+
+  .footer{padding:28px 16px;text-align:center;color:#7b8598;font-size:14px}
+
+  /* FAQ (estilo do trecho que você já tinha) */
+  details summary { font-weight:bold; padding:10px 0; cursor:pointer; }
+  details { margin-bottom:20px; }
+  details .a { padding:10px 0; }
+</style>
+<!-- =========================[ FIM: CSS GLOBAL ]========================= -->
+
+
+<div class="home-wrap">
+
+  <!-- =====================[ INÍCIO: TOPBAR / LOGIN UI ]===================== -->
+  <div class="topbar">
+    <div class="row">
+      <div><b>Plataforma de Bolões</b></div>
+      <div>
+        <span id="userBox" class="user">Você não está logado</span>
+        <button id="btnLogin" class="btn btn-primary">Entrar com Google</button>
+        <button id="btnLogout" class="btn btn-ghost" style="display:none">Sair</button>
+      </div>
+    </div>
+  </div>
+  <!-- =====================[ FIM: TOPBAR / LOGIN UI ]===================== -->
+
+
+  <!-- ===========================[ INÍCIO: HERO ]=========================== -->
+  <section class="hero">
+    <div class="container">
+      <span class="tag">Bolões ao vivo • Ranking automático</span>
+      <h1>Plataforma de Bolões Esportivos Online</h1>
+      <p>Crie ou entre em bolões dos principais campeonatos. Dê seus palpites, acompanhe a pontuação em tempo real e desafie seus amigos.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="bolao.html">Ir para o Bolão</a>
+        <a class="btn btn-ghost" href="#como-funciona">Como funciona</a>
+      </div>
+    </div>
+  </section>
+  <!-- ===========================[ FIM: HERO ]=========================== -->
+
+
+  <!-- =====================[ INÍCIO: SOBRE/REGRAS/COMO ]===================== -->
+  <section class="sec-light">
+    <div class="container">
+      <h2 class="sec-title">Comece em minutos</h2>
+      <p class="sec-sub">Tudo o que você precisa para participar com segurança e transparência.</p>
+
+      <div class="grid g-3">
+        <div class="card">
+          <h3>🏆 Sobre o Bolão</h3>
+          <p>Bolões semanais e por temporada dos campeonatos do Brasil e do mundo. Partidas liberadas com antecedência para você palpitar com calma.</p>
+        </div>
+
+        <div class="card">
+          <h3>📋 Regulamento (resumo)</h3>
+          <ul>
+            <li>Palpites até o horário de início do jogo.</li>
+            <li>Pontuação: <b>25 pts</b> placar exato (com peso por rodada).</li>
+            <li>Ranking atualizado automaticamente.</li>
+            <li>Empate garantido: 4 pts (× peso).</li>
+          </ul>
+          <p class="meta">Regulamento completo: <a href="regulamento.html">regulamento.html</a></p>
+        </div>
+
+        <div class="card" id="como-funciona">
+          <h3>⚙️ Como funciona</h3>
+          <ol>
+            <li>Faça login com Google.</li>
+            <li>Escolha um campeonato (ou o Super Bolão) e selecione a rodada.</li>
+            <li>Envie seus palpites; veja placar oficial quando o jogo encerrar.</li>
+            <li>Acompanhe sua posição no ranking.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- =====================[ FIM: SOBRE/REGRAS/COMO ]===================== -->
+
+
+  <!-- =====================[ INÍCIO: CAMPEONATOS DISPONÍVEIS ]===================== -->
+  <section>
+    <div class="container">
+      <h2 class="sec-title">Campeonatos disponíveis</h2>
+      <p class="sec-sub">Entre em um campeonato público ou crie um bolão para seus amigos.</p>
+
+      <div id="catalogList" class="list">
+        <!-- itens dinâmicos serão inseridos aqui -->
+      </div>
+
+      <div style="text-align:center;margin-top:18px">
+        <a class="btn btn-primary" href="bolao.html">Ir para os palpites</a>
+      </div>
+    </div>
+  </section>
+  <!-- =====================[ FIM: CAMPEONATOS DISPONÍVEIS ]===================== -->
+
+
+  <!-- ===========================[ INÍCIO: CTA ESCURO ]=========================== -->
+  <section class="sec-dark">
+    <div class="container">
+      <div class="grid g-3">
+        <div class="card">
+          <h3>🔒 Transparência</h3>
+          <p>Horários de corte e regras claras. Logs de alterações e auditoria de resultados.</p>
+        </div>
+        <div class="card">
+          <h3>🏅 Rankings e prêmios</h3>
+          <p>Placares em tempo real, conquistas por rodada e ranking geral da temporada.</p>
+        </div>
+        <div class="card">
+          <h3>👥 Bolões privados</h3>
+          <p>Crie ligas com amigos ou sua empresa, com link de convite e regras próprias.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ===========================[ FIM: CTA ESCURO ]=========================== -->
+
+
+  <!-- ===========================[ INÍCIO: FAQ ]=========================== -->
+  <section class="sec-light">
+    <div class="container">
+      <h2 class="sec-title">Perguntas frequentes</h2>
+      <div class="faq">
+        <details>
+          <summary>É pago para participar?</summary>
+          <div class="a">Você pode participar de campeonatos públicos gratuitamente. Bolões privados podem definir regras próprias de premiação.</div>
+        </details>
+        <details>
+          <summary>Posso editar um palpite?</summary>
+          <div class="a">Sim, até o horário de início da partida seu palpite pode ser alterado.</div>
+        </details>
+        <details>
+          <summary>Como é calculada a pontuação?</summary>
+          <div class="a">Pontos base (ex.: 25 para placar exato) multiplicados pelo peso da rodada (10, 11, 12…).</div>
+        </details>
+      </div>
+    </div>
+  </section>
+  <!-- ===========================[ FIM: FAQ ]=========================== -->
+
+
+  <!-- ===========================[ INÍCIO: RODAPÉ ]=========================== -->
+  <div class="footer">
+    © <span id="y"></span> Plataforma de Bolões Esportivos •
+    <a href="termos.html">Termos</a> •
+    <a href="contato.html">Contato</a>
+  </div>
+  <!-- ===========================[ FIM: RODAPÉ ]=========================== -->
+
+</div><!-- /.home-wrap -->
+
+
+<!-- =========================[ INÍCIO: JS UTIL / CONFIG ]========================= -->
 <script>
+  /* ---------- UTIL: ano do rodapé ---------- */
+  document.getElementById('y').textContent = new Date().getFullYear();
 
-const PLANILHA =
-"https://docs.google.com/spreadsheets/d/1G8JH8FYZHZM7E43ye-bVSG7YJXDvbE9WjmIAjkMOl2Q/export?format=csv&gid=1626888136"
 
-let jogos=[]
 
-fetch(PLANILHA)
-.then(r=>r.text())
-.then(text=>{
-
-let linhas=text.split("\n")
-
-linhas.shift()
-
-linhas.forEach(l=>{
-
-let c=l.split(",")
-
-if(!c[3]) return
-
-let casa=c[3]
-let fora=c[4]
-
-jogos.push({casa,fora})
-
-document.getElementById("jogos").innerHTML+=`
-
-<div class="jogo">
-
-<div class="times">
-
-${casa} x ${fora}
-
-</div>
-
-<div class="inputs">
-
-<input id="c${jogos.length}" placeholder="0">
-
-x
-
-<input id="f${jogos.length}" placeholder="0">
-
-</div>
-
-</div>
-
-`
-
-})
-
-})
-
-function enviar(){
-
-let palpites=[]
-
-jogos.forEach((j,i)=>{
-
-let g1=document.getElementById("c"+(i+1)).value
-let g2=document.getElementById("f"+(i+1)).value
-
-palpites.push({
-
-casa:j.casa,
-fora:j.fora,
-g1:g1,
-g2:g2
-
-})
-
-})
-
-console.log(palpites)
-
-alert("Palpites registrados")
-
-}
-
+  /* ---------- CONFIG: URL da WebAPI (Apps Script) ---------- */
+  // ATUALIZE se publicar nova versão do WebApp
+  const API_BASE = "https://script.google.com/macros/s/AKfycbxbFTg0YODAo1oSX6OQe4HPbMnkrMsXQP93oJsTj4ilhA2fTiZgxk-4qKv1XPiNyyaC/exec";
 </script>
+<!-- =========================[ FIM: JS UTIL / CONFIG ]========================= -->
+
+
+
+<!-- =========================[ INÍCIO: Firebase (compat) ]========================= -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script>
+  // ---------- INÍCIO BLOCO: firebaseConfig ----------
+  const firebaseConfig = {
+    apiKey: "AIzaSyCrzPnWfKVsshLqcPRfizcOR2asyStrHCA",
+    authDomain: "bolao-esportivo-30732.firebaseapp.com",
+    projectId: "bolao-esportivo-30732",
+    storageBucket: "bolao-esportivo-30732.firebasestorage.app",
+    messagingSenderId: "27951826845",
+    appId: "1:27951826845:web:a939530927c887ec9c9174"
+  };
+  // ---------- FIM BLOCO: firebaseConfig ----------
+
+
+
+  // ---------- INÍCIO BLOCO: Inicialização Firebase/Auth ----------
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const provider = new firebase.auth.GoogleAuthProvider();
+  // ---------- FIM BLOCO: Inicialização Firebase/Auth ----------
+
+
+
+  // ---------- INÍCIO BLOCO: Referências DOM ----------
+  const userBox  = document.getElementById('userBox');
+  const btnLogin = document.getElementById('btnLogin');
+  const btnLogout= document.getElementById('btnLogout');
+  const listEl   = document.getElementById('catalogList');
+  // ---------- FIM BLOCO: Referências DOM ----------
+
+
+
+  // ---------- INÍCIO FUNÇÃO: handleLogin ----------
+  btnLogin.onclick = ()=> auth.signInWithPopup(provider);
+  // ---------- FIM FUNÇÃO: handleLogin ----------
+
+
+
+  // ---------- INÍCIO FUNÇÃO: handleLogout ----------
+  btnLogout.onclick = ()=> auth.signOut();
+  // ---------- FIM FUNÇÃO: handleLogout ----------
+
+
+
+  // ---------- INÍCIO OBSERVADOR: onAuthStateChanged ----------
+  auth.onAuthStateChanged(async (user)=>{
+    if(user){
+      userBox.textContent = `Olá, ${user.displayName || user.email}`;
+      btnLogin.style.display = 'none';
+      btnLogout.style.display = 'inline-block';
+
+      // signup leve no backend (garante cadastro)
+      try{
+        await fetch(`${API_BASE}?action=signup&uid=${encodeURIComponent(user.uid)}&name=${encodeURIComponent(user.displayName||user.email)}`);
+      }catch(e){
+        console.warn('Falha ao registrar signup leve:', e);
+      }
+
+    }else{
+      userBox.textContent = 'Você não está logado';
+      btnLogin.style.display = 'inline-block';
+      btnLogout.style.display = 'none';
+    }
+  });
+  // ---------- FIM OBSERVADOR: onAuthStateChanged ----------
+</script>
+<!-- =========================[ FIM: Firebase (compat) ]========================= -->
+
+
+
+<!-- =========================[ INÍCIO: Catálogo Dinâmico ]========================= -->
+<script>
+  // ---------- INÍCIO FUNÇÃO: formatDateOnly ----------
+  function formatDateOnly(isoOrGs){
+    if(!isoOrGs) return '';
+    const d = new Date(isoOrGs);
+    if(isNaN(d)) return '';
+    return String(d.getDate()).padStart(2,'0') + '/' +
+           String(d.getMonth()+1).padStart(2,'0') + '/' +
+           d.getFullYear();
+  }
+  // ---------- FIM FUNÇÃO: formatDateOnly ----------
+
+
+
+  // ---------- INÍCIO FUNÇÃO: ligaEmoji ----------
+  function ligaEmoji(sig){
+    const map = { BRA:'🇧🇷', ESP:'🇪🇸', ENG:'🏴', ITA:'🇮🇹', FRA:'🇫🇷', SUP:'🌍' };
+    return map[sig] || '🏟️';
+  }
+  // ---------- FIM FUNÇÃO: ligaEmoji ----------
+
+
+
+  // ---------- INÍCIO FUNÇÃO: renderCatalog ----------
+  function renderCatalog(items){
+    listEl.innerHTML = '';
+    if(!items || !items.length){
+      const a = document.createElement('div');
+      a.className = 'meta';
+      a.textContent = 'Nenhum campeonato disponível no momento.';
+      listEl.appendChild(a);
+      return;
+    }
+
+    // SUP por último
+    items.sort((a,b)=> (a.sigla==='SUP') - (b.sigla==='SUP') || a.sigla.localeCompare(b.sigla));
+
+    items.forEach(c=>{
+      const a = document.createElement('a');
+      a.href = `bolao.html#${c.sigla}`;
+      a.innerHTML = `
+        <span>
+          <b>${ligaEmoji(c.sigla)} ${c.nome || c.sigla}</b><br>
+          <span class="meta">${formatDateOnly(c.inicio)} — ${formatDateOnly(c.fim)} • ${c.status||''}</span>
+        </span>
+        <span class="pill">Entrar</span>
+      `;
+      listEl.appendChild(a);
+    });
+  }
+  // ---------- FIM FUNÇÃO: renderCatalog ----------
+
+
+
+  // ---------- INÍCIO FUNÇÃO: loadCatalog ----------
+  async function loadCatalog(){
+    try{
+      const r = await fetch(`${API_BASE}?action=catalog`);
+      const j = await r.json().catch(()=> ({}));
+      const arr = (j && j.data) ? j.data : (Array.isArray(j)? j : []);
+      renderCatalog(arr);
+    }catch(e){
+      console.warn('Erro ao carregar catálogo', e);
+      renderCatalog([]);
+    }
+  }
+  // ---------- FIM FUNÇÃO: loadCatalog ----------
+
+
+
+  // ---------- INÍCIO BOOT: carregar catálogo ao abrir ----------
+  (function boot(){
+    loadCatalog();
+  })();
+  // ---------- FIM BOOT ----------
+</script>
+<!-- =========================[ FIM: Catálogo Dinâmico ]========================= -->
+
+<!-- =========================================================
+= = = = = = = = = = = = = = = = = FIM HOME = = = = = = = = = = = = = = = = =
+========================================================= -->
 
 </body>
-
 </html>
