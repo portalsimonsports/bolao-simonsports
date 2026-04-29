@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regulamento - Bolão Portal SimonSports</title>
+<meta name="description" content="Regulamento - Bolão Portal SimonSports - Bolão Portal SimonSports.">
+</head>
+<body>
+<!-- ========== REGULAMENTO — Modalidade com Placar Automático e Peso por Rodada ========== -->
+<style>
+  :root{
+    --bg:#0f172a;--card:#0b1226;--ink:#dbe5ff;--muted:#9fb0d9;--pri:#1f8a36;--line:#1c2747;--accent:#e8f6ed;
+  }
+  .reg-wrap{font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65}
+  .reg-container{max-width:980px;margin:0 auto;padding:28px 16px}
+  .hero{background:
+    linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.55)),
+    url('https://images.unsplash.com/photo-1549923746-c502d488b3ea?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;
+    border-radius:16px;padding:36px 20px;text-align:center;margin:12px 0 24px}
+  .hero h1{margin:6px 0 8px;font-size:clamp(22px,4.4vw,34px)}
+  .meta{color:var(--muted);font-size:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:12px 0;box-shadow:0 18px 30px rgba(0,0,0,.25)}
+  .h2{font-size:clamp(18px,3vw,22px);margin:0 0 8px}
+  .h3{font-size:17px;margin:18px 0 8px}
+  .lead{color:var(--muted)}
+  .toc{display:grid;gap:8px;margin:12px 0}
+  .toc a{display:block;color:var(--ink);text-decoration:none;background:#0c132a;border:1px solid var(--line);padding:10px;border-radius:10px}
+  .toc a:hover{border-color:#2a7a42}
+  .pill{display:inline-block;background:var(--accent);color:#1f7a33;border-radius:999px;padding:6px 10px;font-weight:700}
+  code.inline{background:#0c132a;border:1px solid #1a2444;border-radius:6px;padding:0 6px}
+  .note{border-left:4px solid var(--pri);padding:10px 12px;background:#0c132a;border-radius:8px;color:#cfe0ff}
+  .box{border:1px dashed #28436b;border-radius:10px;padding:12px}
+  .muted{color:var(--muted)}
+  .foot{margin-top:22px;color:#a9b8d9;font-size:14px;text-align:center}
+  .anchor{scroll-margin-top:80px}
+</style>
+
+<div class="reg-wrap">
+  <div class="reg-container">
+
+    <!-- HERO -->
+    <div class="hero">
+      <span class="pill">Regras oficiais</span>
+      <h1>Regulamento – Modalidade com Placar Automático e Peso por Rodada</h1>
+      <div class="meta">Versão <b id="regVersion">v1.0</b> • Atualizado em <b id="regDate">16/08/2025</b></div>
+    </div>
+
+    <!-- SUMÁRIO -->
+    <div class="card">
+      <div class="h2">Sumário</div>
+      <div class="lead">Clique para navegar até a seção:</div>
+      <div class="toc">
+        <a href="#s1">1) Disposições gerais</a>
+        <a href="#s2">2) Prazo para palpitar</a>
+        <a href="#s3">3) Placar Automático (cadastro e auditoria)</a>
+        <a href="#s4">4) Requisitos de preenchimento</a>
+        <a href="#s6">6) Peso por rodada e fórmula de pontuação</a>
+        <a href="#s7">7) Tabela de pontuação (pontos base)</a>
+        <a href="#s8">8) Observações de definição</a>
+        <a href="#s9">9) Auditoria e integridade</a>
+        <a href="#s10">10) Disposições finais</a>
+      </div>
+    </div>
+
+    <!-- 1) -->
+    <div id="s1" class="card anchor">
+      <div class="h2">1) Disposições gerais</div>
+      <ul>
+        <li>O acesso ao bolão é individual e intransferível: cada participante possui um <b>link exclusivo</b> para registrar e alterar seus palpites.</li>
+        <li>Os <b>resultados oficiais</b> são os publicados pela organização do campeonato após o término de cada partida.</li>
+        <li>Por transparência, os palpites de cada participante ficam disponíveis em <b>link exclusivo</b> <span class="muted">(após o início do jogo)</span>.</li>
+      </ul>
+    </div>
+
+    <!-- 2) -->
+    <div id="s2" class="card anchor">
+      <div class="h2">2) Prazo para palpitar</div>
+      <ul>
+        <li>Palpites podem ser enviados até o <b>horário de início</b> de cada jogo.</li>
+        <li>Após o limite, não é possível registrar ou alterar palpites daquele jogo.</li>
+        <li>Por necessidade operacional, o <b>horário-limite</b> poderá ser ajustado pela organização.</li>
+      </ul>
+    </div>
+
+    <!-- 3) -->
+    <div id="s3" class="card anchor">
+      <div class="h2">3) Placar Automático (cadastro e auditoria)</div>
+      <ul>
+        <li>O participante pode cadastrar um <b>placar automático</b> no app do bolão.</li>
+        <li>Enquanto estiver ativo, se não houver palpite manual antes do limite, o sistema preenche o palpite do jogo com o <b>placar automático vigente</b>.</li>
+        <li>O participante pode <b>alterar</b> o placar automático a qualquer momento.</li>
+      </ul>
+      <div class="h3">Sempre que houver alteração:</div>
+      <ul>
+        <li>O sistema <b>registra a data e hora</b> da última alteração;</li>
+        <li><b>Todos os palpites</b> preenchidos automaticamente <b>antes</b> dessa nova data/hora são <b>cancelados</b>;</li>
+        <li>Os <b>pontos</b> eventualmente obtidos por esses palpites automáticos são <b>anulados</b>.</li>
+      </ul>
+      <div class="note">Essa regra existe para evitar manipulação por alterações retroativas.</div>
+
+      <div class="h3">Exemplo prático</div>
+      <div class="box">
+        <p>• Placar automático cadastrado em <b>12/08 às 20h00</b>. Entre essa data/hora e a próxima alteração, se o participante esquecer de palpitar, o sistema completa com esse placar.</p>
+        <p>• Em <b>12/09 às 19h00</b> o participante altera o placar automático. <b>Todos os palpites automáticos</b> gerados antes de 12/09 19h00 são <b>cancelados</b> e os <b>pontos</b> por eles obtidos são <b>anulados</b>.</p>
+      </div>
+    </div>
+
+    <!-- 4) -->
+    <div id="s4" class="card anchor">
+      <div class="h2">4) Requisitos de preenchimento</div>
+      <ul>
+        <li>Sempre verifique o <b>horário-limite</b> exibido ao lado de cada partida.</li>
+        <li>Se o limite for excedido, o palpite <b>não poderá</b> ser feito/alterado para aquele jogo.</li>
+      </ul>
+    </div>
+
+    <!-- 6) -->
+    <div id="s6" class="card anchor">
+      <div class="h2">6) Peso por rodada e fórmula de pontuação</div>
+      <ul>
+        <li>Cada rodada possui um <b>peso</b> que começa em <b>10</b> e aumenta de <b>+1</b> a cada rodada (10, 11, 12, …).</li>
+        <li>A pontuação final do jogo é calculada por:
+          <div class="box"><b>Pontuação do jogo = (Pontos base) × (Peso da rodada)</b></div>
+        </li>
+      </ul>
+      <div class="h3">Exemplo</div>
+      <div class="box">
+        Rodada 1 (peso 10) + placar exato (25 pontos base) → <b>25 × 10 = 250 pontos</b>.
+      </div>
+    </div>
+
+    <!-- 7) -->
+    <div id="s7" class="card anchor">
+      <div class="h2">7) Tabela de pontuação (pontos base)</div>
+      <p class="muted">A seguir, os pontos base (antes da multiplicação pelo peso da rodada):</p>
+      <ul>
+        <li><b>Acerto de Placar (placar exato) – 25 pts</b><br>
+          Acerta exatamente o placar oficial.<br>
+          <span class="muted">Ex.: Oficial 2×0 • Apostado 2×0 | Oficial 0×0 • Apostado 0×0</span>
+        </li>
+        <li><b>Acerto do Gol do Vencedor – 18 pts</b><br>
+          Acerta a quantidade de gols do time vencedor (mantendo o vencedor correto).<br>
+          <span class="muted">Ex.: Oficial 2×0 • Apostado 2×1</span>
+        </li>
+        <li><b>Acerto do Saldo de Gols – 15 pts</b><br>
+          Acerta a diferença de gols do placar.<br>
+          <span class="muted">Ex.: Oficial 2×0 • Apostado 3×1 (diferença 2)</span>
+        </li>
+        <li><b>Acerto do Gol do Perdedor – 12 pts</b><br>
+          Acerta a quantidade de gols do time derrotado (mantendo o vencedor correto).<br>
+          <span class="muted">Ex.: Oficial 2×0 • Apostado 1×0</span>
+        </li>
+        <li><b>Acerto do Vencedor – 10 pts</b><br>
+          Acerta apenas quem vence (1X2 correto).<br>
+          <span class="muted">Ex.: Oficial 2×0 • Apostado 4×1 (ou 5×1)</span>
+        </li>
+        <li><b>Empate Garantido – 4 pts</b><br>
+          Acerta que o jogo terminou empatado (sem exigir placar exato).<br>
+          <span class="muted">Ex.: Oficial 2×2 • Apostado 1×1 (ou 0×0, 3×3 etc.)</span>
+        </li>
+      </ul>
+      <div class="note">A pontuação final de cada jogo é sempre multiplicada pelo <b>peso da rodada</b> (veja a Seção 6).</div>
+    </div>
+
+    <!-- 8) -->
+    <div id="s8" class="card anchor">
+      <div class="h2">8) Observações de definição</div>
+      <ul>
+        <li><b>Placar oficial</b>: placar final homologado pela organização do campeonato.</li>
+        <li><b>Gol do vencedor</b>: quantidade de gols do time vencedor no placar oficial.</li>
+        <li><b>Gol do perdedor</b>: quantidade de gols do time derrotado no placar oficial.</li>
+        <li><b>Saldo de gols</b>: diferença absoluta entre gols do mandante e do visitante.</li>
+        <li><b>Empate garantido</b>: qualquer palpite de empate acerta se o jogo terminar empatado, mesmo que o placar exato não coincida.</li>
+      </ul>
+    </div>
+
+    <!-- 9) -->
+    <div id="s9" class="card anchor">
+      <div class="h2">9) Auditoria e integridade</div>
+      <ul>
+        <li>Toda ação relevante (cadastro/alteração do placar automático, horários-limite e computação de pontos) possui <b>registro de data e hora</b>.</li>
+        <li>O cancelamento/estorno de pontuação por alteração de placar automático é <b>automático e irreversível</b> para os jogos afetados.</li>
+      </ul>
+    </div>
+
+    <!-- 10) -->
+    <div id="s10" class="card anchor">
+      <div class="h2">10) Disposições finais</div>
+      <ul>
+        <li>Situações não previstas serão avaliadas pela organização do bolão, buscando preservar a <b>integridade</b> da competição e a <b>igualdade</b> entre participantes.</li>
+        <li>O uso do sistema implica na <b>aceitação integral</b> deste regulamento.</li>
+      </ul>
+      <div class="h3">Resumo da fórmula</div>
+      <div class="box">
+        <div><b>Pontuação de um jogo = (pontos base do acerto) × (peso da rodada)</b></div>
+        <div><b>Peso da rodada:</b> 10, 11, 12, … (cresce +1 por rodada).</div>
+      </div>
+    </div>
+
+    <div class="foot">
+      © <span id="yr"></span> Plataforma de Bolões Esportivos • Este documento pode ser atualizado sem aviso prévio.
+    </div>
+  </div>
+</div>
+
+<script>
+  // Atualiza ano do rodapé automaticamente
+  document.getElementById('yr').textContent = new Date().getFullYear();
+  // (Opcional) Preencher versão/data dinamicamente via planilha depois
+  // document.getElementById('regVersion').textContent = 'v1.1';
+  // document.getElementById('regDate').textContent = '20/08/2025';
+</script>
+<!-- ========== /REGULAMENTO ========== -->
+</body>
+</html>
