@@ -96,6 +96,21 @@
   .mini{min-height:36px;padding:8px 11px;border-radius:11px;font-size:13px}
 
   .empty{border:1px dashed #cbd5e1;border-radius:18px;padding:18px;background:#f8fafc;color:#64748b;font-weight:750}
+
+  .info-dashboard{display:grid;grid-template-columns:1fr;gap:14px;margin-top:18px}
+  .info-card{border:1px solid var(--line);background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 8px 20px rgba(15,23,42,.04)}
+  .info-card-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center;background:#f8fafc}
+  .info-card-head h3{margin:0;font-size:16px;font-weight:1000;color:#0f172a}
+  .info-card-head span{font-size:12px;font-weight:900;color:#64748b}
+  .info-card-body{padding:14px 16px;display:grid;gap:10px}
+  .info-table{width:100%;border-collapse:separate;border-spacing:0 8px}
+  .info-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#64748b;text-align:left;padding:0 8px 4px;font-weight:1000}
+  .info-table td{background:#f8fafc;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:10px 8px;font-size:13px;font-weight:800;color:#0f172a}
+  .info-table td:first-child{border-left:1px solid #e2e8f0;border-radius:12px 0 0 12px}
+  .info-table td:last-child{border-right:1px solid #e2e8f0;border-radius:0 12px 12px 0}
+  .info-json{white-space:pre-wrap;background:#071126;color:#e5e7eb;border-radius:14px;padding:12px;font-size:12px;line-height:1.45;overflow:auto;max-height:360px}
+  .info-empty{border:1px dashed #cbd5e1;border-radius:14px;padding:14px;background:#f8fafc;color:#64748b;font-weight:800;text-align:center}
+  .info-pill{display:inline-flex;align-items:center;justify-content:center;min-width:28px;border-radius:999px;background:#e0f2fe;color:#075985;padding:4px 8px;font-weight:1000;font-size:12px}
   .muted{color:var(--muted);font-weight:700}
   .field-grid{display:grid;grid-template-columns:1fr;gap:12px}
   .pa-profile-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
@@ -462,6 +477,28 @@
 
         <div id="msg" class="empty" style="margin-top:16px">Selecione um bolão e carregue os jogos.</div>
         <div id="lista" class="game-list" hidden></div>
+
+        <div id="infoDashboard" class="info-dashboard">
+          <div class="info-card" id="rankingPanel">
+            <div class="info-card-head">
+              <h3>Ranking do bolão</h3>
+              <span id="rankingStatus">aguardando consulta</span>
+            </div>
+            <div class="info-card-body" id="rankingBody">
+              <div class="info-empty">Clique em Ranking para carregar a classificação aqui, sem abrir mensagem do navegador.</div>
+            </div>
+          </div>
+
+          <div class="info-card" id="palpitesPanel">
+            <div class="info-card-head">
+              <h3>Palpites de todos</h3>
+              <span id="palpitesStatus">aguardando consulta</span>
+            </div>
+            <div class="info-card-body" id="palpitesBody">
+              <div class="info-empty">Clique em Palpites de todos para exibir os palpites do bolão nesta área.</div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -982,8 +1019,97 @@
     if(total){ await batch.commit(); console.log(`Desafiante Simon IA atualizado: ${total} palpites futuros.`); }
   }
 
-  $('#btnRanking').onclick=async()=>{ try{ await apiGet(withDualAction('ranking')); alert('Ranking atualizado.'); }catch(e){ alert('Erro no ranking: '+e.message); } };
-  $('#btnTodos').onclick=async()=>{ try{ await apiGet(withDualAction('palpitesDeTodos')); alert('Palpites de todos atualizados.'); }catch(e){ alert('Erro: '+e.message); } };
+  function escapeHtml(v){
+    return String(v ?? '').replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+  }
+
+  function pickRows(payload){
+    if(Array.isArray(payload)) return payload;
+    if(!payload || typeof payload !== 'object') return [];
+    const keys=['data','ranking','classificacao','palpites','items','rows','resultados','result'];
+    for(const k of keys){ if(Array.isArray(payload[k])) return payload[k]; }
+    return [];
+  }
+
+  function getVal(obj, keys, fallback=''){
+    if(!obj || typeof obj !== 'object') return fallback;
+    for(const k of keys){
+      if(obj[k] !== undefined && obj[k] !== null && obj[k] !== '') return obj[k];
+    }
+    return fallback;
+  }
+
+  function renderRanking(payload){
+    const body=$('#rankingBody'), status=$('#rankingStatus');
+    const rows=pickRows(payload);
+    status.textContent = fmtClock(new Date());
+    if(rows.length){
+      body.innerHTML = `<table class="info-table"><thead><tr><th>#</th><th>Participante</th><th>Pontos</th><th>Detalhe</th></tr></thead><tbody>${rows.map((r,i)=>{
+        const pos=getVal(r,['posicao','pos','rank','classificacao'],i+1);
+        const nome=getVal(r,['nome','name','participante','usuario','displayName','apelido'],'Participante');
+        const pts=getVal(r,['pontos','pts','total_pontos','total','score'],0);
+        const det=getVal(r,['acertos','detalhe','status','perfil','tipo'],'');
+        return `<tr><td><span class="info-pill">${escapeHtml(pos)}</span></td><td>${escapeHtml(nome)}</td><td>${escapeHtml(pts)}</td><td>${escapeHtml(det)}</td></tr>`;
+      }).join('')}</tbody></table>`;
+      return;
+    }
+    if(payload && typeof payload === 'object'){
+      body.innerHTML = `<div class="info-empty">A API respondeu, mas não retornou uma lista de ranking em formato de tabela. Exibindo retorno técnico abaixo.</div><pre class="info-json">${escapeHtml(JSON.stringify(payload,null,2))}</pre>`;
+    }else{
+      body.innerHTML = '<div class="info-empty">Nenhum dado de ranking foi retornado.</div>';
+    }
+  }
+
+  function renderPalpites(payload){
+    const body=$('#palpitesBody'), status=$('#palpitesStatus');
+    const rows=pickRows(payload);
+    status.textContent = fmtClock(new Date());
+    if(rows.length){
+      body.innerHTML = `<table class="info-table"><thead><tr><th>Jogo</th><th>Participante</th><th>Palpite</th><th>Origem</th></tr></thead><tbody>${rows.map((r)=>{
+        const jogo=getVal(r,['jogo','idJogo','partida','confronto','id'],'-');
+        const nome=getVal(r,['nome','name','participante','usuario','displayName','apelido'],'Participante');
+        const gm=getVal(r,['gm','gols_mandante','palpite_mandante','mandante'],'');
+        const gv=getVal(r,['gv','gols_visitante','palpite_visitante','visitante'],'');
+        const origem=getVal(r,['origem','perfil','tipo','status'],'');
+        return `<tr><td>${escapeHtml(jogo)}</td><td>${escapeHtml(nome)}</td><td><strong>${escapeHtml(gm)} x ${escapeHtml(gv)}</strong></td><td>${escapeHtml(origem)}</td></tr>`;
+      }).join('')}</tbody></table>`;
+      return;
+    }
+    if(payload && typeof payload === 'object'){
+      body.innerHTML = `<div class="info-empty">A API respondeu, mas não retornou uma lista de palpites em formato de tabela. Exibindo retorno técnico abaixo.</div><pre class="info-json">${escapeHtml(JSON.stringify(payload,null,2))}</pre>`;
+    }else{
+      body.innerHTML = '<div class="info-empty">Nenhum palpite foi retornado.</div>';
+    }
+  }
+
+  async function carregarRankingPainel(){
+    $('#rankingStatus').textContent='carregando...';
+    $('#rankingBody').innerHTML='<div class="info-empty">Carregando ranking...</div>';
+    try{
+      const extra = `camp=${encodeURIComponent($('#selCamp').value||'')}&rodada=${encodeURIComponent($('#selRod').value||'')}&bolao=${encodeURIComponent(state.bolao?.id||'')}`;
+      const data = await apiGet(withDualAction('ranking', extra));
+      renderRanking(data);
+    }catch(e){
+      $('#rankingStatus').textContent='erro';
+      $('#rankingBody').innerHTML=`<div class="info-empty">Erro ao carregar ranking: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  async function carregarPalpitesPainel(){
+    $('#palpitesStatus').textContent='carregando...';
+    $('#palpitesBody').innerHTML='<div class="info-empty">Carregando palpites...</div>';
+    try{
+      const extra = `camp=${encodeURIComponent($('#selCamp').value||'')}&rodada=${encodeURIComponent($('#selRod').value||'')}&bolao=${encodeURIComponent(state.bolao?.id||'')}`;
+      const data = await apiGet(withDualAction('palpitesDeTodos', extra));
+      renderPalpites(data);
+    }catch(e){
+      $('#palpitesStatus').textContent='erro';
+      $('#palpitesBody').innerHTML=`<div class="info-empty">Erro ao carregar palpites: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  $('#btnRanking').onclick=carregarRankingPainel;
+  $('#btnTodos').onclick=carregarPalpitesPainel;
 
   (async function boot(){ loadPA(); await loadCatalog(); await loadPublicos(); renderBoloes(); })();
 </script>
