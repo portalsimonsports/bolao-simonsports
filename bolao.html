@@ -144,7 +144,7 @@
   .eta{background:var(--blue);color:#052033;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:1000;white-space:nowrap}.eta.enc{background:#fecdd3;color:#7f1d1d}
   .match-table{width:100%;background:#0b152b;border:1px solid #1e293b;border-radius:18px;padding:12px;display:grid;grid-template-columns:minmax(0,1fr) 92px 92px;gap:8px;align-items:center}.match-table .th{color:#94a3b8;font-size:11px;font-weight:1000;text-align:center;text-transform:uppercase;letter-spacing:.04em}
   .team{min-width:0;color:#fff;font-size:16px;font-weight:1000;overflow:hidden;text-overflow:ellipsis}.official-box,.inp-palpite{width:100%;height:40px;border-radius:12px;border:1px solid #25324a;background:#0f1a30;color:#e5e7eb;display:flex;align-items:center;justify-content:center;text-align:center;font-size:16px;font-weight:1000}.official-box{opacity:.96}.inp-palpite{padding:0 8px;outline:none}.inp-palpite:disabled{opacity:.45}
-  .match-foot{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;margin-top:12px}.foot-label{color:#94a3b8;font-size:13px;font-weight:1000}.pts{justify-self:start;background:#065f46;color:#d1fae5;border-radius:999px;padding:8px 12px;font-weight:1000;font-size:13px}.autosave-status{font-size:12px;color:#94a3b8;font-weight:950}.autosave-status.ok{color:#86efac}.autosave-status.err{color:#fecaca}.autosave-status.saving{color:#bae6fd}
+  .match-foot{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;margin-top:12px}.foot-label{color:#94a3b8;font-size:13px;font-weight:1000}.pts{justify-self:start;background:#065f46;color:#d1fae5;border-radius:999px;padding:8px 12px;font-weight:1000;font-size:13px}.hit-type{display:inline-flex;align-items:center;width:max-content;margin-top:5px;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:1000;text-transform:uppercase;letter-spacing:.03em;background:#e0f2fe;color:#075985;border:1px solid #bae6fd}.hit-type.exato{background:#dcfce7;color:#166534;border-color:#86efac}.hit-type.saldo{background:#fef3c7;color:#92400e;border-color:#fde68a}.hit-type.vencedor{background:#e0f2fe;color:#075985;border-color:#bae6fd}.hit-type.gol{background:#ede9fe;color:#5b21b6;border-color:#ddd6fe}.autosave-status{font-size:12px;color:#94a3b8;font-weight:950}.autosave-status.ok{color:#86efac}.autosave-status.err{color:#fecaca}.autosave-status.saving{color:#bae6fd}
 
   .info-dashboard{display:none;grid-template-columns:1fr;gap:14px;margin-top:18px}.info-dashboard.open{display:grid}.info-card.is-hidden{display:none}.info-card{border:1px solid var(--line);background:#fff;border-radius:18px;overflow:hidden;box-shadow:var(--shadow2)}.info-card-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center;background:#f8fafc}.info-card-head h3{margin:0;font-size:16px;font-weight:1000;color:#0f172a}.info-card-head span{font-size:12px;font-weight:900;color:#64748b}.info-card-body{padding:14px 16px;display:grid;gap:10px}.info-table{width:100%;border-collapse:separate;border-spacing:0 8px}.info-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#64748b;text-align:left;padding:0 8px 4px;font-weight:1000}.info-table td{background:#f8fafc;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:10px 8px;font-size:13px;font-weight:800;color:#0f172a}.info-table td:first-child{border-left:1px solid #e2e8f0;border-radius:12px 0 0 12px}.info-table td:last-child{border-right:1px solid #e2e8f0;border-radius:0 12px 12px 0}.info-json{white-space:pre-wrap;background:#071126;color:#e5e7eb;border-radius:14px;padding:12px;font-size:12px;line-height:1.45;overflow:auto;max-height:360px}.info-empty{border:1px dashed #cbd5e1;border-radius:14px;padding:14px;background:#f8fafc;color:#64748b;font-weight:800;text-align:center}.info-pill{display:inline-flex;align-items:center;justify-content:center;min-width:28px;border-radius:999px;background:#e0f2fe;color:#075985;padding:4px 8px;font-weight:1000;font-size:12px}
 
@@ -334,6 +334,12 @@
   .team{display:flex;align-items:center;gap:10px;min-width:0;color:#fff;font-size:16px;font-weight:1000;overflow:hidden;text-overflow:ellipsis}
   .team-logo{width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 30px;background:#111c34;border:1px solid #263451;font-size:11px;font-weight:1000;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
   .team-logo img{width:100%;height:100%;display:block;object-fit:cover;border-radius:999px}
+  .team-logo.club-logo{background:#fff;border-color:#dbe4f0;padding:3px}
+  .team-logo.club-logo img{object-fit:contain;border-radius:0}
+  .team-logo.flag-logo img{object-fit:cover;border-radius:999px}
+  .team-logo.initial-logo{background:linear-gradient(135deg,#0b152b,#1e293b);color:#fff}
+  .mini-team .team-logo.club-logo{background:#fff}
+  .ticker-item .mini-team .team-logo.club-logo{background:#fff}
   .team-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .mini-team{display:inline-flex;align-items:center;gap:8px;min-width:0;vertical-align:middle}
   .mini-team .team-logo{width:24px;height:24px;flex-basis:24px;font-size:9px;background:#f8fafc;border-color:#e2e8f0;color:#0f172a;box-shadow:none}
@@ -355,6 +361,10 @@
   .mini-row strong{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
   .match-card{border:1px solid rgba(148,163,184,.18)}
 
+
+  .score-clean{font-weight:1000;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;min-width:54px}
+  .palpite-jogo-oficial{display:grid;grid-template-columns:auto minmax(72px,1fr) auto auto auto minmax(72px,1fr) auto;align-items:center;gap:8px;min-width:0;width:100%;white-space:nowrap}
+  .palpite-jogo-oficial .team-logo{flex:0 0 auto}.palpite-jogo-oficial .team-title{font-weight:1000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.palpite-jogo-oficial .score-num,.palpite-jogo-oficial .score-x{font-weight:1000;font-size:15px;color:#0f172a;text-align:center}.palpite-jogo-oficial .score-x{opacity:.75}.palpite-participante{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -1282,7 +1292,1119 @@
     'turkiye':'Turquia','türkiye':'Turquia','turkey':'Turquia','ukraine':'Ucrânia','united states':'Estados Unidos','usa':'Estados Unidos',
     'uruguay':'Uruguai','uzbekistan':'Uzbequistão','south africa':'África do Sul','africa do sul':'África do Sul','algeria':'Argélia','argelia':'Argélia','austria':'Áustria','bolivia':'Bolívia',
     'cameroon':'Camarões','jamaica':'Jamaica','jordan':'Jordânia','mali':'Mali','romania':'Romênia','serbia':'Sérvia','slovakia':'Eslováquia','united arab emirates':'Emirados Árabes Unidos','uae':'Emirados Árabes Unidos','venezuela':'Venezuela','wales':'País de Gales'
+
   };
+
+  /* V20: identidades visuais prontas para seleções, clubes nacionais e internacionais.
+     - Seleção: usa bandeira real por código do país.
+     - Clube: tenta carregar escudo em assets/logos/clubes/{slug}.png.
+     - Se o arquivo ainda não existir, usa iniciais/sigla sem quebrar o layout.
+     - Pode ser ampliado por data/identidades_visuais.json ou coleção Firestore identidadesVisuais. */
+  const VISUAL_IDENTITY_SEED = [
+    {
+        "type": "clube",
+        "display": "Flamengo",
+        "slug": "flamengo",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/flamengo.png",
+        "aliases": [
+            "Flamengo",
+            "CR Flamengo",
+            "Flamengo RJ",
+            "Clube de Regatas do Flamengo"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Palmeiras",
+        "slug": "palmeiras",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/palmeiras.png",
+        "aliases": [
+            "Palmeiras",
+            "SE Palmeiras",
+            "Sociedade Esportiva Palmeiras"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Corinthians",
+        "slug": "corinthians",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/corinthians.png",
+        "aliases": [
+            "Corinthians",
+            "SC Corinthians",
+            "Sport Club Corinthians Paulista"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "São Paulo",
+        "slug": "sao-paulo",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/sao-paulo.png",
+        "aliases": [
+            "São Paulo",
+            "Sao Paulo",
+            "São Paulo FC",
+            "SPFC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Santos",
+        "slug": "santos",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/santos.png",
+        "aliases": [
+            "Santos",
+            "Santos FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Vasco",
+        "slug": "vasco",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/vasco.png",
+        "aliases": [
+            "Vasco",
+            "Vasco da Gama",
+            "CR Vasco da Gama"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Botafogo",
+        "slug": "botafogo",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/botafogo.png",
+        "aliases": [
+            "Botafogo",
+            "Botafogo RJ",
+            "Botafogo FR"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Fluminense",
+        "slug": "fluminense",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/fluminense.png",
+        "aliases": [
+            "Fluminense",
+            "Fluminense FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Grêmio",
+        "slug": "gremio",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/gremio.png",
+        "aliases": [
+            "Grêmio",
+            "Gremio",
+            "Grêmio FBPA"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Internacional",
+        "slug": "internacional",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/internacional.png",
+        "aliases": [
+            "Internacional",
+            "Inter",
+            "SC Internacional"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Atlético-MG",
+        "slug": "atletico-mg",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/atletico-mg.png",
+        "aliases": [
+            "Atlético-MG",
+            "Atletico Mineiro",
+            "Atlético Mineiro",
+            "Galo"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Cruzeiro",
+        "slug": "cruzeiro",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/cruzeiro.png",
+        "aliases": [
+            "Cruzeiro",
+            "Cruzeiro EC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Athletico-PR",
+        "slug": "athletico-pr",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/athletico-pr.png",
+        "aliases": [
+            "Athletico-PR",
+            "Athletico Paranaense",
+            "Atlético Paranaense",
+            "CAP"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Coritiba",
+        "slug": "coritiba",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/coritiba.png",
+        "aliases": [
+            "Coritiba",
+            "Coritiba FC",
+            "Coxa"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Bahia",
+        "slug": "bahia",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/bahia.png",
+        "aliases": [
+            "Bahia",
+            "EC Bahia"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Vitória",
+        "slug": "vitoria",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/vitoria.png",
+        "aliases": [
+            "Vitória",
+            "Vitoria",
+            "EC Vitória",
+            "EC Vitoria"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Fortaleza",
+        "slug": "fortaleza",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/fortaleza.png",
+        "aliases": [
+            "Fortaleza",
+            "Fortaleza EC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Ceará",
+        "slug": "ceara",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/ceara.png",
+        "aliases": [
+            "Ceará",
+            "Ceara",
+            "Ceará SC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Sport",
+        "slug": "sport",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/sport.png",
+        "aliases": [
+            "Sport",
+            "Sport Recife",
+            "Sport Club do Recife"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Náutico",
+        "slug": "nautico",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/nautico.png",
+        "aliases": [
+            "Náutico",
+            "Nautico",
+            "Clube Náutico Capibaribe"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Santa Cruz",
+        "slug": "santa-cruz",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/santa-cruz.png",
+        "aliases": [
+            "Santa Cruz",
+            "Santa Cruz FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Goiás",
+        "slug": "goias",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/goias.png",
+        "aliases": [
+            "Goiás",
+            "Goias",
+            "Goiás EC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Atlético-GO",
+        "slug": "atletico-go",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/atletico-go.png",
+        "aliases": [
+            "Atlético-GO",
+            "Atletico Goianiense",
+            "Atlético Goianiense"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Cuiabá",
+        "slug": "cuiaba",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/cuiaba.png",
+        "aliases": [
+            "Cuiabá",
+            "Cuiaba"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Red Bull Bragantino",
+        "slug": "bragantino",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/bragantino.png",
+        "aliases": [
+            "Red Bull Bragantino",
+            "Bragantino",
+            "RB Bragantino"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Juventude",
+        "slug": "juventude",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/juventude.png",
+        "aliases": [
+            "Juventude",
+            "EC Juventude"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Chapecoense",
+        "slug": "chapecoense",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/chapecoense.png",
+        "aliases": [
+            "Chapecoense",
+            "Associação Chapecoense"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Avaí",
+        "slug": "avai",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/avai.png",
+        "aliases": [
+            "Avaí",
+            "Avai",
+            "Avaí FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Figueirense",
+        "slug": "figueirense",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/figueirense.png",
+        "aliases": [
+            "Figueirense",
+            "Figueirense FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "América-MG",
+        "slug": "america-mg",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/america-mg.png",
+        "aliases": [
+            "América-MG",
+            "America MG",
+            "América Mineiro"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Guarani",
+        "slug": "guarani",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/guarani.png",
+        "aliases": [
+            "Guarani",
+            "Guarani FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Ponte Preta",
+        "slug": "ponte-preta",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/ponte-preta.png",
+        "aliases": [
+            "Ponte Preta",
+            "AA Ponte Preta"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Vila Nova",
+        "slug": "vila-nova",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/vila-nova.png",
+        "aliases": [
+            "Vila Nova",
+            "Vila Nova GO"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Remo",
+        "slug": "remo",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/remo.png",
+        "aliases": [
+            "Remo",
+            "Clube do Remo"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Paysandu",
+        "slug": "paysandu",
+        "countryCode": "br",
+        "logoUrl": "assets/logos/clubes/paysandu.png",
+        "aliases": [
+            "Paysandu",
+            "Paysandu SC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Real Madrid",
+        "slug": "real-madrid",
+        "countryCode": "es",
+        "logoUrl": "assets/logos/clubes/real-madrid.png",
+        "aliases": [
+            "Real Madrid",
+            "Real Madrid CF",
+            "Madrid"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Barcelona",
+        "slug": "barcelona",
+        "countryCode": "es",
+        "logoUrl": "assets/logos/clubes/barcelona.png",
+        "aliases": [
+            "Barcelona",
+            "FC Barcelona",
+            "Barça",
+            "Barca"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Atlético de Madrid",
+        "slug": "atletico-madrid",
+        "countryCode": "es",
+        "logoUrl": "assets/logos/clubes/atletico-madrid.png",
+        "aliases": [
+            "Atlético de Madrid",
+            "Atletico Madrid",
+            "Atlético Madrid"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Sevilla",
+        "slug": "sevilla",
+        "countryCode": "es",
+        "logoUrl": "assets/logos/clubes/sevilla.png",
+        "aliases": [
+            "Sevilla",
+            "Sevilla FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Valencia",
+        "slug": "valencia",
+        "countryCode": "es",
+        "logoUrl": "assets/logos/clubes/valencia.png",
+        "aliases": [
+            "Valencia",
+            "Valencia CF"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Villarreal",
+        "slug": "villarreal",
+        "countryCode": "es",
+        "logoUrl": "assets/logos/clubes/villarreal.png",
+        "aliases": [
+            "Villarreal",
+            "Villarreal CF"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Athletic Bilbao",
+        "slug": "athletic-bilbao",
+        "countryCode": "es",
+        "logoUrl": "assets/logos/clubes/athletic-bilbao.png",
+        "aliases": [
+            "Athletic Bilbao",
+            "Athletic Club"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Real Betis",
+        "slug": "real-betis",
+        "countryCode": "es",
+        "logoUrl": "assets/logos/clubes/real-betis.png",
+        "aliases": [
+            "Real Betis",
+            "Betis"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Manchester United",
+        "slug": "manchester-united",
+        "countryCode": "gb-eng",
+        "logoUrl": "assets/logos/clubes/manchester-united.png",
+        "aliases": [
+            "Manchester United",
+            "Man United",
+            "Man Utd",
+            "Manchester Utd"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Manchester City",
+        "slug": "manchester-city",
+        "countryCode": "gb-eng",
+        "logoUrl": "assets/logos/clubes/manchester-city.png",
+        "aliases": [
+            "Manchester City",
+            "Man City",
+            "Manchester City FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Liverpool",
+        "slug": "liverpool",
+        "countryCode": "gb-eng",
+        "logoUrl": "assets/logos/clubes/liverpool.png",
+        "aliases": [
+            "Liverpool",
+            "Liverpool FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Arsenal",
+        "slug": "arsenal",
+        "countryCode": "gb-eng",
+        "logoUrl": "assets/logos/clubes/arsenal.png",
+        "aliases": [
+            "Arsenal",
+            "Arsenal FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Chelsea",
+        "slug": "chelsea",
+        "countryCode": "gb-eng",
+        "logoUrl": "assets/logos/clubes/chelsea.png",
+        "aliases": [
+            "Chelsea",
+            "Chelsea FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Tottenham",
+        "slug": "tottenham",
+        "countryCode": "gb-eng",
+        "logoUrl": "assets/logos/clubes/tottenham.png",
+        "aliases": [
+            "Tottenham",
+            "Tottenham Hotspur",
+            "Spurs"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Newcastle",
+        "slug": "newcastle",
+        "countryCode": "gb-eng",
+        "logoUrl": "assets/logos/clubes/newcastle.png",
+        "aliases": [
+            "Newcastle",
+            "Newcastle United"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Aston Villa",
+        "slug": "aston-villa",
+        "countryCode": "gb-eng",
+        "logoUrl": "assets/logos/clubes/aston-villa.png",
+        "aliases": [
+            "Aston Villa",
+            "Aston Villa FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "West Ham",
+        "slug": "west-ham",
+        "countryCode": "gb-eng",
+        "logoUrl": "assets/logos/clubes/west-ham.png",
+        "aliases": [
+            "West Ham",
+            "West Ham United"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Everton",
+        "slug": "everton",
+        "countryCode": "gb-eng",
+        "logoUrl": "assets/logos/clubes/everton.png",
+        "aliases": [
+            "Everton",
+            "Everton FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Leicester City",
+        "slug": "leicester",
+        "countryCode": "gb-eng",
+        "logoUrl": "assets/logos/clubes/leicester.png",
+        "aliases": [
+            "Leicester City",
+            "Leicester"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Juventus",
+        "slug": "juventus",
+        "countryCode": "it",
+        "logoUrl": "assets/logos/clubes/juventus.png",
+        "aliases": [
+            "Juventus",
+            "Juve",
+            "Juventus FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Inter de Milão",
+        "slug": "inter",
+        "countryCode": "it",
+        "logoUrl": "assets/logos/clubes/inter.png",
+        "aliases": [
+            "Inter de Milão",
+            "Inter Milan",
+            "Internazionale",
+            "Inter"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Milan",
+        "slug": "milan",
+        "countryCode": "it",
+        "logoUrl": "assets/logos/clubes/milan.png",
+        "aliases": [
+            "Milan",
+            "AC Milan",
+            "Milão"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Napoli",
+        "slug": "napoli",
+        "countryCode": "it",
+        "logoUrl": "assets/logos/clubes/napoli.png",
+        "aliases": [
+            "Napoli",
+            "Nápoli",
+            "SSC Napoli"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Roma",
+        "slug": "roma",
+        "countryCode": "it",
+        "logoUrl": "assets/logos/clubes/roma.png",
+        "aliases": [
+            "Roma",
+            "AS Roma"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Lazio",
+        "slug": "lazio",
+        "countryCode": "it",
+        "logoUrl": "assets/logos/clubes/lazio.png",
+        "aliases": [
+            "Lazio",
+            "SS Lazio"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Atalanta",
+        "slug": "atalanta",
+        "countryCode": "it",
+        "logoUrl": "assets/logos/clubes/atalanta.png",
+        "aliases": [
+            "Atalanta",
+            "Atalanta BC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Bayern de Munique",
+        "slug": "bayern-munich",
+        "countryCode": "de",
+        "logoUrl": "assets/logos/clubes/bayern-munich.png",
+        "aliases": [
+            "Bayern de Munique",
+            "Bayern Munich",
+            "Bayern München",
+            "Bayern"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Borussia Dortmund",
+        "slug": "borussia-dortmund",
+        "countryCode": "de",
+        "logoUrl": "assets/logos/clubes/borussia-dortmund.png",
+        "aliases": [
+            "Borussia Dortmund",
+            "Dortmund",
+            "BVB"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Bayer Leverkusen",
+        "slug": "bayer-leverkusen",
+        "countryCode": "de",
+        "logoUrl": "assets/logos/clubes/bayer-leverkusen.png",
+        "aliases": [
+            "Bayer Leverkusen",
+            "Leverkusen"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "RB Leipzig",
+        "slug": "rb-leipzig",
+        "countryCode": "de",
+        "logoUrl": "assets/logos/clubes/rb-leipzig.png",
+        "aliases": [
+            "RB Leipzig",
+            "Leipzig"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Paris Saint-Germain",
+        "slug": "psg",
+        "countryCode": "fr",
+        "logoUrl": "assets/logos/clubes/psg.png",
+        "aliases": [
+            "Paris Saint-Germain",
+            "PSG",
+            "Paris SG"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Olympique de Marseille",
+        "slug": "marseille",
+        "countryCode": "fr",
+        "logoUrl": "assets/logos/clubes/marseille.png",
+        "aliases": [
+            "Olympique de Marseille",
+            "Marseille",
+            "OM"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Olympique Lyonnais",
+        "slug": "lyon",
+        "countryCode": "fr",
+        "logoUrl": "assets/logos/clubes/lyon.png",
+        "aliases": [
+            "Olympique Lyonnais",
+            "Lyon",
+            "OL"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Monaco",
+        "slug": "monaco",
+        "countryCode": "fr",
+        "logoUrl": "assets/logos/clubes/monaco.png",
+        "aliases": [
+            "Monaco",
+            "AS Monaco"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Benfica",
+        "slug": "benfica",
+        "countryCode": "pt",
+        "logoUrl": "assets/logos/clubes/benfica.png",
+        "aliases": [
+            "Benfica",
+            "SL Benfica"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Porto",
+        "slug": "porto",
+        "countryCode": "pt",
+        "logoUrl": "assets/logos/clubes/porto.png",
+        "aliases": [
+            "Porto",
+            "FC Porto"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Sporting",
+        "slug": "sporting",
+        "countryCode": "pt",
+        "logoUrl": "assets/logos/clubes/sporting.png",
+        "aliases": [
+            "Sporting",
+            "Sporting CP",
+            "Sporting Lisboa"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Ajax",
+        "slug": "ajax",
+        "countryCode": "nl",
+        "logoUrl": "assets/logos/clubes/ajax.png",
+        "aliases": [
+            "Ajax",
+            "AFC Ajax"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "PSV",
+        "slug": "psv",
+        "countryCode": "nl",
+        "logoUrl": "assets/logos/clubes/psv.png",
+        "aliases": [
+            "PSV",
+            "PSV Eindhoven"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Feyenoord",
+        "slug": "feyenoord",
+        "countryCode": "nl",
+        "logoUrl": "assets/logos/clubes/feyenoord.png",
+        "aliases": [
+            "Feyenoord",
+            "Feyenoord Rotterdam"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Celtic",
+        "slug": "celtic",
+        "countryCode": "gb-sct",
+        "logoUrl": "assets/logos/clubes/celtic.png",
+        "aliases": [
+            "Celtic",
+            "Celtic FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Rangers",
+        "slug": "rangers",
+        "countryCode": "gb-sct",
+        "logoUrl": "assets/logos/clubes/rangers.png",
+        "aliases": [
+            "Rangers",
+            "Rangers FC"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Boca Juniors",
+        "slug": "boca-juniors",
+        "countryCode": "ar",
+        "logoUrl": "assets/logos/clubes/boca-juniors.png",
+        "aliases": [
+            "Boca Juniors",
+            "Boca"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "River Plate",
+        "slug": "river-plate",
+        "countryCode": "ar",
+        "logoUrl": "assets/logos/clubes/river-plate.png",
+        "aliases": [
+            "River Plate",
+            "River"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Independiente",
+        "slug": "independiente",
+        "countryCode": "ar",
+        "logoUrl": "assets/logos/clubes/independiente.png",
+        "aliases": [
+            "Independiente",
+            "CA Independiente"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Racing",
+        "slug": "racing",
+        "countryCode": "ar",
+        "logoUrl": "assets/logos/clubes/racing.png",
+        "aliases": [
+            "Racing",
+            "Racing Club"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Peñarol",
+        "slug": "penarol",
+        "countryCode": "uy",
+        "logoUrl": "assets/logos/clubes/penarol.png",
+        "aliases": [
+            "Peñarol",
+            "Penarol",
+            "CA Peñarol"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Nacional",
+        "slug": "nacional-uru",
+        "countryCode": "uy",
+        "logoUrl": "assets/logos/clubes/nacional-uru.png",
+        "aliases": [
+            "Nacional",
+            "Nacional UY",
+            "Club Nacional"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Olimpia",
+        "slug": "olimpia",
+        "countryCode": "py",
+        "logoUrl": "assets/logos/clubes/olimpia.png",
+        "aliases": [
+            "Olimpia",
+            "Club Olimpia"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Cerro Porteño",
+        "slug": "cerro-porteno",
+        "countryCode": "py",
+        "logoUrl": "assets/logos/clubes/cerro-porteno.png",
+        "aliases": [
+            "Cerro Porteño",
+            "Cerro Porteno"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Inter Miami",
+        "slug": "inter-miami",
+        "countryCode": "us",
+        "logoUrl": "assets/logos/clubes/inter-miami.png",
+        "aliases": [
+            "Inter Miami",
+            "Inter Miami CF"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "LA Galaxy",
+        "slug": "la-galaxy",
+        "countryCode": "us",
+        "logoUrl": "assets/logos/clubes/la-galaxy.png",
+        "aliases": [
+            "LA Galaxy",
+            "Los Angeles Galaxy"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "América-MEX",
+        "slug": "america-mex",
+        "countryCode": "mx",
+        "logoUrl": "assets/logos/clubes/america-mex.png",
+        "aliases": [
+            "América-MEX",
+            "Club América",
+            "America Mexico"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Chivas Guadalajara",
+        "slug": "chivas",
+        "countryCode": "mx",
+        "logoUrl": "assets/logos/clubes/chivas.png",
+        "aliases": [
+            "Chivas Guadalajara",
+            "Chivas",
+            "Guadalajara"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Tigres UANL",
+        "slug": "tigres",
+        "countryCode": "mx",
+        "logoUrl": "assets/logos/clubes/tigres.png",
+        "aliases": [
+            "Tigres UANL",
+            "Tigres"
+        ]
+    },
+    {
+        "type": "clube",
+        "display": "Monterrey",
+        "slug": "monterrey",
+        "countryCode": "mx",
+        "logoUrl": "assets/logos/clubes/monterrey.png",
+        "aliases": [
+            "Monterrey",
+            "Rayados"
+        ]
+    }
+];
+
+  const VISUAL_IDENTITY_INDEX = {};
+
+  function registerVisualIdentity(item){
+    if(!item) return;
+    const display = item.display || item.nome_exibicao || item.nome || item.nome_oficial || item.name || '';
+    if(!display) return;
+    const type = item.type || item.tipo || 'clube';
+    const slug = item.slug || normFlagName(display).replace(/ /g,'-');
+    const logoUrl = item.logoUrl || item.logo_url || item.logo || item.escudo || (type === 'clube' ? `assets/logos/clubes/${slug}.png` : '');
+    const flagCode = item.flagCode || item.codigo_bandeira || item.countryCode || item.pais_codigo || item.country || '';
+    let aliases = item.aliases || item.apelidos || [];
+    if(typeof aliases === 'string') aliases = aliases.split('|').map(x=>x.trim()).filter(Boolean);
+    aliases = [display, item.nome_oficial, item.nome, item.name, item.sigla, slug, ...aliases].filter(Boolean);
+    const normalized = { type, display, slug, logoUrl, flagCode, aliases };
+    aliases.forEach(alias=>{
+      const k = normFlagName(alias);
+      if(k) VISUAL_IDENTITY_INDEX[k] = normalized;
+    });
+  }
+
+  function buildVisualIdentityIndex(){
+    VISUAL_IDENTITY_SEED.forEach(registerVisualIdentity);
+  }
+  buildVisualIdentityIndex();
+
+  async function loadVisualIdentityBase(){
+    // JSON opcional no GitHub: /data/identidades_visuais.json
+    try{
+      const r = await fetch('data/identidades_visuais.json?cb=' + Date.now(), {cache:'no-store'});
+      if(r.ok){
+        const arr = await r.json();
+        if(Array.isArray(arr)) arr.forEach(registerVisualIdentity);
+        else if(arr && Array.isArray(arr.identidades)) arr.identidades.forEach(registerVisualIdentity);
+      }
+    }catch(e){ console.warn('[Identidades visuais] JSON opcional indisponível:', e.message); }
+
+    // Coleção opcional no Firestore: identidadesVisuais/<built-in function id>
+    try{
+      if(typeof db !== 'undefined'){
+        const snap = await db.collection('identidadesVisuais').get();
+        snap.forEach(doc=>{
+          const data = doc.data() || {};
+          if(data.ativo !== false) registerVisualIdentity(data);
+        });
+      }
+    }catch(e){ console.warn('[Identidades visuais] Firestore opcional indisponível:', e.message); }
+  }
+
+  function getVisualIdentity(nome){
+    const n = normFlagName(nome);
+    return VISUAL_IDENTITY_INDEX[n] || VISUAL_IDENTITY_INDEX[n.replace(/ /g,'-')] || null;
+  }
 
   function normFlagName(nome){
     return String(nome||'')
@@ -1294,12 +2416,16 @@
   }
   function translateTeam(nome){
     const raw = String(nome||'').trim();
+    const visual = getVisualIdentity(raw);
+    if(visual && visual.display) return visual.display;
     const lower = raw.toLowerCase();
     const n = normFlagName(raw);
     return TEAM_NAMES_PT[lower] || TEAM_NAMES_PT[n] || TEAM_NAMES_PT[n.replace(/ /g,'-')] || raw || '-';
   }
   function teamFlagCode(nome){
     const raw = String(nome||'').trim().toLowerCase();
+    const visual = getVisualIdentity(nome);
+    if(visual && visual.flagCode && visual.type !== 'clube') return visual.flagCode;
     const n = normFlagName(nome);
     return TEAM_FLAG_CODES[raw] || TEAM_FLAG_CODES[n] || TEAM_FLAG_CODES[n.replace(/ /g,'-')] || '';
   }
@@ -1307,17 +2433,26 @@
     const label = translateTeam(nome).replace(/[^A-Za-zÀ-ÿ0-9 ]+/g,' ').trim();
     const parts = label.split(/\s+/).filter(Boolean);
     if(!parts.length) return '⚽';
-    if(parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+    if(parts.length === 1) return parts[0].slice(0,3).toUpperCase();
     return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
   }
   function teamLogoHTML(nome){
-    const code = teamFlagCode(nome);
+    const label = translateTeam(nome);
     const initials = initialsFromName(nome);
+    const visual = getVisualIdentity(nome);
+
+    if(visual && visual.type === 'clube'){
+      const src = visual.logoUrl || `assets/logos/clubes/${visual.slug}.png`;
+      return `<span class="team-logo club-logo" title="${escapeHtml(label)}"><img src="${escapeHtml(src)}" alt="${escapeHtml(label)}" loading="lazy" onerror="this.parentNode.className='team-logo initial-logo';this.parentNode.textContent='${escapeHtml(initials)}'"></span>`;
+    }
+
+    const code = teamFlagCode(nome);
     if(code){
       const src = `https://flagcdn.com/w40/${code}.png`;
-      return `<span class="team-logo" title="${escapeHtml(translateTeam(nome))}"><img src="${src}" alt="${escapeHtml(translateTeam(nome))}" loading="lazy" onerror="this.parentNode.textContent='${escapeHtml(initials)}'"></span>`;
+      return `<span class="team-logo flag-logo" title="${escapeHtml(label)}"><img src="${src}" alt="${escapeHtml(label)}" loading="lazy" onerror="this.parentNode.className='team-logo initial-logo';this.parentNode.textContent='${escapeHtml(initials)}'"></span>`;
     }
-    return `<span class="team-logo" title="${escapeHtml(translateTeam(nome))}">${escapeHtml(initials)}</span>`;
+
+    return `<span class="team-logo initial-logo" title="${escapeHtml(label)}">${escapeHtml(initials)}</span>`;
   }
   function teamHTML(nome,lado){
     const cls = lado === 'away' ? 'team away' : 'team home';
@@ -1326,6 +2461,13 @@
   function miniTeamHTML(nome,lado){
     const cls = lado === 'away' ? 'mini-team away' : 'mini-team home';
     return `<span class="${cls}">${teamLogoHTML(nome)}<span class="team-title">${escapeHtml(translateTeam(nome))}</span></span>`;
+  }
+  function palpiteTeamOficialHTML(nome,lado){
+    const label = escapeHtml(translateTeam(nome || '-'));
+    if(lado === 'away'){
+      return `<span class="team-title away-title">${label}</span>${teamLogoHTML(nome || '-')}`;
+    }
+    return `${teamLogoHTML(nome || '-')}<span class="team-title home-title">${label}</span>`;
   }
   function confrontoMiniHTML(home,away){
     return `${miniTeamHTML(home,'home')} <span style="opacity:.55">x</span> ${miniTeamHTML(away,'away')}`;
@@ -1623,7 +2765,10 @@
       $('#lista').innerHTML=rowsTela.map((g,idx)=>{
         const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''); const dts=fmtDataHoraJogo(d); const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d);
         const home=g.mandante||g.home||g.time_mandante||'-', away=g.visitante||g.away||g.time_visitante||'-'; const gm=numOrEmpty(g.gols_mandante_oficial??g.gm??g.gols_mandante,status), gv=numOrEmpty(g.gols_visitante_oficial??g.gv??g.gols_visitante,status); const id=g.id||`${camp}_${rodada}_${idx}`; const p=palpites[id]||{}; const abertoPalpite=isJogoAbertoParaPalpite(d,status); const disabled=!abertoPalpite;
-        return `<div class="match-card" data-jogo="${id}" data-home="${String(home).replace(/"/g,'&quot;')}" data-away="${String(away).replace(/"/g,'&quot;')}" data-palpite-aberto="${abertoPalpite?'1':'0'}"><div class="match-head"><div><div class="match-date">${dts}</div><div class="match-meta">${camp} • ${rodada}ª Rodada</div></div><span class="eta js-eta" data-status="${status}" data-t="${d?d.toISOString():''}">${status==='agendado'?liveCountdown(d):'encerrado'}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div>${teamHTML(home,'home')}<div class="official-box">${gm}</div>${palpiteField(id+'_gm',p.gm,disabled)}${teamHTML(away,'away')}<div class="official-box">${gv}</div>${palpiteField(id+'_gv',p.gv,disabled)}</div><div class="match-foot"><div><div class="foot-label">Seu palpite</div><div class="autosave-status" data-status-save="${id}">${p.atualizadoEm?'salvo anteriormente':(abertoPalpite?'':'palpite encerrado')}</div></div><span class="pts" data-pts="${id}">0 pts</span><button class="btn primary mini" data-save="${id}" ${disabled?'disabled':''}>Salvar</button></div></div>`;
+        const pPontuavel = {...p, rodada:String(rodada)};
+        const ptsAgora = pontuarPalpite(pPontuavel,g);
+        const tipoHtml = tipoAcertoHTML(pPontuavel,g);
+        return `<div class="match-card" data-jogo="${id}" data-home="${String(home).replace(/"/g,'&quot;')}" data-away="${String(away).replace(/"/g,'&quot;')}" data-palpite-aberto="${abertoPalpite?'1':'0'}"><div class="match-head"><div><div class="match-date">${dts}</div><div class="match-meta">${camp} • ${rodada}ª Rodada</div></div><span class="eta js-eta" data-status="${status}" data-t="${d?d.toISOString():''}">${status==='agendado'?liveCountdown(d):'encerrado'}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div>${teamHTML(home,'home')}<div class="official-box">${gm}</div>${palpiteField(id+'_gm',p.gm,disabled)}${teamHTML(away,'away')}<div class="official-box">${gv}</div>${palpiteField(id+'_gv',p.gv,disabled)}</div><div class="match-foot"><div><div class="foot-label">Seu palpite</div><div class="autosave-status" data-status-save="${id}">${p.atualizadoEm?'salvo anteriormente':(abertoPalpite?'':'palpite encerrado')}</div>${tipoHtml}</div><span class="pts" data-pts="${id}">${ptsAgora} pts</span><button class="btn primary mini" data-save="${id}" ${disabled?'disabled':''}>Salvar</button></div></div>`;
       }).join('');
       $('#msg').hidden=true; $('#lista').hidden=false; attachSaveListeners(camp,rodada); applyPAIfNeeded(camp,rodada); gerarDesafianteParaJogos(camp,rodada).catch(e=>console.warn('Desafiante:',e)); startEtaTicker();
       window.PSS_V11_REFRESH_RESUMOS && setTimeout(window.PSS_V11_REFRESH_RESUMOS,150);
@@ -1789,19 +2934,114 @@
     return `${g.mandante||g.home||g.time_mandante||'-'} x ${g.visitante||g.away||g.time_visitante||'-'}`;
   }
 
-  function pontosBasePalpite(p,g){
+  function traduzConfrontoTexto(txt){
+    const raw = String(txt || '').trim();
+    if(!raw) return '-';
+    const m = raw.match(/^(.+?)\s+x\s+(.+)$/i);
+    if(!m) return escapeHtml(translateTeam(raw));
+    return `${escapeHtml(translateTeam(m[1]))} x ${escapeHtml(translateTeam(m[2]))}`;
+  }
+
+  function nomeJogoTraduzido(g,id){
+    if(g){
+      const mandante = g.mandante || g.home || g.time_mandante || g.equipe_mandante || '';
+      const visitante = g.visitante || g.away || g.time_visitante || g.equipe_visitante || '';
+      if(mandante || visitante) return `${escapeHtml(translateTeam(mandante || '-'))} x ${escapeHtml(translateTeam(visitante || '-'))}`;
+    }
+    return traduzConfrontoTexto(id || '-');
+  }
+
+  function nomeJogoComPlacarOficial(g,id){
+    if(g){
+      const mandante = g.mandante || g.home || g.time_mandante || g.equipe_mandante || '';
+      const visitante = g.visitante || g.away || g.time_visitante || g.equipe_visitante || '';
+      const of = placarOficialJogo(g);
+      if(mandante || visitante){
+        if(of) return `${escapeHtml(translateTeam(mandante || '-'))} <strong>${of.gm} x ${of.gv}</strong> ${escapeHtml(translateTeam(visitante || '-'))}`;
+        return `${escapeHtml(translateTeam(mandante || '-'))} x ${escapeHtml(translateTeam(visitante || '-'))}`;
+      }
+    }
+    return traduzConfrontoTexto(id || '-');
+  }
+
+  function confrontoOficialPalpiteHTML(g,id){
+    if(g){
+      const mandante = g.mandante || g.home || g.time_mandante || g.equipe_mandante || '';
+      const visitante = g.visitante || g.away || g.time_visitante || g.equipe_visitante || '';
+      const of = placarOficialJogo(g);
+      if(mandante || visitante){
+        const gm = of ? of.gm : '--';
+        const gv = of ? of.gv : '--';
+        return `<span class="palpite-jogo-oficial">${palpiteTeamOficialHTML(mandante || '-', 'home')}<span class="score-num">${escapeHtml(gm)}</span><span class="score-x">x</span><span class="score-num">${escapeHtml(gv)}</span>${palpiteTeamOficialHTML(visitante || '-', 'away')}</span>`;
+      }
+    }
+    return traduzConfrontoTexto(id || '-');
+  }
+
+  function placarOficialTexto(g){
+    const of = placarOficialJogo(g);
+    if(of) return `${of.gm} x ${of.gv}`;
+    return '-';
+  }
+
+  function origemPalpiteTexto(p){
+    const raw = String((p && (p.origem || p.perfil || p.tipo || p.status)) || 'manual');
+    const n = raw.toUpperCase();
+    if(n.includes('DESAFIANTE')) return 'Desafiante Simon IA';
+    if(n.includes('PA_FAVORITOS')) return 'P.A. Favoritos';
+    if(n.includes('FAVORITOS')) return 'Favoritos';
+    if(n.includes('EQUILIBRADO')) return 'Equilibrado';
+    if(n.includes('SURPRESA')) return 'Surpresa';
+    if(n === 'MANUAL') return 'Manual';
+    return raw.replace(/_/g,' ');
+  }
+
+  function detalhesAcertoPalpite(p,g){
     const of=placarOficialJogo(g);
-    if(!of) return 0;
-    const pgm=Number(p.gm), pgv=Number(p.gv);
-    if(!Number.isFinite(pgm) || !Number.isFinite(pgv)) return 0;
-    if(pgm===of.gm && pgv===of.gv) return 25;
+    if(!of) return {base:0,label:'',classe:''};
+    const pgm=Number(p?.gm), pgv=Number(p?.gv);
+    if(!Number.isFinite(pgm) || !Number.isFinite(pgv)) return {base:0,label:'',classe:''};
+
+    if(pgm===of.gm && pgv===of.gv){
+      return {base:25,label:'Placar exato',classe:'exato'};
+    }
+
     const res = (a,b)=> a>b ? 'M' : (a<b ? 'V' : 'E');
     const rp=res(pgm,pgv), ro=res(of.gm,of.gv);
-    if(rp===ro){
-      if((pgm-pgv)===(of.gm-of.gv)) return 15;
-      return ro==='E' ? 4 : 10;
+    if(rp!==ro) return {base:0,label:'',classe:''};
+
+    if(ro==='E'){
+      return {base:4,label:'Empate',classe:'vencedor'};
     }
-    return 0;
+
+    const mandanteVenceu = ro === 'M';
+    const golVencedorPalpite = mandanteVenceu ? pgm : pgv;
+    const golVencedorOficial = mandanteVenceu ? of.gm : of.gv;
+    const golPerdedorPalpite = mandanteVenceu ? pgv : pgm;
+    const golPerdedorOficial = mandanteVenceu ? of.gv : of.gm;
+    const saldoPalpite = Math.abs(pgm-pgv);
+    const saldoOficial = Math.abs(of.gm-of.gv);
+
+    if(golVencedorPalpite === golVencedorOficial){
+      return {base:18,label:'Gol vencedor',classe:'gol'};
+    }
+    if(saldoPalpite === saldoOficial){
+      return {base:15,label:'Saldo',classe:'saldo'};
+    }
+    if(golPerdedorPalpite === golPerdedorOficial){
+      return {base:12,label:'Gol perdedor',classe:'gol'};
+    }
+    return {base:10,label:'Vencedor',classe:'vencedor'};
+  }
+
+  function pontosBasePalpite(p,g){
+    return detalhesAcertoPalpite(p,g).base || 0;
+  }
+
+  function tipoAcertoHTML(p,g){
+    const d=detalhesAcertoPalpite(p,g);
+    if(!d.base || !d.label) return '';
+    return `<span class="hit-type ${d.classe}">${escapeHtml(d.label)}</span>`;
   }
   function pontuarPalpite(p,g){
     const base=pontosBasePalpite(p,g);
@@ -1857,7 +3097,7 @@
       body.innerHTML = '<div class="info-empty">Nenhum palpite liberado para exibição. Jogos futuros continuam ocultos.</div>';
       return;
     }
-    body.innerHTML = `<table class="info-table"><thead><tr><th>Jogo</th><th>Participante</th><th>Palpite</th><th>Origem</th></tr></thead><tbody>${rows.map(({p,g})=>`<tr><td>${escapeHtml(nomeJogo(g,p.idJogo))}</td><td>${escapeHtml(p.nome||p.uid||'Participante')} ${p.virtual?'<span class="badge virtual">Virtual</span>':''}</td><td><strong>${escapeHtml(p.gm)} x ${escapeHtml(p.gv)}</strong></td><td>${escapeHtml(p.origem||p.perfil||'manual')}</td></tr>`).join('')}</tbody></table>`;
+    body.innerHTML = `<table class="info-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th></tr></thead><tbody>${rows.map(({p,g})=>`<tr><td>${confrontoOficialPalpiteHTML(g,p.idJogo)}</td><td><span class="score-clean">${escapeHtml(p.gm)} x ${escapeHtml(p.gv)}</span></td><td><span class="palpite-participante">${escapeHtml(p.nome||p.uid||'Participante')} ${p.virtual?'<span class="badge virtual">Virtual</span>':''}</span></td></tr>`).join('')}</tbody></table>`;
   }
 
   async function atualizarPaineisAutomaticos(){
@@ -1917,13 +3157,14 @@
     rows = rows.filter(jogoJaIniciadoParaExibirPalpite);
     status.textContent = fmtClock(new Date());
     if(rows.length){
-      body.innerHTML = `<table class="info-table"><thead><tr><th>Jogo</th><th>Participante</th><th>Palpite</th><th>Origem</th></tr></thead><tbody>${rows.map((r)=>{
+      body.innerHTML = `<table class="info-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th></tr></thead><tbody>${rows.map((r)=>{
         const jogo=getVal(r,['jogo','idJogo','partida','confronto','id'],'-');
         const nome=getVal(r,['nome','name','participante','usuario','displayName','apelido'],'Participante');
         const gm=getVal(r,['gm','gols_mandante','palpite_mandante','mandante'],'');
         const gv=getVal(r,['gv','gols_visitante','palpite_visitante','visitante'],'');
-        const origem=getVal(r,['origem','perfil','tipo','status'],'');
-        return `<tr><td>${escapeHtml(jogo)}</td><td>${escapeHtml(nome)}</td><td><strong>${escapeHtml(gm)} x ${escapeHtml(gv)}</strong></td><td>${escapeHtml(origem)}</td></tr>`;
+        const gMap = jogoByIdMap();
+        const gRef = gMap.get(String(getVal(r,['idJogo','jogo_id','id_jogo','jogo','partida','confronto','id'],''))) || r;
+        return `<tr><td>${confrontoOficialPalpiteHTML(gRef,jogo)}</td><td><span class="score-clean">${escapeHtml(gm)} x ${escapeHtml(gv)}</span></td><td><span class="palpite-participante">${escapeHtml(nome)}</span></td></tr>`;
       }).join('')}</tbody></table>`;
       return;
     }
@@ -1961,7 +3202,7 @@
   $('#btnRanking').onclick=carregarRankingPainel;
   $('#btnTodos').onclick=carregarPalpitesPainel;
 
-  (async function boot(){ loadPA(); await loadCatalog(); await loadPublicos(); renderBoloes(); })();
+  (async function boot(){ loadPA(); await loadVisualIdentityBase(); await loadCatalog(); await loadPublicos(); renderBoloes(); })();
 </script>
 
 <script>
