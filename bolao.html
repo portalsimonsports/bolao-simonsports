@@ -228,12 +228,12 @@
 <div class="modal" id="paModal" aria-hidden="true">
   <div class="modal-card">
     <h3>Palpite Automático</h3>
-    <p class="muted">Defina um placar padrão para aplicar em jogos abertos que ainda estejam sem palpite.</p>
+    <p class="muted">Defina um placar padrão provisório. O P.A. só aplica em jogos futuros, ainda não iniciados, e que estejam sem palpite.</p>
     <div class="field-grid">
       <div><label>Gols mandante</label><input id="paGM" type="number" min="0" inputmode="numeric" placeholder="1"></div>
       <div><label>Gols visitante</label><input id="paGV" type="number" min="0" inputmode="numeric" placeholder="1"></div>
     </div>
-    <label style="margin-top:12px;text-transform:none;letter-spacing:0"><input type="checkbox" id="paAplicarAgora" checked> Aplicar agora nos jogos carregados e sem palpite</label>
+    <label style="margin-top:12px;text-transform:none;letter-spacing:0"><input type="checkbox" id="paAplicarAgora" checked> Aplicar agora somente em jogos futuros carregados e sem palpite</label>
     <div class="modal-actions"><button class="btn" id="paFechar">Fechar</button><button class="btn danger" id="paRemover">Remover P.A.</button><button class="btn primary" id="paSalvar">Salvar P.A.</button></div>
   </div>
 </div>
@@ -467,7 +467,22 @@
   async function aprovarParticipante(uid, ok){ if(!state.bolao) return; await db.collection('boloes').doc(state.bolao.id).collection('participantes').doc(uid).set({status:ok?'APROVADO':'RECUSADO',ativo:ok,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}); await abrirParticipantes(); }
 
   function parseDateSafe(str){ if(!str) return null; const s=String(str).trim().replace(/\s+/g,' '); let m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/); if(m) return new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5],+(m[6]||0)); m=s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/); if(m) return new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+(m[6]||0)); return new Date(s); }
-  function getVisualStatus(apiStatus, dt){ const now=new Date(); const st=String(apiStatus||'agendado').toLowerCase(); if(dt && dt.getTime()>now.getTime()) return 'agendado'; return st; }
+  function getVisualStatus(apiStatus, dt){
+    const now=new Date();
+    const st=String(apiStatus||'agendado').toLowerCase();
+    if(dt){
+      if(dt.getTime()>now.getTime()) return 'agendado';
+      return (st==='agendado'||st==='aberto') ? 'encerrado' : st;
+    }
+    return st;
+  }
+  function isJogoAbertoParaPalpite(dt, status){
+    const st=String(status||'').toLowerCase();
+    if(!dt || isNaN(dt.getTime())) return false;
+    if(dt.getTime()<=Date.now()) return false;
+    if(['encerrado','finalizado','fechado','ao vivo','aovivo','em andamento','cancelado'].includes(st)) return false;
+    return true;
+  }
   function liveCountdown(target){ if(!target) return ''; let ms=target-new Date(); if(ms<=0) return 'encerrado'; const s=Math.floor(ms/1000)%60,m=Math.floor(ms/60000)%60,h=Math.floor(ms/3600000)%24,d=Math.floor(ms/86400000); const p=[]; if(d)p.push(d+'d'); if(h||d)p.push(h+'h'); p.push(m+'min'); p.push(s+'s'); return p.join(' '); }
   let etaTimer=null; function startEtaTicker(){ if(etaTimer)clearInterval(etaTimer); const t=()=>{$$('.js-eta').forEach(el=>{ const status=(el.dataset.status||'').toLowerCase(); if(status!=='agendado'){el.classList.add('enc');return;} const dt=new Date(el.dataset.t||''); if(dt-new Date()<=0){el.textContent='encerrado';el.classList.add('enc');el.dataset.status='encerrado';}else{el.textContent=liveCountdown(dt);el.classList.remove('enc');} });}; t(); etaTimer=setInterval(t,1000); }
   const PLACE='–'; function numOrEmpty(v,st){ if(st==='agendado'||v===''||v==null) return PLACE; const n=Number(v); return Number.isFinite(n)?String(n):PLACE; }
@@ -482,8 +497,8 @@
       const palpites=await carregarPalpitesFirestore(camp,rodada);
       $('#lista').innerHTML=rows.map((g,idx)=>{
         const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''); const dts=d?(d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})):'--'; const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d);
-        const home=g.mandante||g.home||g.time_mandante||'-', away=g.visitante||g.away||g.time_visitante||'-'; const gm=numOrEmpty(g.gols_mandante_oficial??g.gm??g.gols_mandante,status), gv=numOrEmpty(g.gols_visitante_oficial??g.gv??g.gols_visitante,status); const id=g.id||`${camp}_${rodada}_${idx}`; const p=palpites[id]||{}; const disabled=status!=='agendado';
-        return `<div class="match-card" data-jogo="${id}"><div class="match-head"><div><div class="match-date">${dts}</div><div class="match-meta">${camp} • ${rodada}ª Rodada</div></div><span class="eta js-eta" data-status="${status}" data-t="${d?d.toISOString():''}">${status==='agendado'?liveCountdown(d):'encerrado'}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div><div class="team">${home}</div><div class="official-box">${gm}</div>${palpiteField(id+'_gm',p.gm,disabled)}<div class="team">${away}</div><div class="official-box">${gv}</div>${palpiteField(id+'_gv',p.gv,disabled)}</div><div class="match-foot"><div><div class="foot-label">Seu palpite</div><div class="autosave-status" data-status-save="${id}">${p.atualizadoEm?'salvo anteriormente':''}</div></div><span class="pts" data-pts="${id}">0 pts</span><button class="btn primary mini" data-save="${id}" ${disabled?'disabled':''}>Salvar</button></div></div>`;
+        const home=g.mandante||g.home||g.time_mandante||'-', away=g.visitante||g.away||g.time_visitante||'-'; const gm=numOrEmpty(g.gols_mandante_oficial??g.gm??g.gols_mandante,status), gv=numOrEmpty(g.gols_visitante_oficial??g.gv??g.gols_visitante,status); const id=g.id||`${camp}_${rodada}_${idx}`; const p=palpites[id]||{}; const abertoPalpite=isJogoAbertoParaPalpite(d,status); const disabled=!abertoPalpite;
+        return `<div class="match-card" data-jogo="${id}" data-palpite-aberto="${abertoPalpite?'1':'0'}"><div class="match-head"><div><div class="match-date">${dts}</div><div class="match-meta">${camp} • ${rodada}ª Rodada</div></div><span class="eta js-eta" data-status="${status}" data-t="${d?d.toISOString():''}">${status==='agendado'?liveCountdown(d):'encerrado'}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div><div class="team">${home}</div><div class="official-box">${gm}</div>${palpiteField(id+'_gm',p.gm,disabled)}<div class="team">${away}</div><div class="official-box">${gv}</div>${palpiteField(id+'_gv',p.gv,disabled)}</div><div class="match-foot"><div><div class="foot-label">Seu palpite</div><div class="autosave-status" data-status-save="${id}">${p.atualizadoEm?'salvo anteriormente':(abertoPalpite?'':'palpite encerrado')}</div></div><span class="pts" data-pts="${id}">0 pts</span><button class="btn primary mini" data-save="${id}" ${disabled?'disabled':''}>Salvar</button></div></div>`;
       }).join('');
       $('#msg').hidden=true; $('#lista').hidden=false; attachSaveListeners(camp,rodada); applyPAIfNeeded(camp,rodada); startEtaTicker();
     }catch(e){ toast('Erro: '+e.message); }
@@ -497,6 +512,8 @@
   function setSaveStatus(id,txt,cls){ const st=$(`.autosave-status[data-status-save="${cssEsc(id)}"]`); if(st){st.textContent=txt||''; st.className='autosave-status '+(cls||'');} }
   async function salvarPalpiteJogo(id,camp,rodada,origem){
     if(state.uid==='GUEST'){ toast('Entre com Google antes de salvar.'); return; }
+    const card=$(`.match-card[data-jogo="${cssEsc(id)}"]`);
+    if(card && card.dataset.palpiteAberto !== '1'){ setSaveStatus(id,'palpite encerrado','err'); return; }
     const gmEl=$(`input[data-id="${cssEsc(id)}_gm"]`), gvEl=$(`input[data-id="${cssEsc(id)}_gv"]`); const gm=gmEl?.value??'', gv=gvEl?.value??'';
     if(gm===''||gv===''){ setSaveStatus(id,'preencha os dois placares','err'); return; }
     setSaveStatus(id,'salvando...','saving');
@@ -514,7 +531,20 @@
   function savePA(pa){ state.pa=pa; if(pa) localStorage.setItem('PSS_PA_BOLAO',JSON.stringify(pa)); else localStorage.removeItem('PSS_PA_BOLAO'); }
   $('#paRemover').onclick=()=>{ savePA(null); paModal.classList.remove('open'); toast('Palpite automático removido.'); };
   $('#paSalvar').onclick=()=>{ const gm=Number($('#paGM').value||0), gv=Number($('#paGV').value||0); savePA({gm,gv,ts:Date.now()}); paModal.classList.remove('open'); toast('Palpite automático salvo.'); if($('#paAplicarAgora').checked) applyPAIfNeeded($('#selCamp').value,$('#selRod').value); };
-  function applyPAIfNeeded(camp,rodada){ if(!state.pa) return; $$('.match-card').forEach(card=>{ const id=card.dataset.jogo; const gm=$(`input[data-id="${cssEsc(id)}_gm"]`), gv=$(`input[data-id="${cssEsc(id)}_gv"]`); if(gm&&!gm.disabled&&gv&&!gv.disabled&&gm.value===''&&gv.value===''){ gm.value=state.pa.gm; gv.value=state.pa.gv; salvarPalpiteJogo(id,camp,rodada,'PA').catch(e=>console.warn(e)); } }); }
+  function applyPAIfNeeded(camp,rodada){
+    if(!state.pa) return;
+    $$('.match-card').forEach(card=>{
+      const id=card.dataset.jogo;
+      if(card.dataset.palpiteAberto !== '1') return;
+      const gm=$(`input[data-id="${cssEsc(id)}_gm"]`), gv=$(`input[data-id="${cssEsc(id)}_gv"]`);
+      if(gm&&!gm.disabled&&gv&&!gv.disabled&&gm.value===''&&gv.value===''){
+        gm.value=state.pa.gm;
+        gv.value=state.pa.gv;
+        setSaveStatus(id,'P.A. aplicado em jogo futuro','saving');
+        salvarPalpiteJogo(id,camp,rodada,'PA').catch(e=>console.warn(e));
+      }
+    });
+  }
 
   $('#btnRanking').onclick=async()=>{ try{ await apiGet(withDualAction('ranking')); alert('Ranking atualizado.'); }catch(e){ alert('Erro no ranking: '+e.message); } };
   $('#btnTodos').onclick=async()=>{ try{ await apiGet(withDualAction('palpitesDeTodos')); alert('Palpites de todos atualizados.'); }catch(e){ alert('Erro: '+e.message); } };
