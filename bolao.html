@@ -637,14 +637,75 @@
   async function refreshAll(){ await Promise.allSettled([loadMeus(),loadPublicos()]); renderBoloes(); renderSelected(); }
   async function loadMeus(){
     if(state.uid==='GUEST'){ state.meus=[]; state.privados=[]; return; }
-    const parts = await db.collectionGroup('participantes').where('uid','==',state.uid).get();
-    const list=[];
-    for(const doc of parts.docs){
-      const p=doc.data()||{}; const bolaoRef=doc.ref.parent.parent; if(!bolaoRef) continue;
-      try{ const b=await bolaoRef.get(); if(b.exists) list.push({id:b.id,...b.data(), minhaParticipacao:p}); }catch(e){ console.warn(e); }
+
+    const byId = new Map();
+
+    // 1) Índice próprio do usuário: mais seguro e não depende de collectionGroup.
+    try{
+      const idx = await db.collection('usuarios').doc(state.uid).collection('meusBoloes').get();
+      for(const doc of idx.docs){
+        const item = { id:doc.id, ...doc.data() };
+        byId.set(item.id, item);
+      }
+    }catch(e){
+      console.warn('Falha ao ler índice meusBoloes:', e);
     }
-    state.meus=list.filter(b=>b.minhaParticipacao?.status==='APROVADO');
-    state.privados=list.filter(b=>b.tipo==='PRIVADO' || b.publico===false);
+
+    // 2) Recuperação de bolões antigos criados antes do índice existir.
+    try{
+      const criados = await db.collection('boloes').where('criadorUid','==',state.uid).get();
+      for(const doc of criados.docs){
+        const b = { id:doc.id, ...doc.data(), minhaParticipacao:{papel:'CRIADOR',status:'APROVADO',ativo:true} };
+        byId.set(b.id, b);
+        await upsertMeuBolaoIndex(b.id, b, b.minhaParticipacao).catch(()=>{});
+      }
+    }catch(e){
+      console.warn('Falha ao recuperar bolões criados:', e);
+    }
+
+    // 3) Compatibilidade com versões antigas que gravaram apenas participante em subcoleção.
+    try{
+      const parts = await db.collectionGroup('participantes').where('uid','==',state.uid).get();
+      for(const doc of parts.docs){
+        const p = doc.data() || {};
+        const bolaoRef = doc.ref.parent.parent;
+        if(!bolaoRef) continue;
+        try{
+          const bSnap = await bolaoRef.get();
+          if(bSnap.exists){
+            const b = { id:bSnap.id, ...bSnap.data(), minhaParticipacao:p };
+            byId.set(b.id, b);
+            await upsertMeuBolaoIndex(b.id, b, p).catch(()=>{});
+          }
+        }catch(e){ console.warn(e); }
+      }
+    }catch(e){
+      console.warn('CollectionGroup participantes indisponível ou bloqueado:', e);
+    }
+
+    const list = Array.from(byId.values());
+    state.meus = list.filter(b => b.minhaParticipacao?.status === 'APROVADO');
+    state.privados = list.filter(b => b.tipo === 'PRIVADO' || b.publico === false || b.minhaParticipacao?.status === 'PENDENTE');
+  }
+
+  async function upsertMeuBolaoIndex(bolaoId, bolao, participacao){
+    if(state.uid === 'GUEST' || !bolaoId) return;
+    const payload = {
+      id:bolaoId,
+      nome:bolao.nome || bolao.titulo || 'Bolão sem nome',
+      titulo:bolao.titulo || bolao.nome || 'Bolão sem nome',
+      descricao:bolao.descricao || '',
+      campeonato:bolao.campeonato || bolao.camp || 'CUP',
+      camp:bolao.camp || bolao.campeonato || 'CUP',
+      tipo:bolao.tipo || (bolao.publico ? 'PUBLICO' : 'PRIVADO'),
+      publico:bolao.publico === true,
+      ativo:bolao.ativo !== false,
+      criadorUid:bolao.criadorUid || '',
+      codigoConvite:bolao.codigoConvite || bolaoId,
+      minhaParticipacao:participacao || {papel:'PARTICIPANTE',status:'APROVADO',ativo:true},
+      atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    };
+    await db.collection('usuarios').doc(state.uid).collection('meusBoloes').doc(bolaoId).set(payload,{merge:true});
   }
   async function loadPublicos(){
     try{ const q=await db.collection('boloes').where('ativo','==',true).where('publico','==',true).limit(30).get(); state.publicos=q.docs.map(d=>({id:d.id,...d.data()})); }
@@ -686,7 +747,9 @@
     const camp=$('#novoCamp').value||'CUP'; const tipo=$('#novoTipo').value; const publico=tipo==='PUBLICO'; const id=safeId(codeBolao());
     const payload={ id, nome, titulo:nome, campeonato:camp, camp, tipo, publico, ativo:true, criadorUid:state.uid, criadorNome:state.nome, descricao:$('#novoDesc').value.trim(), codigoConvite:id, criadoEm:firebase.firestore.FieldValue.serverTimestamp(), atualizadoEm:firebase.firestore.FieldValue.serverTimestamp() };
     await db.collection('boloes').doc(id).set(payload);
-    await db.collection('boloes').doc(id).collection('participantes').doc(state.uid).set({ uid:state.uid, nome:state.nome, email:state.email, foto:state.foto, papel:'CRIADOR', status:'APROVADO', ativo:true, criadoEm:firebase.firestore.FieldValue.serverTimestamp(), atualizadoEm:firebase.firestore.FieldValue.serverTimestamp() });
+    const minhaParticipacao = { uid:state.uid, nome:state.nome, email:state.email, foto:state.foto, papel:'CRIADOR', status:'APROVADO', ativo:true, criadoEm:firebase.firestore.FieldValue.serverTimestamp(), atualizadoEm:firebase.firestore.FieldValue.serverTimestamp() };
+    await db.collection('boloes').doc(id).collection('participantes').doc(state.uid).set(minhaParticipacao);
+    await upsertMeuBolaoIndex(id, payload, minhaParticipacao);
     await ensureDesafianteBolao(id);
     $('#novoNome').value=''; $('#novoDesc').value=''; await refreshAll(); selectBolao({id,...payload,minhaParticipacao:{papel:'CRIADOR',status:'APROVADO',ativo:true}}); setTab('meus'); toast('Bolão criado. Você é o administrador deste bolão e o Desafiante Simon IA já foi incluído.');
   }
@@ -718,6 +781,7 @@
     const publico=b.publico===true || b.tipo==='PUBLICO';
     const part={ uid:state.uid, nome:state.nome, email:state.email, foto:state.foto, papel:'PARTICIPANTE', status:publico?'APROVADO':'PENDENTE', ativo:publico, criadoEm:firebase.firestore.FieldValue.serverTimestamp(), atualizadoEm:firebase.firestore.FieldValue.serverTimestamp() };
     await ref.collection('participantes').doc(state.uid).set(part,{merge:true});
+    await upsertMeuBolaoIndex(id, b, part);
     await refreshAll(); if(publico){ const novo={...b,minhaParticipacao:part}; selectBolao(novo); toast('Entrada aprovada automaticamente.'); } else { toast('Solicitação enviada. Aguarde aprovação do criador.'); setTab('privados'); }
   }
   async function entrarOuSelecionarPorLink(id){
@@ -741,7 +805,35 @@
     }catch(e){ lista.innerHTML='<div class="empty">Erro: '+e.message+'</div>'; }
   }
   $('#btnGerenciar').onclick=abrirParticipantes; $('#partFechar').onclick=()=>$('#participantesModal').classList.remove('open');
-  async function aprovarParticipante(uid, ok){ if(!state.bolao) return; await db.collection('boloes').doc(state.bolao.id).collection('participantes').doc(uid).set({status:ok?'APROVADO':'RECUSADO',ativo:ok,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}); await abrirParticipantes(); }
+  async function aprovarParticipante(uid, ok){
+    if(!state.bolao) return;
+    const status = ok ? 'APROVADO' : 'RECUSADO';
+    await db.collection('boloes').doc(state.bolao.id).collection('participantes').doc(uid).set({status,ativo:ok,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+
+    // Atualiza também o índice do participante para o bolão aparecer corretamente na conta dele.
+    try{
+      const partSnap = await db.collection('boloes').doc(state.bolao.id).collection('participantes').doc(uid).get();
+      const part = partSnap.exists ? partSnap.data() : {uid, papel:'PARTICIPANTE'};
+      const idxPayload = {
+        id:state.bolao.id,
+        nome:state.bolao.nome || state.bolao.titulo || 'Bolão sem nome',
+        titulo:state.bolao.titulo || state.bolao.nome || 'Bolão sem nome',
+        descricao:state.bolao.descricao || '',
+        campeonato:state.bolao.campeonato || state.bolao.camp || 'CUP',
+        camp:state.bolao.camp || state.bolao.campeonato || 'CUP',
+        tipo:state.bolao.tipo || (state.bolao.publico ? 'PUBLICO' : 'PRIVADO'),
+        publico:state.bolao.publico === true,
+        ativo:state.bolao.ativo !== false,
+        criadorUid:state.bolao.criadorUid || '',
+        codigoConvite:state.bolao.codigoConvite || state.bolao.id,
+        minhaParticipacao:{...part,status,ativo:ok},
+        atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+      };
+      await db.collection('usuarios').doc(uid).collection('meusBoloes').doc(state.bolao.id).set(idxPayload,{merge:true});
+    }catch(e){ console.warn('Não foi possível atualizar índice do participante aprovado:', e); }
+
+    await abrirParticipantes();
+  }
 
   function parseDateSafe(str){ if(!str) return null; const s=String(str).trim().replace(/\s+/g,' '); let m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/); if(m) return new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5],+(m[6]||0)); m=s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/); if(m) return new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+(m[6]||0)); return new Date(s); }
   function getVisualStatus(apiStatus, dt){
