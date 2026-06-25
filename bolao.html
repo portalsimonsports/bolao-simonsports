@@ -308,7 +308,7 @@
   .ticker-track:hover .ticker-content{animation-play-state:paused}
 
   .ticker-item .mini-team .team-title{white-space:nowrap;overflow:visible;text-overflow:clip}
-  .ticker-item{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:#e2e8f0}
+  .ticker-item{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:#e2e8f0;opacity:1}
   .ticker-item .tag-mini{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:1000;text-transform:uppercase;letter-spacing:.04em;background:#0ea5e9;color:#042034}
   .ticker-item.done .tag-mini{background:#dcfce7;color:#166534}
   .ticker-item.next .tag-mini{background:#facc15;color:#111827}
@@ -326,6 +326,12 @@
   .mini-team{display:inline-flex;align-items:center;gap:8px;min-width:0;vertical-align:middle}
   .mini-team .team-logo{width:24px;height:24px;flex-basis:24px;font-size:9px;background:#f8fafc;border-color:#e2e8f0;color:#0f172a;box-shadow:none}
   .mini-team .team-title{color:#0f172a}
+  /* V18: no letreiro escuro, os nomes precisam ficar claros e nunca apagados. */
+  .ticker-item .mini-team .team-title{color:#e5e7eb !important;font-weight:1000;text-shadow:0 1px 0 rgba(0,0,0,.35)}
+  .ticker-item .mini-team .team-logo{background:#0f172a;border-color:rgba(255,255,255,.25)}
+  .ticker-item .mini-team{max-width:none;flex:0 0 auto}
+  .ticker-item{opacity:1 !important}
+  .ticker-item span{opacity:1}
   /* V16: em cards com seleções em linhas separadas, as duas bandeiras ficam à esquerda do nome. */
   .team.away{justify-content:flex-start}
   .match-table .team .team-logo{order:0}
@@ -1120,6 +1126,10 @@
     'scotland':'gb-sct','escócia':'gb-sct','escocia':'gb-sct','spain':'es','espanha':'es','sweden':'se','suécia':'se','suecia':'se','switzerland':'ch','suíça':'ch','suica':'ch',
     'tunisia':'tn','tunísia':'tn','turkiye':'tr','türkiye':'tr','turkey':'tr','turquia':'tr','ukraine':'ua','ucrânia':'ua','ucrania':'ua',
     'united states':'us','usa':'us','estados unidos':'us','uruguay':'uy','uruguai':'uy','uzbekistan':'uz','uzbequistão':'uz','uzbequistao':'uz',
+    'south africa':'za','africa do sul':'za','áfrica do sul':'za',
+    'algeria':'dz','argelia':'dz','argélia':'dz','austria':'at','áustria':'at','austria':'at','bolivia':'bo','bolívia':'bo','bolivia':'bo',
+    'cameroon':'cm','camarões':'cm','camaroes':'cm','jamaica':'jm','jordan':'jo','jordania':'jo','jordânia':'jo','mali':'ml','romania':'ro','romênia':'ro','romenia':'ro',
+    'serbia':'rs','sérvia':'rs','servia':'rs','slovakia':'sk','eslováquia':'sk','eslovaquia':'sk','united arab emirates':'ae','uae':'ae','emirados arabes unidos':'ae','emirados árabes unidos':'ae','venezuela':'ve',
     'wales':'gb-wls','país de gales':'gb-wls','pais de gales':'gb-wls'
   };
 
@@ -1135,7 +1145,8 @@
     'new zealand':'Nova Zelândia','norway':'Noruega','panama':'Panamá','paraguay':'Paraguai','poland':'Polônia','portugal':'Portugal','qatar':'Catar',
     'senegal':'Senegal','saudi arabia':'Arábia Saudita','scotland':'Escócia','spain':'Espanha','sweden':'Suécia','switzerland':'Suíça','tunisia':'Tunísia',
     'turkiye':'Turquia','türkiye':'Turquia','turkey':'Turquia','ukraine':'Ucrânia','united states':'Estados Unidos','usa':'Estados Unidos',
-    'uruguay':'Uruguai','uzbekistan':'Uzbequistão','wales':'País de Gales'
+    'uruguay':'Uruguai','uzbekistan':'Uzbequistão','south africa':'África do Sul','africa do sul':'África do Sul','algeria':'Argélia','argelia':'Argélia','austria':'Áustria','bolivia':'Bolívia',
+    'cameroon':'Camarões','jamaica':'Jamaica','jordan':'Jordânia','mali':'Mali','romania':'Romênia','serbia':'Sérvia','slovakia':'Eslováquia','united arab emirates':'Emirados Árabes Unidos','uae':'Emirados Árabes Unidos','venezuela':'Venezuela','wales':'País de Gales'
   };
 
   function normFlagName(nome){
