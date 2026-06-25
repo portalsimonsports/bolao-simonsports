@@ -470,7 +470,13 @@
         elCamp = $('#selCamp'), elRod = $('#selRod'),
         btnLogin = $('#btnLogin'), btnConvidar = $('#btnConvidar');
 
-  const state = { uid:'GUEST', nome:'visitante', pa:null };
+  const state = {
+    uid:'GUEST',
+    nome:'visitante',
+    pa:null,
+    bolaoAtualId:'',
+    convitePendenteId:''
+  };
   /********* FIM: CONFIG & REFS *********/
 </script>
 
@@ -836,28 +842,50 @@
 </script>
 
 <script>
-  /********* INÍCIO: CRIAR BOLÃO & CONVITES *********/
+  /********* INÍCIO: CRIAR BOLÃO & CONVITES FIREBASE *********/
   document.getElementById('btnCriar').addEventListener('click', async ()=>{
     if (state.uid==='GUEST'){ toast('Entre com Google antes de criar.'); return; }
-    const titulo = prompt('Título do bolão:','Meu Bolão'); if(!titulo) return;
+    if (!window.PSS_BOLAO_FB || !window.PSS_BOLAO_FB.criarBolao){
+      toast('Firebase ainda está carregando. Aguarde alguns segundos e tente novamente.');
+      return;
+    }
+
+    const titulo = prompt('Título do bolão:', 'Meu Bolão');
+    if(!titulo) return;
+
+    const privado = confirm('Deseja criar este bolão como PRIVADO?\n\nOK = Privado, exige aprovação do criador.\nCancelar = Público, entrada automática.');
+    const tipo = privado ? 'PRIVADO' : 'PUBLICO';
     const camp = elCamp.value || 'BRA';
+
     try{
-      await apiGet(withDualAction('criarBolao', `titulo=${encodeURIComponent(titulo)}&camps=${encodeURIComponent(camp)}`));
+      const novo = await window.PSS_BOLAO_FB.criarBolao({ titulo, camp, tipo });
+      state.bolaoAtualId = novo.id;
       btnConvidar.disabled = false;
-      toast('Bolão criado!');
-    }catch(e){ toast('Erro: '+e.message); }
+      toast(`Bolão criado com sucesso: ${titulo} (${tipo}). Você é o administrador deste bolão.`);
+    }catch(e){
+      console.error(e);
+      toast('Erro ao criar bolão: ' + e.message);
+    }
   });
 
   btnConvidar.addEventListener('click', async ()=>{
-    const url = (location.origin || '') + 'bolao.html';
+    if (!state.bolaoAtualId){
+      toast('Crie ou entre em um bolão antes de gerar convite.');
+      return;
+    }
+
+    const base = location.origin + location.pathname;
+    const url = `${base}?bolao=${encodeURIComponent(state.bolaoAtualId)}`;
+    const texto = `Participe do meu bolão no Portal SimonSports: ${url}`;
+
     try{
-      await navigator.clipboard.writeText(`Participe do meu bolão: ${url}`);
-      toast('Link copiado para a área de transferência!');
+      await navigator.clipboard.writeText(texto);
+      toast('Link de convite copiado para a área de transferência!');
     }catch(_){
-      window.prompt('Copie o link abaixo:', url);
+      window.prompt('Copie o link abaixo:', texto);
     }
   });
-  /********* FIM: CRIAR BOLÃO & CONVITES *********/
+  /********* FIM: CRIAR BOLÃO & CONVITES FIREBASE *********/
 </script>
 
 <script>
@@ -867,40 +895,217 @@
 </script>
 
 <!-- Firebase (compat) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" defer></script>
 
 <script>
-  /********* INÍCIO: FIREBASE (compat) *********/
+  /********* INÍCIO: FIREBASE NOVO + USUÁRIO AUTOATIVO + ADMIN DO BOLÃO *********/
   document.addEventListener('DOMContentLoaded', function(){
     const firebaseConfig = {
-      apiKey: "AIzaSyCrzPnWfKVsshLqcPRfizcOR2asyStrHCA",
-      authDomain: "bolao-esportivo-30732.firebaseapp.com",
-      projectId: "bolao-esportivo-30732",
-      storageBucket: "bolao-esportivo-30732.appspot.com",
-      messagingSenderId: "27951826845",
-      appId: "1:27951826845:web:a939530927c887ec9c9174"
+      apiKey: "AIzaSyA8tO_E2s6R9bYnEW6_5skqCUrBSVLLKkw",
+      authDomain: "pss-bolao-esportivo.firebaseapp.com",
+      projectId: "pss-bolao-esportivo",
+      storageBucket: "pss-bolao-esportivo.firebasestorage.app",
+      messagingSenderId: "575209475526",
+      appId: "1:575209475526:web:7d2d1efa2d9fd8b600f6c7"
     };
 
-    if (!firebase.apps?.length) firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
     const auth = firebase.auth();
+    const db = firebase.firestore();
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
+
+    const params = new URLSearchParams(location.search);
+    state.convitePendenteId = (params.get('bolao') || '').trim();
+
+    function safeName(user){
+      return user.displayName || (user.email ? user.email.split('@')[0] : 'Usuário');
+    }
+
+    function gerarCodigoConvite(){
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let out = '';
+      for(let i=0;i<6;i++) out += chars[Math.floor(Math.random()*chars.length)];
+      return out;
+    }
+
+    async function ensureUsuario(user){
+      if(!user) return;
+
+      const ref = db.collection('usuarios').doc(user.uid);
+      const snap = await ref.get();
+
+      const base = {
+        uid: user.uid,
+        nome: safeName(user),
+        email: user.email || '',
+        foto: user.photoURL || '',
+        ativo: true,
+        status: 'ATIVO',
+        perfilGlobal: 'USUARIO',
+        ultimoLoginEm: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      if(!snap.exists){
+        await ref.set({
+          ...base,
+          criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }else{
+        await ref.set(base, { merge:true });
+      }
+    }
+
+    async function criarParticipanteSeNaoExiste(bolaoId, user, dados){
+      const ref = db.collection('boloes').doc(bolaoId).collection('participantes').doc(user.uid);
+      const snap = await ref.get();
+      if(snap.exists) return false;
+
+      await ref.set({
+        uid: user.uid,
+        nome: safeName(user),
+        email: user.email || '',
+        foto: user.photoURL || '',
+        criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+        atualizadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+        ...dados
+      });
+      return true;
+    }
+
+    async function criarBolao({ titulo, camp, tipo }){
+      const user = auth.currentUser;
+      if(!user) throw new Error('Faça login antes de criar um bolão.');
+
+      await ensureUsuario(user);
+
+      const ref = db.collection('boloes').doc();
+      const bolaoId = ref.id;
+      const isPublico = tipo === 'PUBLICO';
+
+      await ref.set({
+        id: bolaoId,
+        nome: titulo,
+        titulo: titulo,
+        tipo: tipo,
+        publico: isPublico,
+        entrada: isPublico ? 'AUTOMATICA' : 'APROVACAO_CRIADOR',
+        campeonatoPadrao: camp || '',
+        criadorUid: user.uid,
+        criadorNome: safeName(user),
+        criadorEmail: user.email || '',
+        ativo: true,
+        codigoConvite: gerarCodigoConvite(),
+        criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+        atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      await ref.collection('participantes').doc(user.uid).set({
+        uid: user.uid,
+        nome: safeName(user),
+        email: user.email || '',
+        foto: user.photoURL || '',
+        papel: 'CRIADOR',
+        status: 'APROVADO',
+        ativo: true,
+        criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+        atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      state.bolaoAtualId = bolaoId;
+      try { localStorage.setItem('BOLAO_ATUAL_ID', bolaoId); } catch(_) {}
+      return { id: bolaoId, nome: titulo, tipo };
+    }
+
+    async function entrarPorConviteSeExistir(user){
+      const bolaoId = state.convitePendenteId;
+      if(!user || !bolaoId) return;
+
+      await ensureUsuario(user);
+
+      const partRef = db.collection('boloes').doc(bolaoId).collection('participantes').doc(user.uid);
+      const partSnap = await partRef.get().catch(()=> null);
+
+      if(partSnap && partSnap.exists){
+        const p = partSnap.data() || {};
+        state.bolaoAtualId = bolaoId;
+        btnConvidar.disabled = false;
+        if(p.status === 'APROVADO'){
+          toast('Você já participa deste bolão.');
+        }else{
+          toast('Sua solicitação para participar deste bolão está pendente.');
+        }
+        return;
+      }
+
+      // Primeiro tenta entrada automática. Isso passa nas regras quando o bolão é PUBLICO.
+      try{
+        await criarParticipanteSeNaoExiste(bolaoId, user, {
+          papel: 'PARTICIPANTE',
+          status: 'APROVADO',
+          ativo: true,
+          origem: 'CONVITE_PUBLICO'
+        });
+        state.bolaoAtualId = bolaoId;
+        btnConvidar.disabled = false;
+        toast('Entrada confirmada. Você já participa deste bolão.');
+        return;
+      }catch(ePublico){
+        // Se o bolão for PRIVADO, a regra rejeita APROVADO e aceita PENDENTE.
+        try{
+          await criarParticipanteSeNaoExiste(bolaoId, user, {
+            papel: 'PARTICIPANTE',
+            status: 'PENDENTE',
+            ativo: false,
+            origem: 'CONVITE_PRIVADO'
+          });
+          state.bolaoAtualId = bolaoId;
+          btnConvidar.disabled = false;
+          toast('Solicitação enviada. O criador/admin do bolão precisa aprovar sua entrada.');
+          return;
+        }catch(ePrivado){
+          console.error(ePublico, ePrivado);
+          toast('Não foi possível entrar neste bolão. Verifique o convite ou as permissões.');
+        }
+      }
+    }
 
     function updateUserUI(uid, nome){
       state.uid = uid || 'GUEST';
       state.nome = nome || (uid==='GUEST'?'visitante':uid);
       document.getElementById('nick').textContent = state.nome;
-      document.getElementById('btnConvidar').disabled = (state.uid==='GUEST');
+      document.getElementById('btnConvidar').disabled = (state.uid==='GUEST' || !state.bolaoAtualId);
       document.getElementById('btnLogin').textContent = (state.uid==='GUEST') ? 'Entrar com Google' : 'Sair';
-      try { localStorage.setItem('BOL_UID', state.uid); } catch(_) {}
+
+      try {
+        localStorage.setItem('BOL_UID', state.uid);
+        localStorage.setItem('uid', state.uid);
+        localStorage.setItem('nome', state.nome);
+      } catch(_) {}
     }
 
     auth.onAuthStateChanged(async (user)=>{
       if(user){
-        updateUserUI(user.uid, user.displayName || user.email);
-        try{ await apiGet(withDualAction('signup', `name=${encodeURIComponent(state.nome)}`)); }catch(_){}
+        updateUserUI(user.uid, safeName(user));
+
+        try{
+          await ensureUsuario(user);
+        }catch(e){
+          console.warn('Falha ao criar/atualizar usuario Firestore:', e);
+          toast('Login realizado, mas houve falha ao sincronizar cadastro no Firebase.');
+        }
+
+        // Mantém compatibilidade com a API/Apps Script atual.
+        try{
+          await apiGet(withDualAction('signup', `name=${encodeURIComponent(state.nome)}`));
+        }catch(e){
+          console.warn('Signup Apps Script indisponível:', e);
+        }
+
+        await entrarPorConviteSeExistir(user);
       }else{
         updateUserUI('GUEST','visitante');
       }
@@ -913,12 +1118,27 @@
           else await auth.signInWithPopup(provider);
         }catch(e){ toast('Falha no login: '+e.message); }
       }else{
-        try{ await auth.signOut(); toast('Você saiu.'); }
-        catch(e){ toast('Erro ao sair: '+e.message); }
+        try{
+          await auth.signOut();
+          state.bolaoAtualId = '';
+          try{
+            localStorage.removeItem('BOLAO_ATUAL_ID');
+            localStorage.removeItem('uid');
+            localStorage.removeItem('nome');
+          }catch(_){}
+          toast('Você saiu.');
+        }catch(e){ toast('Erro ao sair: '+e.message); }
       }
     });
+
+    window.PSS_BOLAO_FB = {
+      criarBolao,
+      ensureUsuario,
+      entrarPorConviteSeExistir
+    };
   });
-  /********* FIM: FIREBASE (compat) *********/
+  /********* FIM: FIREBASE NOVO + USUÁRIO AUTOATIVO + ADMIN DO BOLÃO *********/
 </script>
+
 </body>
 </html>
