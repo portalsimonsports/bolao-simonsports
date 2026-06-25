@@ -32,6 +32,7 @@
   .ok{color:var(--brand)} .err{color:var(--danger)}
   .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
   .pill{padding:6px 10px;border-radius:999px;background:#0a1328;border:1px solid #1f2a44;color:#a7b4d6;font-size:.85rem}
+  .hidden{display:none!important}
 </style>
 </head>
 <body>
@@ -42,13 +43,16 @@
     </div>
 
     <div class="card">
-      <p class="muted">Use sua conta Google (1 clique) ou e-mail/senha. Após autenticar, seu cadastro é sincronizado com o Apps Script automaticamente.</p>
+      <p class="muted">Use sua conta Google para entrar. Seu cadastro será criado automaticamente no Firebase do Bolão Esportivo.</p>
 
       <div class="row">
         <div class="col">
           <button id="btnGoogle" class="btn-google">Continuar com Google</button>
         </div>
-        <div class="col">
+
+        <!-- Login por e-mail/senha mantido oculto por padrão.
+             Para usar, ative Email/Senha no Firebase Authentication e remova a classe hidden abaixo. -->
+        <div id="emailBox" class="col hidden">
           <div class="stack">
             <label for="email">E-mail</label>
             <input id="email" type="email" placeholder="voce@email.com">
@@ -66,93 +70,171 @@
 
       <div class="row">
         <button id="btnLogout" class="btn-ghost">Sair</button>
+        <button id="btnBolao" class="btn" style="display:none">Ir para o Bolão</button>
         <span id="msg" class="status"></span>
       </div>
     </div>
   </div>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDKs compat -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
-    /******************** CONFIGURE AQUI ********************/
+    /******************** CONFIG FIREBASE NOVO ********************/
     const FIREBASE_CONFIG = {
-      apiKey:     "SUA_API_KEY",
-      authDomain: "seu-projeto.firebaseapp.com",
-      projectId:  "seu-projeto",
-      appId:      "SUA_APP_ID",
+      apiKey: "AIzaSyA8tO_E2s6R9bYnEW6_5skqCUrBSVLLKkw",
+      authDomain: "pss-bolao-esportivo.firebaseapp.com",
+      projectId: "pss-bolao-esportivo",
+      storageBucket: "pss-bolao-esportivo.firebasestorage.app",
+      messagingSenderId: "575209475526",
+      appId: "1:575209475526:web:7d2d1efa2d9fd8b600f6c7"
     };
-    // URL Web App implantado do seu Apps Script (Executar como você / Acesso: Qualquer pessoa)
-    const GAS_URL = "https://script.google.com/macros/s/SEU_DEPLOY_ID/exec";
-    /*******************************************************/
 
-    // Inicializa Firebase
+    // Mantido apenas por compatibilidade com a estrutura antiga do site.
+    // Se a action signup não existir ou falhar, o login no Firebase continuará funcionando.
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxbFTg0YODAo1oSX6OQe4HPbMnkrMsXQP93oJsTj4ilhA2fTiZgxk-4qKv1XPiNyyaC/exec";
+    const GAS_SYNC_ATIVO = true;
+    /**************************************************************/
+
     firebase.initializeApp(FIREBASE_CONFIG);
     const auth = firebase.auth();
+    const db = firebase.firestore();
 
-    // util UI
     const el = id => document.getElementById(id);
-    const show = (txt, cls) => { const m=el('msg'); m.className='status '+(cls||''); m.textContent=txt; };
+    const show = (txt, cls) => {
+      const m = el('msg');
+      m.className = 'status ' + (cls || '');
+      m.textContent = txt;
+    };
 
-    // Dispara cadastro/eco no GAS e persiste no navegador
+    function nomeUsuario(user){
+      return user.displayName || (user.email ? user.email.split('@')[0] : 'Participante');
+    }
+
+    async function garantirUsuarioFirestore(user){
+      const uid = user.uid;
+      const nome = nomeUsuario(user);
+      const email = user.email || '';
+      const foto = user.photoURL || '';
+
+      const ref = db.collection('usuarios').doc(uid);
+      const snap = await ref.get();
+
+      const base = {
+        uid: uid,
+        nome: nome,
+        email: email,
+        foto: foto,
+        ativo: true,
+        status: 'ATIVO',
+        perfilGlobal: 'USUARIO',
+        ultimoLoginEm: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      if(!snap.exists){
+        base.criadoEm = firebase.firestore.FieldValue.serverTimestamp();
+      }
+
+      await ref.set(base, { merge: true });
+
+      localStorage.setItem('uid', uid);
+      localStorage.setItem('nome', nome);
+      localStorage.setItem('email', email);
+      localStorage.setItem('foto', foto);
+    }
+
     async function syncWithGAS(user){
-      try{
-        const uid  = user.uid;
-        const name = user.displayName || (user.email ? user.email.split('@')[0] : 'Visitante');
-        // guarda para as outras páginas (home/bolao) seguirem usando
-        localStorage.setItem('uid', uid);
-        localStorage.setItem('nome', name);
+      if(!GAS_SYNC_ATIVO || !GAS_URL) return;
 
-        // chama signup (POST)
-        const res = await fetch(GAS_URL + '?action=signup', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
+      try{
+        const uid = user.uid;
+        const name = nomeUsuario(user);
+
+        await fetch(GAS_URL + '?action=signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ uid, name })
         });
-        const data = await res.json();
-        if(!(data && data.ok)) throw new Error(data?.error || 'Falha no cadastro');
-        show('Login OK e sincronizado ✅', 'ok');
-        el('who').textContent = name + ' ('+uid.slice(0,6)+'…)';
       }catch(err){
-        console.error(err);
-        show('Erro ao sincronizar com o servidor: '+ err.message, 'err');
+        console.warn('Aviso: GAS signup não sincronizado:', err);
       }
     }
 
-    // Observa mudanças de sessão
-    auth.onAuthStateChanged(user=>{
+    async function processarLogin(user){
+      const nome = nomeUsuario(user);
+      await garantirUsuarioFirestore(user);
+      await syncWithGAS(user);
+
+      el('who').textContent = nome + ' (' + user.uid.slice(0,6) + '…)';
+      el('btnGoogle').style.display = 'none';
+      el('btnLogout').style.display = 'inline-block';
+      el('btnBolao').style.display = 'inline-block';
+      show('Login OK. Cadastro automático ativo ✅', 'ok');
+    }
+
+    auth.onAuthStateChanged(async user => {
       if(user){
-        syncWithGAS(user);
+        try{
+          await processarLogin(user);
+        }catch(err){
+          console.error(err);
+          show('Login feito, mas houve erro ao criar cadastro: ' + err.message, 'err');
+        }
       }else{
         el('who').textContent = 'desconectado';
-        localStorage.removeItem('uid'); localStorage.removeItem('nome');
+        el('btnGoogle').style.display = 'inline-block';
+        el('btnLogout').style.display = 'inline-block';
+        el('btnBolao').style.display = 'none';
+        localStorage.removeItem('uid');
+        localStorage.removeItem('nome');
+        localStorage.removeItem('email');
+        localStorage.removeItem('foto');
         show('Sessão encerrada', '');
       }
     });
 
-    // Ações de UI
     el('btnGoogle').onclick = async () => {
       try{
         const provider = new firebase.auth.GoogleAuthProvider();
         await auth.signInWithPopup(provider);
-      }catch(err){ show('Google login falhou: '+err.message, 'err'); }
+      }catch(err){
+        show('Google login falhou: ' + err.message, 'err');
+      }
     };
+
     el('btnSignIn').onclick = async () => {
       try{
-        const email = el('email').value.trim(), pass = el('pass').value;
+        const email = el('email').value.trim();
+        const pass = el('pass').value;
         await auth.signInWithEmailAndPassword(email, pass);
-      }catch(err){ show('Erro ao entrar: '+err.message, 'err'); }
+      }catch(err){
+        show('Erro ao entrar: ' + err.message, 'err');
+      }
     };
+
     el('btnSignUp').onclick = async () => {
       try{
-        const email = el('email').value.trim(), pass = el('pass').value;
+        const email = el('email').value.trim();
+        const pass = el('pass').value;
         await auth.createUserWithEmailAndPassword(email, pass);
-        show('Conta criada! Você já está logado.', 'ok');
-      }catch(err){ show('Erro ao criar conta: '+err.message, 'err'); }
+        show('Conta criada. Você já está logado.', 'ok');
+      }catch(err){
+        show('Erro ao criar conta: ' + err.message, 'err');
+      }
     };
+
     el('btnLogout').onclick = async () => {
-      try{ await auth.signOut(); }catch(err){ show('Erro ao sair: '+err.message, 'err'); }
+      try{
+        await auth.signOut();
+      }catch(err){
+        show('Erro ao sair: ' + err.message, 'err');
+      }
+    };
+
+    el('btnBolao').onclick = () => {
+      window.location.href = 'bolao.html';
     };
   </script>
 </body>
