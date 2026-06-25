@@ -130,6 +130,240 @@
     .hero-grid{grid-template-columns:1.35fr .65fr}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.layout{grid-template-columns:380px 1fr}.cards{grid-template-columns:1fr}.field-grid{grid-template-columns:1fr 1fr}.selected-grid{grid-template-columns:1fr auto}.game-tools{grid-template-columns:1.2fr 1fr auto auto auto}.match-table{grid-template-columns:minmax(0,1fr) 92px 92px}
   }
   @media (max-width:480px){.app{padding:10px}.hero{border-radius:20px;padding:18px}.panel-head,.panel-body{padding:14px}.match-table{grid-template-columns:minmax(0,1fr) 58px 64px;gap:7px;padding:10px}.team{font-size:15px}.official-box,.inp-palpite{height:38px;font-size:15px}.match-foot{grid-template-columns:1fr auto}.autosave-status{grid-column:1/-1}.hero-actions .btn{width:100%}}
+
+
+  /* =========================================================
+     V3_VISUAL_PROFISSIONAL - acabamento de layout
+     Objetivo: reduzir aparência amadora, padronizar blocos,
+     centralizar métricas, remover desalinhamentos e deixar os
+     painéis com proporções mais consistentes.
+  ========================================================= */
+  .app{
+    max-width:1280px;
+    padding:22px;
+  }
+
+  .hero{
+    border-radius:30px;
+    padding:30px;
+    min-height:250px;
+  }
+
+  .hero-grid{
+    gap:26px;
+  }
+
+  .hero h1{
+    max-width:760px;
+  }
+
+  .hero p{
+    max-width:780px;
+    font-size:16px;
+  }
+
+  .hero-actions .btn{
+    min-width:170px;
+  }
+
+  .auth-card{
+    min-height:190px;
+    align-content:center;
+    padding:22px;
+  }
+
+  .auth-row{
+    align-items:center;
+  }
+
+  .auth-row:last-child{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+
+  .auth-row:last-child .btn{
+    width:100%;
+  }
+
+  .clock{
+    min-width:190px;
+    text-align:center;
+    display:inline-flex;
+    justify-content:center;
+  }
+
+  .stats{
+    gap:14px;
+    margin:18px 0;
+  }
+
+  .stat{
+    min-height:96px;
+    padding:18px 14px;
+    display:grid;
+    place-items:center;
+    text-align:center;
+    align-content:center;
+  }
+
+  .stat .n{
+    font-size:32px;
+    line-height:1;
+    width:100%;
+    text-align:center;
+  }
+
+  .stat .t{
+    width:100%;
+    text-align:center;
+    margin-top:8px;
+  }
+
+  .layout{
+    align-items:stretch;
+  }
+
+  .panel{
+    display:flex;
+    flex-direction:column;
+    min-height:430px;
+  }
+
+  .panel-head{
+    min-height:86px;
+    align-items:center;
+    padding:20px 20px 14px;
+  }
+
+  .panel-head h2{
+    font-size:22px;
+  }
+
+  .panel-body{
+    flex:1;
+    padding:20px;
+  }
+
+  .tabs{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:8px;
+    overflow:visible;
+    padding:12px 18px;
+    border-bottom:1px solid var(--line);
+  }
+
+  .tab{
+    width:100%;
+    min-height:42px;
+    padding:9px 8px;
+    text-align:center;
+    justify-content:center;
+    border-radius:14px;
+    white-space:nowrap;
+  }
+
+  .cards{
+    gap:14px;
+  }
+
+  .bolao-card{
+    min-height:142px;
+    align-content:space-between;
+    padding:17px;
+  }
+
+  .bolao-actions .btn{
+    flex:1 1 110px;
+  }
+
+  .empty{
+    min-height:86px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    line-height:1.35;
+  }
+
+  .selected-panel{
+    min-height:150px;
+    padding:18px;
+  }
+
+  .selected-grid{
+    gap:14px;
+  }
+
+  .share-box{
+    min-height:44px;
+    display:flex;
+    align-items:center;
+  }
+
+  .game-tools{
+    align-items:end;
+    gap:12px;
+  }
+
+  .game-tools > div,
+  .game-tools .btn{
+    min-width:0;
+  }
+
+  .game-tools .btn{
+    height:54px;
+    white-space:nowrap;
+  }
+
+  input,select,textarea{
+    min-height:52px;
+  }
+
+  .select-dark{
+    height:54px;
+  }
+
+  .match-card{
+    border-radius:22px;
+    padding:18px;
+  }
+
+  .match-table{
+    border-radius:18px;
+  }
+
+  .modal-card{
+    border-radius:22px;
+  }
+
+  @media (min-width:780px){
+    .hero-grid{grid-template-columns:minmax(0,1.55fr) minmax(340px,.65fr)}
+    .layout{grid-template-columns:minmax(390px,420px) minmax(0,1fr)}
+  }
+
+  @media (max-width:920px){
+    .tabs{
+      grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+    .tab{
+      white-space:normal;
+    }
+  }
+
+  @media (max-width:640px){
+    .app{padding:12px}
+    .hero{padding:20px;border-radius:22px}
+    .auth-row:last-child{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .stat{min-height:86px}
+    .stat .n{font-size:28px}
+    .tabs{grid-template-columns:repeat(2,minmax(0,1fr));padding:10px 14px}
+    .panel{min-height:0}
+    .game-tools .btn{height:auto;min-height:48px}
+  }
+
 </style>
 </head>
 <body>
