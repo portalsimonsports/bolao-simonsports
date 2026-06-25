@@ -273,6 +273,15 @@
   .opA-focus .panel-body{padding:18px}
   .opA-create-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .opA-create-grid .wide{grid-column:1/-1}
+  .form-hint{font-size:12px;color:#64748b;font-weight:850;line-height:1.35;margin-top:4px}
+  .scope-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .scope-grid .span2{grid-column:span 2}
+  .scope-box{border:1px dashed var(--line);background:#f8fafc;border-radius:14px;padding:10px}
+  .scope-box strong{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:8px}
+  .modal-card.bolao-editor{width:min(820px,96vw);max-height:92vh;overflow:auto}
+  .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .modal-grid .wide{grid-column:1/-1}
+  .mode-chip{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:1000;text-transform:uppercase;letter-spacing:.03em}
   #msg.empty{margin:0;min-height:95px}
   #view-resumo .empty{min-height:95px}
 
@@ -293,6 +302,9 @@
     .opA-list-card .cards{max-height:none}
     .opA-detail-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
     .opA-create-grid{grid-template-columns:1fr}
+    .scope-grid{grid-template-columns:1fr 1fr}
+    .modal-grid{grid-template-columns:1fr}
+    .modal-grid .wide{grid-column:auto}
     .match-table{grid-template-columns:minmax(0,1fr) 64px 74px}.match-card{padding:13px;border-radius:18px}.team{font-size:14px}
   }
 
@@ -493,6 +505,18 @@
               <div><label>Nome do bolão</label><input id="novoNome" placeholder="Ex.: Bolão da Rua Norte"></div>
               <div><label>Campeonato base</label><select id="novoCamp"></select></div>
               <div><label>Tipo</label><select id="novoTipo"><option value="PUBLICO">Público - entrada automática</option><option value="PRIVADO">Privado - aprovação pelo criador</option></select></div>
+              <div><label>Status inicial</label><select id="novoStatus"><option value="ATIVO">Ativo agora</option><option value="INATIVO">Criar inativo</option></select></div>
+              <div><label>Pontuação</label><select id="novoPontuacaoModo"><option value="SEM_PESO">Sem peso por rodada</option><option value="COM_PESO">Com peso por rodada</option></select><div class="form-hint">Com peso: pontos base × peso da rodada. Rodada 1 = 10, rodada 2 = 11...</div></div>
+              <div><label>Formato do bolão</label><select id="novoModoBolao"><option value="CAMPEONATO">Campeonato completo</option><option value="RODADA">Super rápido: uma rodada</option><option value="SEMANA">Super rápido: uma semana</option><option value="PERSONALIZADO">Personalizado</option></select><div class="form-hint">Use para bolões curtos, semanais ou recortes específicos.</div></div>
+              <div class="wide scope-box">
+                <strong>Recorte opcional</strong>
+                <div class="scope-grid">
+                  <div><label>Rodada inicial</label><input id="novoRodadaInicial" type="number" min="1" placeholder="ex.: 3"></div>
+                  <div><label>Rodada final</label><input id="novoRodadaFinal" type="number" min="1" placeholder="ex.: 5"></div>
+                  <div><label>Data inicial</label><input id="novoDataInicio" type="date"></div>
+                  <div><label>Data final</label><input id="novoDataFim" type="date"></div>
+                </div>
+              </div>
               <div class="wide"><label>Descrição</label><textarea id="novoDesc" placeholder="Regras rápidas, grupo, premiação ou observações."></textarea></div>
               <button class="btn primary wide" id="btnCriarBolao">Criar bolão agora</button>
             </div>
@@ -580,7 +604,7 @@
           <h3>Configurações do bolão</h3>
           <p>As opções abaixo aparecem para quem administra o bolão selecionado.</p>
           <div class="admin-actions" id="adminActions">
-            <button class="btn mini" id="btnEditarBolao" type="button">Editar nome</button>
+            <button class="btn mini" id="btnEditarBolao" type="button">Editar bolão</button>
             <button class="btn warn mini" id="btnInativarBolao" type="button">Inativar</button>
             <button class="btn danger mini" id="btnExcluirBolao" type="button">Excluir</button>
           </div>
@@ -621,6 +645,32 @@
     <h3>Participantes</h3>
     <div id="participantesLista" class="cards"><div class="empty">Selecione um bolão.</div></div>
     <div class="modal-actions"><button class="btn" id="partFechar">Fechar</button></div>
+  </div>
+</div>
+
+<div class="modal" id="bolaoEditorModal" aria-hidden="true">
+  <div class="modal-card bolao-editor">
+    <h3>Editar bolão</h3>
+    <p class="muted">Altere nome, campeonato, status, escopo e regra de pontuação. Alterações não reescrevem palpites já dados.</p>
+    <div class="modal-grid">
+      <div><label>Nome do bolão</label><input id="editNome"></div>
+      <div><label>Campeonato base</label><select id="editCamp"></select></div>
+      <div><label>Tipo</label><select id="editTipo"><option value="PUBLICO">Público - entrada automática</option><option value="PRIVADO">Privado - aprovação pelo criador</option></select></div>
+      <div><label>Status</label><select id="editStatus"><option value="ATIVO">Ativo</option><option value="INATIVO">Inativo</option></select></div>
+      <div><label>Pontuação</label><select id="editPontuacaoModo"><option value="SEM_PESO">Sem peso por rodada</option><option value="COM_PESO">Com peso por rodada</option></select><div class="form-hint">Com peso: pontos base × peso da rodada.</div></div>
+      <div><label>Formato do bolão</label><select id="editModoBolao"><option value="CAMPEONATO">Campeonato completo</option><option value="RODADA">Super rápido: uma rodada</option><option value="SEMANA">Super rápido: uma semana</option><option value="PERSONALIZADO">Personalizado</option></select></div>
+      <div class="wide scope-box">
+        <strong>Recorte do bolão</strong>
+        <div class="scope-grid">
+          <div><label>Rodada inicial</label><input id="editRodadaInicial" type="number" min="1"></div>
+          <div><label>Rodada final</label><input id="editRodadaFinal" type="number" min="1"></div>
+          <div><label>Data inicial</label><input id="editDataInicio" type="date"></div>
+          <div><label>Data final</label><input id="editDataFim" type="date"></div>
+        </div>
+      </div>
+      <div class="wide"><label>Descrição</label><textarea id="editDesc"></textarea></div>
+    </div>
+    <div class="modal-actions"><button class="btn" id="editFechar">Fechar</button><button class="btn primary" id="editSalvar">Salvar alterações</button></div>
   </div>
 </div>
 
@@ -775,6 +825,53 @@
   }
   $('#selCamp').addEventListener('change',e=>loadRodadas(e.target.value));
 
+  function readNumOrNull(selector){
+    const el=$(selector);
+    if(!el) return null;
+    const v=String(el.value||'').trim();
+    if(!v) return null;
+    const n=Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+  function readStr(selector){ return String($(selector)?.value || '').trim(); }
+  function readBolaoForm(prefix){
+    const nome=readStr('#'+prefix+'Nome');
+    const camp=readStr('#'+prefix+'Camp') || 'CUP';
+    const tipo=readStr('#'+prefix+'Tipo') || 'PRIVADO';
+    const status=readStr('#'+prefix+'Status') || 'ATIVO';
+    const pontuacaoModo=readStr('#'+prefix+'PontuacaoModo') || 'SEM_PESO';
+    const modoBolao=readStr('#'+prefix+'ModoBolao') || 'CAMPEONATO';
+    const rodadaInicial=readNumOrNull('#'+prefix+'RodadaInicial');
+    const rodadaFinal=readNumOrNull('#'+prefix+'RodadaFinal');
+    const dataInicio=readStr('#'+prefix+'DataInicio');
+    const dataFim=readStr('#'+prefix+'DataFim');
+    const descricao=readStr('#'+prefix+'Desc');
+    return {
+      nome, titulo:nome, campeonato:camp, camp, tipo, publico:tipo==='PUBLICO',
+      ativo:status !== 'INATIVO', statusBolao:status !== 'INATIVO' ? 'ATIVO' : 'INATIVO',
+      pontuacaoModo, usaPesoRodada:pontuacaoModo==='COM_PESO', pesoInicial:10,
+      modoBolao, formatoBolao:modoBolao, rodadaInicial, rodadaFinal, dataInicio, dataFim, descricao
+    };
+  }
+  function setVal(selector,value){ const el=$(selector); if(el) el.value = value ?? ''; }
+  function syncCampOptionsForEdit(){
+    const edit=$('#editCamp'), base=$('#selCamp');
+    if(edit && base){ edit.innerHTML=''; [...base.options].forEach(o=>edit.appendChild(o.cloneNode(true))); }
+  }
+  function formatoBolaoLabel(b){
+    const m=String(b?.modoBolao || b?.formatoBolao || 'CAMPEONATO').toUpperCase();
+    return ({CAMPEONATO:'Campeonato completo',RODADA:'Bolão de rodada',SEMANA:'Bolão semanal',PERSONALIZADO:'Personalizado'})[m] || 'Campeonato completo';
+  }
+  function pontuacaoLabel(b){ return (b?.usaPesoRodada===true || b?.pontuacaoModo==='COM_PESO') ? 'Com peso' : 'Sem peso'; }
+  function escopoBolaoResumo(b){
+    if(!b) return '';
+    const partes=[formatoBolaoLabel(b), pontuacaoLabel(b)];
+    if(b.rodadaInicial && b.rodadaFinal) partes.push(`Rodadas ${b.rodadaInicial} a ${b.rodadaFinal}`);
+    else if(b.rodadaInicial) partes.push(`Rodada ${b.rodadaInicial}`);
+    if(b.dataInicio || b.dataFim) partes.push(`${b.dataInicio || 'início'} até ${b.dataFim || 'fim'}`);
+    return partes.join(' • ');
+  }
+
   async function refreshAll(){ await Promise.allSettled([loadMeus(),loadPublicos()]); renderBoloes(); renderSelected(); }
   async function loadMeus(){
     if(state.uid==='GUEST'){ state.meus=[]; state.privados=[]; return; }
@@ -876,7 +973,7 @@
     list.forEach(b=>{
       const part=b.minhaParticipacao||{}; const selected=state.bolao && state.bolao.id===b.id;
       const div=document.createElement('div'); div.className='bolao-card'+(selected?' selected':'');
-      div.innerHTML=`<div class="bolao-title"><div><h3>${b.nome||b.titulo||'Bolão sem nome'}</h3><div class="bolao-meta"><span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Público':'Privado'}</span>${isAdminBolao(b)?'<span class="badge admin">Você administra</span>':''}${part.status==='PENDENTE'?'<span class="badge pendente">Pendente</span>':''}${b.ativo===false?'<span class="badge pendente">Inativo</span>':''}<span class="badge">${b.campeonato||b.camp||'CUP'}</span></div></div></div><div class="muted">${b.descricao||'Bolão esportivo com ranking e palpites.'}</div><div class="bolao-actions"><button class="btn primary mini" data-open="${b.id}">Abrir</button>${!part.status&&state.uid!=='GUEST'?'<button class="btn blue mini" data-join="'+b.id+'">Participar</button>':''}${isAdminBolao(b)?'<button class="btn mini" data-share="'+b.id+'">Convidar</button>':''}</div>`;
+      div.innerHTML=`<div class="bolao-title"><div><h3>${b.nome||b.titulo||'Bolão sem nome'}</h3><div class="bolao-meta"><span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Público':'Privado'}</span>${isAdminBolao(b)?'<span class="badge admin">Você administra</span>':''}${part.status==='PENDENTE'?'<span class="badge pendente">Pendente</span>':''}${b.ativo===false?'<span class="badge pendente">Inativo</span>':''}<span class="badge">${b.campeonato||b.camp||'CUP'}</span><span class="mode-chip">${pontuacaoLabel(b)}</span></div></div></div><div class="muted">${b.descricao||escopoBolaoResumo(b)||'Bolão esportivo com ranking e palpites.'}</div><div class="bolao-actions"><button class="btn primary mini" data-open="${b.id}">Abrir</button>${!part.status&&state.uid!=='GUEST'?'<button class="btn blue mini" data-join="'+b.id+'">Participar</button>':''}${isAdminBolao(b)?'<button class="btn mini" data-share="'+b.id+'">Convidar</button>':''}</div>`;
       box.appendChild(div);
     });
     box.querySelectorAll('[data-open]').forEach(btn=>btn.onclick=()=>selectBolao(list.find(b=>b.id===btn.dataset.open)));
@@ -916,8 +1013,8 @@
     const admin=isAdminBolao(b);
     box.style.display='grid'; $('#mainHint').textContent='Agora carregue os jogos, salve palpites ou compartilhe o convite.';
     $('#selNome').textContent=b.nome||b.titulo||'Bolão selecionado';
-    $('#selResumo').textContent=`${b.publico?'Público':'Privado'} • ${b.campeonato||b.camp||'CUP'} • ${b.ativo===false?'Inativo':'Ativo'}`;
-    $('#selBadges').innerHTML=`<span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Entrada automática':'Aprovação do criador'}</span>${admin?'<span class="badge admin">Administrador</span>':''}${b.ativo===false?'<span class="badge pendente">Inativo</span>':''}<span class="badge auto">Autosave ativo</span>`;
+    $('#selResumo').textContent=`${b.publico?'Público':'Privado'} • ${b.campeonato||b.camp||'CUP'} • ${b.ativo===false?'Inativo':'Ativo'} • ${escopoBolaoResumo(b)}`;
+    $('#selBadges').innerHTML=`<span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Entrada automática':'Aprovação do criador'}</span>${admin?'<span class="badge admin">Administrador</span>':''}${b.ativo===false?'<span class="badge pendente">Inativo</span>':''}<span class="badge auto">${pontuacaoLabel(b)}</span><span class="mode-chip">${formatoBolaoLabel(b)}</span><span class="badge auto">Autosave ativo</span>`;
     $('#shareBox').textContent=shareUrl(b.id);
     $('#miniCamp').textContent=b.campeonato||b.camp||'CUP';
     $('#miniRodada').textContent=$('#selRod')?.value ? ($('#selRod').value + 'ª') : '-';
@@ -929,15 +1026,25 @@
 
   async function criarBolao(){
     if(state.uid==='GUEST'){ toast('Entre com Google antes de criar um bolão.'); return; }
-    const nome=$('#novoNome').value.trim(); if(!nome){ toast('Informe o nome do bolão.'); return; }
-    const camp=$('#novoCamp').value||'CUP'; const tipo=$('#novoTipo').value; const publico=tipo==='PUBLICO'; const id=safeId(codeBolao());
-    const payload={ id, nome, titulo:nome, campeonato:camp, camp, tipo, publico, ativo:true, criadorUid:state.uid, criadorNome:state.nome, descricao:$('#novoDesc').value.trim(), codigoConvite:id, criadoEm:firebase.firestore.FieldValue.serverTimestamp(), atualizadoEm:firebase.firestore.FieldValue.serverTimestamp() };
+    const form=readBolaoForm('novo');
+    if(!form.nome){ toast('Informe o nome do bolão.'); return; }
+    const id=safeId(codeBolao());
+    const payload={
+      id, ...form,
+      criadorUid:state.uid, criadorNome:state.nome, codigoConvite:id, excluido:false,
+      criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
+      atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    };
     await db.collection('boloes').doc(id).set(payload);
     const minhaParticipacao = { uid:state.uid, nome:state.nome, email:state.email, foto:state.foto, papel:'CRIADOR', status:'APROVADO', ativo:true, criadoEm:firebase.firestore.FieldValue.serverTimestamp(), atualizadoEm:firebase.firestore.FieldValue.serverTimestamp() };
     await db.collection('boloes').doc(id).collection('participantes').doc(state.uid).set(minhaParticipacao);
     await upsertMeuBolaoIndex(id, payload, minhaParticipacao);
     await ensureDesafianteBolao(id);
-    $('#novoNome').value=''; $('#novoDesc').value=''; await refreshAll(); selectBolao({id,...payload,minhaParticipacao:{papel:'CRIADOR',status:'APROVADO',ativo:true}}); setTab('meus'); toast('Bolão criado. Você é o administrador deste bolão e o Desafiante Simon IA já foi incluído.');
+    $('#novoNome').value=''; $('#novoDesc').value='';
+    await refreshAll();
+    selectBolao({id,...payload,minhaParticipacao:{papel:'CRIADOR',status:'APROVADO',ativo:true}});
+    setTab('meus');
+    toast('Bolão criado com configuração completa. Você é o administrador deste bolão e o Desafiante Simon IA já foi incluído.');
   }
   $('#btnCriarBolao').onclick=()=>criarBolao().catch(e=>toast('Erro ao criar bolão: '+e.message));
 
@@ -962,14 +1069,40 @@
     toast(msgOk || 'Bolão atualizado.');
   }
 
-  async function editarNomeBolao(){
+  function abrirEditarBolao(){
     if(!state.bolao){ toast('Selecione um bolão.'); return; }
-    const atual=state.bolao.nome||state.bolao.titulo||'';
-    const nome=prompt('Novo nome do bolão:', atual);
-    if(nome===null) return;
-    const novo=nome.trim();
-    if(!novo){ toast('O nome do bolão não pode ficar vazio.'); return; }
-    await atualizarBolaoAdmin({nome:novo,titulo:novo}, 'Nome do bolão atualizado.');
+    if(!isAdminBolao(state.bolao)){ toast('Apenas o administrador deste bolão pode editar.'); return; }
+    syncCampOptionsForEdit();
+    const b=state.bolao;
+    setVal('#editNome', b.nome||b.titulo||'');
+    setVal('#editCamp', b.campeonato||b.camp||'CUP');
+    setVal('#editTipo', b.tipo || (b.publico ? 'PUBLICO' : 'PRIVADO'));
+    setVal('#editStatus', b.ativo===false ? 'INATIVO' : 'ATIVO');
+    setVal('#editPontuacaoModo', b.usaPesoRodada===true || b.pontuacaoModo==='COM_PESO' ? 'COM_PESO' : 'SEM_PESO');
+    setVal('#editModoBolao', b.modoBolao || b.formatoBolao || 'CAMPEONATO');
+    setVal('#editRodadaInicial', b.rodadaInicial ?? '');
+    setVal('#editRodadaFinal', b.rodadaFinal ?? '');
+    setVal('#editDataInicio', b.dataInicio || '');
+    setVal('#editDataFim', b.dataFim || '');
+    setVal('#editDesc', b.descricao || '');
+    $('#bolaoEditorModal').classList.add('open');
+  }
+
+  async function salvarEdicaoBolao(){
+    if(!state.bolao){ toast('Selecione um bolão.'); return; }
+    if(!isAdminBolao(state.bolao)){ toast('Apenas o administrador deste bolão pode salvar alterações.'); return; }
+    const form=readBolaoForm('edit');
+    if(!form.nome){ toast('O nome do bolão não pode ficar vazio.'); return; }
+    await atualizarBolaoAdmin(form, 'Configurações do bolão atualizadas.');
+    $('#bolaoEditorModal').classList.remove('open');
+    if($('#selCamp') && form.camp){
+      $('#selCamp').value=form.camp;
+      await loadRodadas(form.camp);
+      atualizarLetreiroCampeonato(form.camp).catch(()=>{});
+    }
+    state.jogos=[];
+    state.jogosExibidos=[];
+    iniciarBolaoSelecionadoAuto(state.bolao).catch(e=>console.warn('Auto pós-edição:',e));
   }
 
   async function alternarBolaoAtivo(){
@@ -997,7 +1130,9 @@
     toast('Bolão excluído da sua área e inativado no sistema.');
   }
 
-  $('#btnEditarBolao')?.addEventListener('click',()=>editarNomeBolao().catch(e=>toast('Erro ao editar bolão: '+e.message)));
+  $('#btnEditarBolao')?.addEventListener('click',()=>abrirEditarBolao());
+  $('#editFechar')?.addEventListener('click',()=>$('#bolaoEditorModal').classList.remove('open'));
+  $('#editSalvar')?.addEventListener('click',()=>salvarEdicaoBolao().catch(e=>toast('Erro ao salvar edição: '+e.message)));
   $('#btnInativarBolao')?.addEventListener('click',()=>alternarBolaoAtivo().catch(e=>toast('Erro ao alterar status do bolão: '+e.message)));
   $('#btnExcluirBolao')?.addEventListener('click',()=>excluirBolao().catch(e=>toast('Erro ao excluir bolão: '+e.message)));
 
@@ -1224,6 +1359,44 @@
     return Array.from($('#selRod')?.options || []).map(o=>String(o.value||'').trim()).filter(Boolean);
   }
 
+  function dataISODateOnly(d){
+    if(!d) return '';
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function rodadaPermitidaNoBolao(rodada){
+    const b=state.bolao; if(!b) return true;
+    const modo=String(b.modoBolao || b.formatoBolao || 'CAMPEONATO').toUpperCase();
+    const r=Number(rodada);
+    if(!Number.isFinite(r)) return true;
+    const ri=Number(b.rodadaInicial || 0);
+    const rf=Number(b.rodadaFinal || 0);
+    if(modo==='RODADA') return ri ? r===ri : true;
+    if((modo==='PERSONALIZADO' || modo==='CAMPEONATO') && (ri || rf)){
+      if(ri && r<ri) return false;
+      if(rf && r>rf) return false;
+    }
+    return true;
+  }
+  function dataPermitidaNoBolao(g){
+    const b=state.bolao; if(!b) return true;
+    const modo=String(b.modoBolao || b.formatoBolao || 'CAMPEONATO').toUpperCase();
+    if(!['SEMANA','PERSONALIZADO'].includes(modo) && !b.dataInicio && !b.dataFim) return true;
+    const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||'');
+    if(!d) return true;
+    const iso=dataISODateOnly(d);
+    if(b.dataInicio && iso < b.dataInicio) return false;
+    if(b.dataFim && iso > b.dataFim) return false;
+    return true;
+  }
+  function filtrarJogosPorEscopoBolao(rows, rodada){
+    return (rows||[]).filter(g=>rodadaPermitidaNoBolao(rodada) && dataPermitidaNoBolao(g));
+  }
+  function pesoDaRodada(rodada){
+    const r=Number(rodada || $('#selRod')?.value || 1);
+    const base=Number(state.bolao?.pesoInicial || 10);
+    return base + Math.max((Number.isFinite(r)?r:1)-1,0);
+  }
+
   function jogoFuturoAberto(g){
     const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||'');
     const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d);
@@ -1240,7 +1413,8 @@
     let fallback=null;
     for(const rodada of rodadas){
       try{
-        const rows=await buscarJogosRodada(camp,rodada);
+        let rows=await buscarJogosRodada(camp,rodada);
+        rows=filtrarJogosPorEscopoBolao(rows, rodada);
         if(!rows || !rows.length) continue;
         rows.sort((a,b)=>(parseDateSafe(a.data_jogo||a.data||a.horario||a.inicio||'')?.getTime()||0)-(parseDateSafe(b.data_jogo||b.data||b.horario||b.inicio||'')?.getTime()||0));
         if(!fallback) fallback={rodada,rows};
@@ -1308,7 +1482,7 @@
       const uidp=p.uid||p.nome||'participante';
       const atual=agg.get(uidp)||{nome:p.nome||uidp,pontos:0,jogos:0,exatos:0,virtual:p.virtual===true};
       const pts=pontuarPalpite(p,g);
-      atual.pontos+=pts; atual.jogos+=1; if(pts===25) atual.exatos+=1; if(p.virtual) atual.virtual=true;
+      atual.pontos+=pts; atual.jogos+=1; if(palpiteExato(p,g)) atual.exatos+=1; if(p.virtual) atual.virtual=true;
       agg.set(uidp,atual);
     });
     const rows=Array.from(agg.values()).sort((a,b)=>b.pontos-a.pontos || b.exatos-a.exatos || a.nome.localeCompare(b.nome));
@@ -1324,7 +1498,8 @@
     const maxScan = camp==='CUP' ? rodadas.length : Math.min(rodadas.length, 12);
     for(const rodada of rodadas.slice(0,maxScan)){
       try{
-        const rows=await buscarJogosRodada(camp,rodada);
+        let rows=await buscarJogosRodada(camp,rodada);
+        rows=filtrarJogosPorEscopoBolao(rows, rodada);
         rows.forEach((g,idx)=>{
           const id=String(g.id||`${camp}_${rodada}_${idx}`);
           const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||'');
@@ -1421,7 +1596,8 @@
 
     try{
       let rows = Array.isArray(opts.rowsPreloaded) ? opts.rowsPreloaded : await apiGet(withDualAction('jogos', `camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}`));
-      if(!rows||!rows.length){ toast(`Nenhum jogo encontrado para ${camp} • ${rodada}ª rodada.`); return; }
+      rows=filtrarJogosPorEscopoBolao(rows, rodada);
+      if(!rows||!rows.length){ toast(`Nenhum jogo encontrado dentro do escopo deste bolão para ${camp} • ${rodada}ª rodada.`); return; }
       rows.sort((a,b)=>(parseDateSafe(a.data_jogo||a.data||a.horario||a.inicio||'')?.getTime()||0)-(parseDateSafe(b.data_jogo||b.data||b.horario||b.inicio||'')?.getTime()||0));
       state.jogos=rows;
       atualizarLetreiroCampeonato(camp).catch(e=>console.warn('Letreiro:',e));
@@ -1470,7 +1646,7 @@
     if(gm===''||gv===''){ setSaveStatus(id,'preencha os dois placares','err'); return; }
     setSaveStatus(id,'salvando...','saving');
     try{ await apiGet(withDualAction('salvarPalpite', `camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}&id=${encodeURIComponent(id)}&gm=${encodeURIComponent(gm)}&gv=${encodeURIComponent(gv)}&origem=${encodeURIComponent(origem||'manual')}`)); }catch(e){ console.warn('Apps Script falhou:',e); }
-    if(state.bolao){ const docId=safeId(`${state.uid}_${camp}_${rodada}_${id}`); await db.collection('boloes').doc(state.bolao.id).collection('palpites').doc(docId).set({uid:state.uid,nome:state.nome,idJogo:id,camp,rodada:String(rodada),gm:Number(gm),gv:Number(gv),origem:origem||'manual',atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}); }
+    if(state.bolao){ const docId=safeId(`${state.uid}_${camp}_${rodada}_${id}`); await db.collection('boloes').doc(state.bolao.id).collection('palpites').doc(docId).set({uid:state.uid,nome:state.nome,idJogo:id,camp,rodada:String(rodada),gm:Number(gm),gv:Number(gv),origem:origem||'manual',pontuacaoModo:state.bolao?.pontuacaoModo||'SEM_PESO',usaPesoRodada:state.bolao?.usaPesoRodada===true,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}); }
     setSaveStatus(id,'salvo automaticamente ✓','ok');
   }
   function attachSaveListeners(camp,rodada){
@@ -1613,7 +1789,7 @@
     return `${g.mandante||g.home||g.time_mandante||'-'} x ${g.visitante||g.away||g.time_visitante||'-'}`;
   }
 
-  function pontuarPalpite(p,g){
+  function pontosBasePalpite(p,g){
     const of=placarOficialJogo(g);
     if(!of) return 0;
     const pgm=Number(p.gm), pgv=Number(p.gv);
@@ -1627,6 +1803,14 @@
     }
     return 0;
   }
+  function pontuarPalpite(p,g){
+    const base=pontosBasePalpite(p,g);
+    if(!base) return 0;
+    const usarPeso = state.bolao?.usaPesoRodada === true || state.bolao?.pontuacaoModo === 'COM_PESO';
+    if(!usarPeso) return base;
+    return base * pesoDaRodada(p.rodada || g.__rodada || $('#selRod')?.value || 1);
+  }
+  function palpiteExato(p,g){ return pontosBasePalpite(p,g) === 25; }
 
   async function buscarPalpitesFirestoreRodada(){
     if(!state.bolao) return [];
@@ -1651,7 +1835,7 @@
       const pts=pontuarPalpite(p,g);
       atual.pontos+=pts;
       atual.jogos+=1;
-      if(pts===25) atual.exatos+=1;
+      if(palpiteExato(p,g)) atual.exatos+=1;
       if(p.virtual) atual.virtual=true;
       agg.set(uidp,atual);
     });
