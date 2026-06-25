@@ -98,6 +98,14 @@
   .empty{border:1px dashed #cbd5e1;border-radius:18px;padding:18px;background:#f8fafc;color:#64748b;font-weight:750}
   .muted{color:var(--muted);font-weight:700}
   .field-grid{display:grid;grid-template-columns:1fr;gap:12px}
+  .pa-profile-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+  .pa-profile{border:1px solid #dbe3ef;background:#f8fafc;border-radius:16px;padding:12px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;cursor:pointer}
+  .pa-profile:hover{border-color:#94a3b8;background:#fff}
+  .pa-profile input{margin-top:4px}
+  .pa-profile strong{display:block;font-size:15px;font-weight:1000;color:#0f172a}
+  .pa-profile span{display:block;font-size:12px;font-weight:750;color:#64748b;margin-top:3px;line-height:1.35}
+  .pa-note{margin-top:12px;border:1px dashed #cbd5e1;background:#f8fafc;border-radius:14px;padding:10px;color:#475569;font-size:13px;font-weight:750;line-height:1.4}
+  .badge.virtual{background:#ede9fe;color:#5b21b6}
   label{display:block;font-size:12px;color:#64748b;font-weight:1000;margin:0 0 6px;text-transform:uppercase;letter-spacing:.04em}
   input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:14px;background:#fff;color:#0f172a;padding:12px;outline:none;font-weight:800;min-height:44px}
   textarea{min-height:90px;resize:vertical}
@@ -462,13 +470,26 @@
 <div class="modal" id="paModal" aria-hidden="true">
   <div class="modal-card">
     <h3>Palpite Automático</h3>
-    <p class="muted">Defina um placar padrão provisório. O P.A. só aplica em jogos futuros, ainda não iniciados, e que estejam sem palpite.</p>
-    <div class="field-grid">
-      <div><label>Gols mandante</label><input id="paGM" type="number" min="0" inputmode="numeric" placeholder="1"></div>
-      <div><label>Gols visitante</label><input id="paGV" type="number" min="0" inputmode="numeric" placeholder="1"></div>
+    <p class="muted">Escolha um perfil estatístico. O P.A. só aplica em jogos futuros, ainda não iniciados, e que estejam sem palpite.</p>
+
+    <div class="pa-profile-grid">
+      <label class="pa-profile">
+        <input type="radio" name="paPerfil" value="EQUILIBRADO" checked>
+        <span><strong>Equilibrado</strong><span>Palpites moderados, com placares curtos e pequena vantagem para o time mais forte.</span></span>
+      </label>
+      <label class="pa-profile">
+        <input type="radio" name="paPerfil" value="FAVORITOS">
+        <span><strong>Favoritos</strong><span>Valoriza força estatística, tradição, ranking e mando. Tende a escolher vitória do favorito.</span></span>
+      </label>
+      <label class="pa-profile">
+        <input type="radio" name="paPerfil" value="SURPRESA">
+        <span><strong>Surpresa</strong><span>Inclui zebras controladas e empates estratégicos, sem alterar jogos já iniciados.</span></span>
+      </label>
     </div>
+
+    <div class="pa-note">Regra de segurança: mudar o perfil nunca altera palpites de jogos passados, jogos já iniciados ou jogos que já possuem palpite salvo.</div>
     <label style="margin-top:12px;text-transform:none;letter-spacing:0"><input type="checkbox" id="paAplicarAgora" checked> Aplicar agora somente em jogos futuros carregados e sem palpite</label>
-    <div class="modal-actions"><button class="btn" id="paFechar">Fechar</button><button class="btn danger" id="paRemover">Remover P.A.</button><button class="btn primary" id="paSalvar">Salvar P.A.</button></div>
+    <div class="modal-actions"><button class="btn" id="paFechar">Fechar</button><button class="btn danger" id="paRemover">Remover P.A.</button><button class="btn primary" id="paSalvar">Salvar perfil</button></div>
   </div>
 </div>
 
@@ -505,6 +526,8 @@
   const $$ = s => Array.from(document.querySelectorAll(s));
   const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', camp:'', bolao:null, meus:[], publicos:[], privados:[], pa:null, jogos:[] };
   const autosaveTimers = {};
+  const DESAFIANTE_UID = 'DESAFIANTE_SIMON_IA';
+  const DESAFIANTE_NOME = '🤖 Desafiante Simon IA';
 
   function p2(n){ return String(n).padStart(2,'0'); }
   function fmtClock(d){ return `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}`; }
@@ -647,7 +670,7 @@
     box.querySelectorAll('[data-join]').forEach(btn=>btn.onclick=()=>entrarBolao(btn.dataset.join));
     box.querySelectorAll('[data-share]').forEach(btn=>btn.onclick=()=>copiarConvite(btn.dataset.share));
   }
-  function selectBolao(b){ state.bolao=b; if(b.campeonato||b.camp){ $('#selCamp').value=b.campeonato||b.camp; loadRodadas($('#selCamp').value); } renderBoloes(); renderSelected(); toast('Bolão selecionado: '+(b.nome||b.titulo||b.id)); }
+  function selectBolao(b){ state.bolao=b; if(b.campeonato||b.camp){ $('#selCamp').value=b.campeonato||b.camp; loadRodadas($('#selCamp').value); } if(isAdminBolao(b)) ensureDesafianteBolao(b.id); renderBoloes(); renderSelected(); toast('Bolão selecionado: '+(b.nome||b.titulo||b.id)); }
   function renderSelected(){
     const box=$('#bolaoSelecionado');
     if(!state.bolao){ box.style.display='none'; $('#mainHint').textContent='Selecione um bolão ou crie um novo para começar.'; return; }
@@ -664,9 +687,29 @@
     const payload={ id, nome, titulo:nome, campeonato:camp, camp, tipo, publico, ativo:true, criadorUid:state.uid, criadorNome:state.nome, descricao:$('#novoDesc').value.trim(), codigoConvite:id, criadoEm:firebase.firestore.FieldValue.serverTimestamp(), atualizadoEm:firebase.firestore.FieldValue.serverTimestamp() };
     await db.collection('boloes').doc(id).set(payload);
     await db.collection('boloes').doc(id).collection('participantes').doc(state.uid).set({ uid:state.uid, nome:state.nome, email:state.email, foto:state.foto, papel:'CRIADOR', status:'APROVADO', ativo:true, criadoEm:firebase.firestore.FieldValue.serverTimestamp(), atualizadoEm:firebase.firestore.FieldValue.serverTimestamp() });
-    $('#novoNome').value=''; $('#novoDesc').value=''; await refreshAll(); selectBolao({id,...payload,minhaParticipacao:{papel:'CRIADOR',status:'APROVADO',ativo:true}}); setTab('meus'); toast('Bolão criado. Você é o administrador deste bolão.');
+    await ensureDesafianteBolao(id);
+    $('#novoNome').value=''; $('#novoDesc').value=''; await refreshAll(); selectBolao({id,...payload,minhaParticipacao:{papel:'CRIADOR',status:'APROVADO',ativo:true}}); setTab('meus'); toast('Bolão criado. Você é o administrador deste bolão e o Desafiante Simon IA já foi incluído.');
   }
   $('#btnCriarBolao').onclick=()=>criarBolao().catch(e=>toast('Erro ao criar bolão: '+e.message));
+
+  async function ensureDesafianteBolao(bolaoId){
+    if(!bolaoId) return;
+    try{
+      await db.collection('boloes').doc(bolaoId).collection('participantes').doc(DESAFIANTE_UID).set({
+        uid:DESAFIANTE_UID,
+        nome:DESAFIANTE_NOME,
+        email:'virtual@portalsimonsports.local',
+        foto:'',
+        papel:'DESAFIANTE',
+        status:'APROVADO',
+        ativo:true,
+        virtual:true,
+        observacao:'Concorrente virtual estatístico. Não representa participante real e não tem participação financeira.',
+        criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
+        atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+      },{merge:true});
+    }catch(e){ console.warn('Não foi possível garantir o Desafiante neste bolão:', e); }
+  }
 
   async function entrarBolao(id){
     if(state.uid==='GUEST'){ toast('Entre com Google antes de participar.'); return; }
@@ -692,7 +735,7 @@
     try{
       const qs=await db.collection('boloes').doc(b.id).collection('participantes').get();
       if(qs.empty){ lista.innerHTML='<div class="empty">Nenhum participante.</div>'; return; }
-      lista.innerHTML=''; qs.docs.forEach(d=>{ const p=d.data(); const card=document.createElement('div'); card.className='bolao-card'; card.innerHTML=`<div><strong>${p.nome||p.email||p.uid}</strong><div class="bolao-meta"><span class="badge ${p.status==='PENDENTE'?'pendente':'publico'}">${p.status}</span><span class="badge">${p.papel}</span></div></div>${isAdminBolao(b)&&p.status==='PENDENTE'?'<div class="bolao-actions"><button class="btn primary mini" data-aprovar="'+p.uid+'">Aprovar</button><button class="btn danger mini" data-recusar="'+p.uid+'">Recusar</button></div>':''}`; lista.appendChild(card); });
+      lista.innerHTML=''; qs.docs.forEach(d=>{ const p=d.data(); const card=document.createElement('div'); card.className='bolao-card'; card.innerHTML=`<div><strong>${p.nome||p.email||p.uid}</strong><div class="bolao-meta"><span class="badge ${p.status==='PENDENTE'?'pendente':'publico'}">${p.status}</span><span class="badge ${p.virtual?'virtual':''}">${p.papel}</span>${p.virtual?'<span class="badge virtual">Virtual</span>':''}</div></div>${isAdminBolao(b)&&p.status==='PENDENTE'?'<div class="bolao-actions"><button class="btn primary mini" data-aprovar="'+p.uid+'">Aprovar</button><button class="btn danger mini" data-recusar="'+p.uid+'">Recusar</button></div>':''}`; lista.appendChild(card); });
       lista.querySelectorAll('[data-aprovar]').forEach(btn=>btn.onclick=()=>aprovarParticipante(btn.dataset.aprovar,true));
       lista.querySelectorAll('[data-recusar]').forEach(btn=>btn.onclick=()=>aprovarParticipante(btn.dataset.recusar,false));
     }catch(e){ lista.innerHTML='<div class="empty">Erro: '+e.message+'</div>'; }
@@ -732,9 +775,9 @@
       $('#lista').innerHTML=rows.map((g,idx)=>{
         const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''); const dts=d?(d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})):'--'; const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d);
         const home=g.mandante||g.home||g.time_mandante||'-', away=g.visitante||g.away||g.time_visitante||'-'; const gm=numOrEmpty(g.gols_mandante_oficial??g.gm??g.gols_mandante,status), gv=numOrEmpty(g.gols_visitante_oficial??g.gv??g.gols_visitante,status); const id=g.id||`${camp}_${rodada}_${idx}`; const p=palpites[id]||{}; const abertoPalpite=isJogoAbertoParaPalpite(d,status); const disabled=!abertoPalpite;
-        return `<div class="match-card" data-jogo="${id}" data-palpite-aberto="${abertoPalpite?'1':'0'}"><div class="match-head"><div><div class="match-date">${dts}</div><div class="match-meta">${camp} • ${rodada}ª Rodada</div></div><span class="eta js-eta" data-status="${status}" data-t="${d?d.toISOString():''}">${status==='agendado'?liveCountdown(d):'encerrado'}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div><div class="team">${home}</div><div class="official-box">${gm}</div>${palpiteField(id+'_gm',p.gm,disabled)}<div class="team">${away}</div><div class="official-box">${gv}</div>${palpiteField(id+'_gv',p.gv,disabled)}</div><div class="match-foot"><div><div class="foot-label">Seu palpite</div><div class="autosave-status" data-status-save="${id}">${p.atualizadoEm?'salvo anteriormente':(abertoPalpite?'':'palpite encerrado')}</div></div><span class="pts" data-pts="${id}">0 pts</span><button class="btn primary mini" data-save="${id}" ${disabled?'disabled':''}>Salvar</button></div></div>`;
+        return `<div class="match-card" data-jogo="${id}" data-home="${String(home).replace(/"/g,'&quot;')}" data-away="${String(away).replace(/"/g,'&quot;')}" data-palpite-aberto="${abertoPalpite?'1':'0'}"><div class="match-head"><div><div class="match-date">${dts}</div><div class="match-meta">${camp} • ${rodada}ª Rodada</div></div><span class="eta js-eta" data-status="${status}" data-t="${d?d.toISOString():''}">${status==='agendado'?liveCountdown(d):'encerrado'}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div><div class="team">${home}</div><div class="official-box">${gm}</div>${palpiteField(id+'_gm',p.gm,disabled)}<div class="team">${away}</div><div class="official-box">${gv}</div>${palpiteField(id+'_gv',p.gv,disabled)}</div><div class="match-foot"><div><div class="foot-label">Seu palpite</div><div class="autosave-status" data-status-save="${id}">${p.atualizadoEm?'salvo anteriormente':(abertoPalpite?'':'palpite encerrado')}</div></div><span class="pts" data-pts="${id}">0 pts</span><button class="btn primary mini" data-save="${id}" ${disabled?'disabled':''}>Salvar</button></div></div>`;
       }).join('');
-      $('#msg').hidden=true; $('#lista').hidden=false; attachSaveListeners(camp,rodada); applyPAIfNeeded(camp,rodada); startEtaTicker();
+      $('#msg').hidden=true; $('#lista').hidden=false; attachSaveListeners(camp,rodada); applyPAIfNeeded(camp,rodada); gerarDesafianteParaJogos(camp,rodada).catch(e=>console.warn('Desafiante:',e)); startEtaTicker();
     }catch(e){ toast('Erro: '+e.message); }
   }
   $('#btnCarregar').onclick=carregarJogos;
@@ -761,23 +804,90 @@
   }
 
   const paModal=$('#paModal'); $('#btnPA').onclick=()=>paModal.classList.add('open'); $('#paFechar').onclick=()=>paModal.classList.remove('open');
-  function loadPA(){ try{ state.pa=JSON.parse(localStorage.getItem('PSS_PA_BOLAO')||'null'); if(state.pa){ $('#paGM').value=state.pa.gm; $('#paGV').value=state.pa.gv; } }catch(_){ state.pa=null; } }
+  function loadPA(){
+    try{
+      state.pa=JSON.parse(localStorage.getItem('PSS_PA_BOLAO')||'null');
+      if(state.pa?.perfil){ const r=document.querySelector(`input[name="paPerfil"][value="${state.pa.perfil}"]`); if(r) r.checked=true; }
+    }catch(_){ state.pa=null; }
+  }
   function savePA(pa){ state.pa=pa; if(pa) localStorage.setItem('PSS_PA_BOLAO',JSON.stringify(pa)); else localStorage.removeItem('PSS_PA_BOLAO'); }
   $('#paRemover').onclick=()=>{ savePA(null); paModal.classList.remove('open'); toast('Palpite automático removido.'); };
-  $('#paSalvar').onclick=()=>{ const gm=Number($('#paGM').value||0), gv=Number($('#paGV').value||0); savePA({gm,gv,ts:Date.now()}); paModal.classList.remove('open'); toast('Palpite automático salvo.'); if($('#paAplicarAgora').checked) applyPAIfNeeded($('#selCamp').value,$('#selRod').value); };
+  $('#paSalvar').onclick=()=>{
+    const perfil=(document.querySelector('input[name="paPerfil"]:checked')?.value || 'EQUILIBRADO');
+    savePA({perfil,ts:Date.now()});
+    paModal.classList.remove('open');
+    toast('Perfil de P.A. salvo: '+labelPerfilPA(perfil)+'.');
+    if($('#paAplicarAgora').checked) applyPAIfNeeded($('#selCamp').value,$('#selRod').value);
+  };
+
+  function labelPerfilPA(perfil){ return ({EQUILIBRADO:'Equilibrado',FAVORITOS:'Favoritos',SURPRESA:'Surpresa'})[perfil] || 'Equilibrado'; }
+  function normTeamName(v){ return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); }
+  function hashInt(s){ let h=0; for(let i=0;i<String(s).length;i++) h=(h*31+String(s).charCodeAt(i))|0; return Math.abs(h); }
+  const TEAM_STRENGTH = {
+    'brazil':96,'brasil':96,'france':95,'franca':95,'argentina':94,'england':92,'inglaterra':92,'spain':92,'espanha':92,'portugal':90,'germany':89,'alemanha':89,'netherlands':88,'paises baixos':88,'italy':87,'italia':87,'belgium':86,'belgica':86,'uruguay':85,'uruguai':85,'croatia':84,'croacia':84,'colombia':83,'mexico':81,'usa':80,'united states':80,'estados unidos':80,'morocco':80,'marrocos':80,'switzerland':79,'suica':79,'japan':78,'japao':78,'denmark':78,'dinamarca':78,'senegal':77,'south korea':76,'coreia do sul':76,'ecuador':76,'serbia':75,'servia':75,'austria':75,'australia':74,'canada':73,'ivory coast':73,'cote d ivoire':73,'costa do marfim':73,'poland':73,'polonia':73,'sweden':74,'suecia':74,'norway':76,'noruega':76,'chile':72,'paraguay':72,'paraguai':72,'peru':71,'south africa':70,'africa do sul':70,'ghana':72,'nigeria':74,'cameroon':71,'camaroes':71,'tunisia':70,'tunisia':70,'argelia':71,'algeria':71,'egypt':73,'egito':73,'iran':73,'ira':73,'saudi arabia':68,'arabia saudita':68,'qatar':66,'panama':65,'jamaica':66,'curacao':63,'new zealand':62,'nova zelandia':62,'cape verde':68,'cabo verde':68,'bosnia and herzegovina':72,'bosnia e herzegovina':72
+  };
+  function teamStrength(nome){ const n=normTeamName(nome); if(TEAM_STRENGTH[n]!==undefined) return TEAM_STRENGTH[n]; const key=Object.keys(TEAM_STRENGTH).find(k=>n.includes(k)||k.includes(n)); if(key) return TEAM_STRENGTH[key]; return 70 + (hashInt(n)%11); }
+  function gerarPalpitePerfil(home, away, perfil, seed){
+    const fh=teamStrength(home)+2; // pequeno fator mando
+    const fa=teamStrength(away);
+    const diff=fh-fa;
+    const h=hashInt(`${home}|${away}|${perfil}|${seed||''}`);
+    let gm=1, gv=1;
+    if(perfil==='FAVORITOS'){
+      if(diff>=18){ gm=3; gv=(h%3===0?1:0); }
+      else if(diff>=8){ gm=2; gv=(h%4===0?1:0); }
+      else if(diff>=3){ gm=(h%3===0?1:2); gv=1; }
+      else if(diff<=-16){ gm=(h%3===0?1:0); gv=3; }
+      else if(diff<=-7){ gm=(h%4===0?1:0); gv=2; }
+      else if(diff<=-3){ gm=1; gv=(h%3===0?1:2); }
+      else { gm=(h%2?1:0); gv=(h%2?1:0); }
+    }else if(perfil==='SURPRESA'){
+      const zebra=h%100;
+      if(Math.abs(diff)<=5){ gm=(h%4===0?2:1); gv=(h%5===0?2:1); }
+      else if(diff>5){ if(zebra<22){ gm=0; gv=1; } else if(zebra<44){ gm=1; gv=1; } else { gm=2; gv=1; } }
+      else { if(zebra<22){ gm=1; gv=0; } else if(zebra<44){ gm=1; gv=1; } else { gm=1; gv=2; } }
+    }else{
+      if(diff>=14){ gm=2; gv=0; }
+      else if(diff>=6){ gm=2; gv=1; }
+      else if(diff>=2){ gm=1; gv=(h%3===0?0:1); }
+      else if(diff<=-14){ gm=0; gv=2; }
+      else if(diff<=-6){ gm=1; gv=2; }
+      else if(diff<=-2){ gm=(h%3===0?0:1); gv=1; }
+      else { gm=(h%5===0?0:1); gv=(h%4===0?0:1); }
+    }
+    return {gm:Math.max(0,Math.min(5,gm)), gv:Math.max(0,Math.min(5,gv))};
+  }
+
   function applyPAIfNeeded(camp,rodada){
-    if(!state.pa) return;
+    if(!state.pa?.perfil) return;
     $$('.match-card').forEach(card=>{
       const id=card.dataset.jogo;
       if(card.dataset.palpiteAberto !== '1') return;
       const gm=$(`input[data-id="${cssEsc(id)}_gm"]`), gv=$(`input[data-id="${cssEsc(id)}_gv"]`);
       if(gm&&!gm.disabled&&gv&&!gv.disabled&&gm.value===''&&gv.value===''){
-        gm.value=state.pa.gm;
-        gv.value=state.pa.gv;
-        setSaveStatus(id,'P.A. aplicado em jogo futuro','saving');
-        salvarPalpiteJogo(id,camp,rodada,'PA').catch(e=>console.warn(e));
+        const palpite=gerarPalpitePerfil(card.dataset.home||'', card.dataset.away||'', state.pa.perfil, `${camp}_${rodada}_${id}`);
+        gm.value=palpite.gm;
+        gv.value=palpite.gv;
+        setSaveStatus(id,'P.A. '+labelPerfilPA(state.pa.perfil)+' aplicado em jogo futuro','saving');
+        salvarPalpiteJogo(id,camp,rodada,'PA_'+state.pa.perfil).catch(e=>console.warn(e));
       }
     });
+  }
+
+  async function gerarDesafianteParaJogos(camp,rodada){
+    if(!state.bolao) return;
+    try{ await ensureDesafianteBolao(state.bolao.id); }catch(_e){}
+    const batch=db.batch(); let total=0;
+    $$('.match-card').forEach(card=>{
+      const id=card.dataset.jogo;
+      if(card.dataset.palpiteAberto !== '1') return;
+      const palpite=gerarPalpitePerfil(card.dataset.home||'', card.dataset.away||'', 'FAVORITOS', `DESAFIANTE_${camp}_${rodada}_${id}`);
+      const docId=safeId(`${DESAFIANTE_UID}_${camp}_${rodada}_${id}`);
+      const ref=db.collection('boloes').doc(state.bolao.id).collection('palpites').doc(docId);
+      batch.set(ref,{uid:DESAFIANTE_UID,nome:DESAFIANTE_NOME,idJogo:id,camp,rodada:String(rodada),gm:palpite.gm,gv:palpite.gv,origem:'DESAFIANTE_SIMON_IA',perfil:'FAVORITOS_ESTATISTICO',virtual:true,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      total++;
+    });
+    if(total){ await batch.commit(); console.log(`Desafiante Simon IA atualizado: ${total} palpites futuros.`); }
   }
 
   $('#btnRanking').onclick=async()=>{ try{ await apiGet(withDualAction('ranking')); alert('Ranking atualizado.'); }catch(e){ alert('Erro no ranking: '+e.message); } };
