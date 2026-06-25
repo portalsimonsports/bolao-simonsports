@@ -296,6 +296,17 @@
     .match-table{grid-template-columns:minmax(0,1fr) 64px 74px}.match-card{padding:13px;border-radius:18px}.team{font-size:14px}
   }
 
+
+
+  /* V13: bandeiras/logos e alinhamento profissional dos confrontos */
+  .team{display:flex;align-items:center;gap:10px;min-width:0;color:#fff;font-size:16px;font-weight:1000;overflow:hidden;text-overflow:ellipsis}
+  .team-logo{width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 30px;background:#111c34;border:1px solid #263451;font-size:19px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+  .team-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mini-team{display:flex;align-items:center;gap:8px;min-width:0}
+  .mini-team .team-logo{width:24px;height:24px;flex-basis:24px;font-size:15px;background:#f8fafc;border-color:#e2e8f0;color:#0f172a;box-shadow:none}
+  .mini-team .team-title{color:#0f172a}
+  .match-card{border:1px solid rgba(148,163,184,.18)}
+
 </style>
 </head>
 <body>
@@ -1021,7 +1032,42 @@
     await abrirParticipantes();
   }
 
-  function parseDateSafe(str){ if(!str) return null; const s=String(str).trim().replace(/\s+/g,' '); let m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/); if(m) return new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5],+(m[6]||0)); m=s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/); if(m) return new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+(m[6]||0)); return new Date(s); }
+  function parseDateSafe(input){
+    if(!input) return null;
+    if(input instanceof Date) return input;
+    if(input && typeof input.toDate === 'function') return input.toDate();
+    if(typeof input === 'number'){
+      // Suporte a serial do Google Sheets, caso a API envie número em vez de texto.
+      if(input > 20000 && input < 80000) return new Date(Math.round((input - 25569) * 86400 * 1000));
+      return new Date(input);
+    }
+    const s=String(input).trim().replace(/\s+/g,' ');
+
+    // IMPORTANTE: a base operacional envia horários como horário local do jogo/planilha.
+    // Por isso, quando vier ISO com Z/UTC, preservamos os números da hora informada
+    // e NÃO deixamos o navegador subtrair 3h. Ex.: 2026-06-25T17:00:00.000Z => 17:00.
+    let m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+    if(m) return new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5],+(m[6]||0));
+
+    m=s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+    if(m) return new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+(m[6]||0));
+
+    m=s.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?$/);
+    if(m) return new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+(m[6]||0));
+
+    const d=new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  function fmtDataHoraJogo(d){ if(!d || isNaN(d.getTime())) return '--'; return `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}`; }
+  function fmtDataHoraCurta(d){ if(!d || isNaN(d.getTime())) return '--'; return `${p2(d.getDate())}/${p2(d.getMonth()+1)} • ${p2(d.getHours())}:${p2(d.getMinutes())}`; }
+
+  const TEAM_FLAGS = {
+    'argentina':'🇦🇷','australia':'🇦🇺','belgium':'🇧🇪','belgica':'🇧🇪','brazil':'🇧🇷','brasil':'🇧🇷','bosnia-herzegovina':'🇧🇦','bosnia herzegovina':'🇧🇦','canada':'🇨🇦','cape verde':'🇨🇻','cabo verde':'🇨🇻','chile':'🇨🇱','china':'🇨🇳','colombia':'🇨🇴','congo dr':'🇨🇩','congo':'🇨🇩','costa rica':'🇨🇷','croatia':'🇭🇷','croacia':'🇭🇷','curacao':'🇨🇼','curaçao':'🇨🇼','czech republic':'🇨🇿','czechia':'🇨🇿','dinamarca':'🇩🇰','denmark':'🇩🇰','ecuador':'🇪🇨','egypt':'🇪🇬','egito':'🇪🇬','england':'🏴','inglaterra':'🏴','france':'🇫🇷','frança':'🇫🇷','germany':'🇩🇪','alemanha':'🇩🇪','ghana':'🇬🇭','haiti':'🇭🇹','honduras':'🇭🇳','iran':'🇮🇷','iraq':'🇮🇶','iraque':'🇮🇶','italy':'🇮🇹','italia':'🇮🇹','ivory coast':'🇨🇮','cote d ivoire':'🇨🇮','côte d\'ivoire':'🇨🇮','japan':'🇯🇵','japao':'🇯🇵','japão':'🇯🇵','korea republic':'🇰🇷','south korea':'🇰🇷','coreia do sul':'🇰🇷','mexico':'🇲🇽','méxico':'🇲🇽','morocco':'🇲🇦','marrocos':'🇲🇦','netherlands':'🇳🇱','países baixos':'🇳🇱','new zealand':'🇳🇿','nova zelandia':'🇳🇿','nova zelândia':'🇳🇿','norway':'🇳🇴','noruega':'🇳🇴','panama':'🇵🇦','panamá':'🇵🇦','paraguay':'🇵🇾','paraguai':'🇵🇾','poland':'🇵🇱','portugal':'🇵🇹','qatar':'🇶🇦','senegal':'🇸🇳','saudi arabia':'🇸🇦','arabia saudita':'🇸🇦','scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','escocia':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','espana':'🇪🇸','espanha':'🇪🇸','spain':'🇪🇸','sweden':'🇸🇪','suecia':'🇸🇪','suécia':'🇸🇪','switzerland':'🇨🇭','suica':'🇨🇭','suíça':'🇨🇭','tunisia':'🇹🇳','tunísia':'🇹🇳','turkiye':'🇹🇷','turkey':'🇹🇷','turquia':'🇹🇷','ukraine':'🇺🇦','ucrania':'🇺🇦','ucrânia':'🇺🇦','united states':'🇺🇸','usa':'🇺🇸','estados unidos':'🇺🇸','uruguay':'🇺🇾','uruguai':'🇺🇾','uzbekistan':'🇺🇿','uzbequistao':'🇺🇿','uzbequistão':'🇺🇿','wales':'🏴󠁧󠁢󠁷󠁬󠁳󠁿','pais de gales':'🏴󠁧󠁢󠁷󠁬󠁳󠁿'
+  };
+  function normFlagName(nome){ return String(nome||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(); }
+  function teamFlag(nome){ const raw=String(nome||'').trim().toLowerCase(); const n=normFlagName(nome); return TEAM_FLAGS[raw] || TEAM_FLAGS[n] || TEAM_FLAGS[n.replace(/ /g,'-')] || '⚽'; }
+  function teamHTML(nome){ return `<div class="team"><span class="team-logo">${teamFlag(nome)}</span><span class="team-title">${escapeHtml(nome||'-')}</span></div>`; }
+  function miniTeamHTML(nome){ return `<span class="mini-team"><span class="team-logo">${teamFlag(nome)}</span><span class="team-title">${escapeHtml(nome||'-')}</span></span>`; }
   function getVisualStatus(apiStatus, dt){
     const now=new Date();
     const st=String(apiStatus||'agendado').toLowerCase();
@@ -1198,9 +1244,9 @@
       }
 
       $('#lista').innerHTML=rowsTela.map((g,idx)=>{
-        const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''); const dts=d?(d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})):'--'; const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d);
+        const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''); const dts=fmtDataHoraJogo(d); const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d);
         const home=g.mandante||g.home||g.time_mandante||'-', away=g.visitante||g.away||g.time_visitante||'-'; const gm=numOrEmpty(g.gols_mandante_oficial??g.gm??g.gols_mandante,status), gv=numOrEmpty(g.gols_visitante_oficial??g.gv??g.gols_visitante,status); const id=g.id||`${camp}_${rodada}_${idx}`; const p=palpites[id]||{}; const abertoPalpite=isJogoAbertoParaPalpite(d,status); const disabled=!abertoPalpite;
-        return `<div class="match-card" data-jogo="${id}" data-home="${String(home).replace(/"/g,'&quot;')}" data-away="${String(away).replace(/"/g,'&quot;')}" data-palpite-aberto="${abertoPalpite?'1':'0'}"><div class="match-head"><div><div class="match-date">${dts}</div><div class="match-meta">${camp} • ${rodada}ª Rodada</div></div><span class="eta js-eta" data-status="${status}" data-t="${d?d.toISOString():''}">${status==='agendado'?liveCountdown(d):'encerrado'}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div><div class="team">${home}</div><div class="official-box">${gm}</div>${palpiteField(id+'_gm',p.gm,disabled)}<div class="team">${away}</div><div class="official-box">${gv}</div>${palpiteField(id+'_gv',p.gv,disabled)}</div><div class="match-foot"><div><div class="foot-label">Seu palpite</div><div class="autosave-status" data-status-save="${id}">${p.atualizadoEm?'salvo anteriormente':(abertoPalpite?'':'palpite encerrado')}</div></div><span class="pts" data-pts="${id}">0 pts</span><button class="btn primary mini" data-save="${id}" ${disabled?'disabled':''}>Salvar</button></div></div>`;
+        return `<div class="match-card" data-jogo="${id}" data-home="${String(home).replace(/"/g,'&quot;')}" data-away="${String(away).replace(/"/g,'&quot;')}" data-palpite-aberto="${abertoPalpite?'1':'0'}"><div class="match-head"><div><div class="match-date">${dts}</div><div class="match-meta">${camp} • ${rodada}ª Rodada</div></div><span class="eta js-eta" data-status="${status}" data-t="${d?d.toISOString():''}">${status==='agendado'?liveCountdown(d):'encerrado'}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div>${teamHTML(home)}<div class="official-box">${gm}</div>${palpiteField(id+'_gm',p.gm,disabled)}${teamHTML(away)}<div class="official-box">${gv}</div>${palpiteField(id+'_gv',p.gv,disabled)}</div><div class="match-foot"><div><div class="foot-label">Seu palpite</div><div class="autosave-status" data-status-save="${id}">${p.atualizadoEm?'salvo anteriormente':(abertoPalpite?'':'palpite encerrado')}</div></div><span class="pts" data-pts="${id}">0 pts</span><button class="btn primary mini" data-save="${id}" ${disabled?'disabled':''}>Salvar</button></div></div>`;
       }).join('');
       $('#msg').hidden=true; $('#lista').hidden=false; attachSaveListeners(camp,rodada); applyPAIfNeeded(camp,rodada); gerarDesafianteParaJogos(camp,rodada).catch(e=>console.warn('Desafiante:',e)); startEtaTicker();
       window.PSS_V11_REFRESH_RESUMOS && setTimeout(window.PSS_V11_REFRESH_RESUMOS,150);
@@ -1550,8 +1596,8 @@
         const home=g.mandante||g.home||g.time_mandante||'-';
         const away=g.visitante||g.away||g.time_visitante||'-';
         const d=parseDateSafe(g.data_jogo || g.data || g.horario || g.inicio || '');
-        const hora=d ? d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' • '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '--';
-        return '<div class="mini-row"><strong>'+esc(home)+' x '+esc(away)+'</strong><span>'+esc(hora)+'</span></div>';
+        const hora=fmtDataHoraCurta(d);
+        return '<div class="mini-row"><strong>'+miniTeamHTML(home)+' <span style="opacity:.55">x</span> '+miniTeamHTML(away)+'</strong><span>'+esc(hora)+'</span></div>'; 
       }).join('');
       box.innerHTML=rows || '<div class="info-empty">Nenhum jogo disponível para esta rodada.</div>';
     }
@@ -1569,7 +1615,7 @@
         const away=g.visitante||g.away||g.time_visitante||'-';
         const p=(gm!==undefined && gm!=='' && gv!==undefined && gv!=='') ? (gm+' x '+gv) : 'sem palpite';
         if(p!=='sem palpite') count++;
-        return '<div class="mini-row"><strong>'+esc(home)+' x '+esc(away)+'</strong><span>'+esc(p)+'</span></div>';
+        return '<div class="mini-row"><strong>'+miniTeamHTML(home)+' <span style="opacity:.55">x</span> '+miniTeamHTML(away)+'</strong><span>'+esc(p)+'</span></div>'; 
       }).join('');
       box.innerHTML=rows || '<div class="info-empty">Nenhum jogo carregado.</div>';
     }
