@@ -298,6 +298,24 @@
 
 
 
+  /* V15: letreiro digital por campeonato/bolão */
+  .ticker-panel{margin:18px 0;background:linear-gradient(135deg,#071126 0%,#0b152b 65%,#082617 100%);border:1px solid rgba(255,255,255,.10);border-radius:22px;box-shadow:0 14px 34px rgba(15,23,42,.16);overflow:hidden;color:#e5e7eb}
+  .ticker-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.09)}
+  .ticker-head strong{font-size:13px;font-weight:1000;text-transform:uppercase;letter-spacing:.04em;color:#fff}
+  .ticker-head span{font-size:12px;font-weight:850;color:#9fb3cf;text-align:right}
+  .ticker-track{position:relative;overflow:hidden;white-space:nowrap;min-height:48px;display:flex;align-items:center;background:rgba(2,6,23,.45)}
+  .ticker-content{display:inline-flex;align-items:center;gap:18px;padding:0 18px;animation:pssTickerMove 42s linear infinite;will-change:transform}
+  .ticker-track:hover .ticker-content{animation-play-state:paused}
+  .ticker-item{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:#e2e8f0}
+  .ticker-item .tag-mini{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:1000;text-transform:uppercase;letter-spacing:.04em;background:#0ea5e9;color:#042034}
+  .ticker-item.done .tag-mini{background:#dcfce7;color:#166534}
+  .ticker-item.next .tag-mini{background:#facc15;color:#111827}
+  .ticker-score{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);padding:5px 8px;color:#fff;font-weight:1000}
+  .ticker-empty{padding:14px 18px;color:#9fb3cf;font-weight:850;font-size:13px}
+  @keyframes pssTickerMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media (max-width:620px){.ticker-head{display:block}.ticker-head span{display:block;text-align:left;margin-top:3px}.ticker-content{animation-duration:30s}.ticker-item{font-size:12px}}
+
+
   /* V13: bandeiras/logos e alinhamento profissional dos confrontos */
   .team{display:flex;align-items:center;gap:10px;min-width:0;color:#fff;font-size:16px;font-weight:1000;overflow:hidden;text-overflow:ellipsis}
   .team-logo{width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 30px;background:#111c34;border:1px solid #263451;font-size:11px;font-weight:1000;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
@@ -306,6 +324,11 @@
   .mini-team{display:inline-flex;align-items:center;gap:8px;min-width:0;vertical-align:middle}
   .mini-team .team-logo{width:24px;height:24px;flex-basis:24px;font-size:9px;background:#f8fafc;border-color:#e2e8f0;color:#0f172a;box-shadow:none}
   .mini-team .team-title{color:#0f172a}
+  .team.away{justify-content:flex-start}
+  .team.away .team-logo{order:2}
+  .team.away .team-title{order:1}
+  .mini-team.away .team-logo{order:2}
+  .mini-team.away .team-title{order:1}
   .mini-row strong{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
   .match-card{border:1px solid rgba(148,163,184,.18)}
 
@@ -344,6 +367,17 @@
     <div class="stat"><div class="n" id="stPublicos">0</div><div class="t">Públicos</div></div>
     <div class="stat"><div class="n" id="stPendentes">0</div><div class="t">Pendências</div></div>
   </section>
+
+  <section class="ticker-panel" id="tickerPanel">
+    <div class="ticker-head">
+      <strong>Letreiro do campeonato</strong>
+      <span id="tickerSub">Selecione um bolão para ver próximos jogos e últimos resultados.</span>
+    </div>
+    <div class="ticker-track" id="tickerTrack">
+      <div class="ticker-empty">Abra um bolão para carregar o letreiro do campeonato.</div>
+    </div>
+  </section>
+
 
   <section class="opA-shell">
     <div class="opA-titlebar">
@@ -407,7 +441,7 @@
             <div class="mini-body" id="rankingResumoBody"><div class="info-empty">O ranking será calculado quando houver jogos iniciados ou encerrados.</div></div>
           </div>
           <div class="opA-mini-panel">
-            <div class="mini-head"><h3>Meus palpites</h3><button data-shortcut-view="jogos">Palpitar</button></div>
+            <div class="mini-head"><h3>Meus palpites</h3><button data-shortcut-view="jogos" data-jump-first-empty="1">Palpitar</button></div>
             <div class="mini-body" id="meusPalpitesResumo"><div class="info-empty">Carregue os jogos para acompanhar seus palpites da rodada.</div></div>
           </div>
         </div>
@@ -647,11 +681,12 @@
     if(b.dataset.view === 'palpites') carregarPalpitesPainel().catch(e=>console.warn(e));
     if(b.dataset.view === 'participantes') abrirParticipantes();
   }));
-  $$('[data-shortcut-view]').forEach(b=>b.addEventListener('click',()=>{
+  $$('[data-shortcut-view]').forEach(b=>b.addEventListener('click',async ()=>{
     setBolaoView(b.dataset.shortcutView);
     if(b.dataset.shortcutView === 'ranking') carregarRankingPainel().catch(e=>console.warn(e));
     if(b.dataset.shortcutView === 'palpites') carregarPalpitesPainel().catch(e=>console.warn(e));
-    if(b.dataset.shortcutView === 'jogos' && state.bolao && (!state.jogos || !state.jogos.length)) carregarJogos({auto:true}).catch(e=>console.warn(e));
+    if(b.dataset.shortcutView === 'jogos' && state.bolao && (!state.jogos || !state.jogos.length)) await carregarJogos({auto:true}).catch(e=>console.warn(e));
+    if(b.dataset.jumpFirstEmpty === '1') setTimeout(irParaPrimeiroJogoSemPalpite,180);
   }));
   $('#btnExplorarTopo').onclick=()=>setTab('publicos');
   $('#btnCriarTopo').onclick=()=>setTab('criar');
@@ -852,6 +887,7 @@
     if(isAdminBolao(b)) ensureDesafianteBolao(b.id);
     renderBoloes();
     renderSelected();
+    atualizarLetreiroCampeonato(b.campeonato||b.camp||$('#selCamp')?.value||'CUP').catch(e=>console.warn('Letreiro:',e));
     toast('Bolão selecionado: '+(b.nome||b.titulo||b.id)+'. Buscando automaticamente a próxima rodada disponível...');
     iniciarBolaoSelecionadoAuto(b).catch(e=>{
       console.warn('Auto abertura do bolão:', e);
@@ -1132,8 +1168,17 @@
     }
     return `<span class="team-logo" title="${escapeHtml(translateTeam(nome))}">${escapeHtml(initials)}</span>`;
   }
-  function teamHTML(nome){ return `<div class="team">${teamLogoHTML(nome)}<span class="team-title">${escapeHtml(translateTeam(nome))}</span></div>`; }
-  function miniTeamHTML(nome){ return `<span class="mini-team">${teamLogoHTML(nome)}<span class="team-title">${escapeHtml(translateTeam(nome))}</span></span>`; }
+  function teamHTML(nome,lado){
+    const cls = lado === 'away' ? 'team away' : 'team home';
+    return `<div class="${cls}">${teamLogoHTML(nome)}<span class="team-title">${escapeHtml(translateTeam(nome))}</span></div>`;
+  }
+  function miniTeamHTML(nome,lado){
+    const cls = lado === 'away' ? 'mini-team away' : 'mini-team home';
+    return `<span class="${cls}">${teamLogoHTML(nome)}<span class="team-title">${escapeHtml(translateTeam(nome))}</span></span>`;
+  }
+  function confrontoMiniHTML(home,away){
+    return `${miniTeamHTML(home,'home')} <span style="opacity:.55">x</span> ${miniTeamHTML(away,'away')}`;
+  }
   function getVisualStatus(apiStatus, dt){
     const now=new Date();
     const st=String(apiStatus||'agendado').toLowerCase();
@@ -1274,6 +1319,75 @@
     window.PSS_V11_REFRESH_RESUMOS && setTimeout(window.PSS_V11_REFRESH_RESUMOS,100);
   }
 
+
+  function statusFinalizadoParaLetreiro(g,d){
+    const st=String(g.status||'').toLowerCase();
+    const gm=g.gols_mandante_oficial??g.gm??g.gols_mandante;
+    const gv=g.gols_visitante_oficial??g.gv??g.gols_visitante;
+    const temPlacar = gm!=='' && gm!==null && gm!==undefined && gv!=='' && gv!==null && gv!==undefined;
+    return temPlacar || ['encerrado','finalizado','fechado'].includes(st) || (d && d.getTime()<Date.now() && temPlacar);
+  }
+  function placarLetreiro(g){
+    const gm=g.gols_mandante_oficial??g.gm??g.gols_mandante;
+    const gv=g.gols_visitante_oficial??g.gv??g.gols_visitante;
+    if(gm===''||gm===null||gm===undefined||gv===''||gv===null||gv===undefined) return '';
+    return `${gm} x ${gv}`;
+  }
+  function itemLetreiroHTML(tipo,g){
+    const home=g.mandante||g.home||g.time_mandante||'-';
+    const away=g.visitante||g.away||g.time_visitante||'-';
+    const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||'');
+    const quando=fmtDataHoraCurta(d);
+    const score=placarLetreiro(g);
+    const cls=tipo==='done'?'done':'next';
+    const tag=tipo==='done'?'Resultado':'Próximo';
+    return `<span class="ticker-item ${cls}"><span class="tag-mini">${tag}</span>${confrontoMiniHTML(home,away)}${score?`<span class="ticker-score">${score}</span>`:''}<span>${escapeHtml(quando)}</span></span>`;
+  }
+  async function atualizarLetreiroCampeonato(camp){
+    const track=$('#tickerTrack');
+    const sub=$('#tickerSub');
+    if(!track) return;
+    if(!camp){ track.innerHTML='<div class="ticker-empty">Abra um bolão para carregar o letreiro do campeonato.</div>'; return; }
+    if(sub) sub.textContent = `Jogos e resultados do campeonato ${camp}`;
+    track.innerHTML='<div class="ticker-empty">Carregando letreiro...</div>';
+    const rodadas=getRodadasDisponiveis();
+    const proximos=[];
+    const ultimos=[];
+    for(const rodada of rodadas.slice(0,12)){
+      try{
+        const rows=await buscarJogosRodada(camp,rodada);
+        for(const g of rows){
+          const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||'');
+          if(!d || isNaN(d.getTime())) continue;
+          const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d);
+          if(isJogoAbertoParaPalpite(d,status)) proximos.push({...g,__dt:d});
+          else if(statusFinalizadoParaLetreiro(g,d)) ultimos.push({...g,__dt:d});
+        }
+      }catch(e){ console.warn('Letreiro rodada '+rodada,e); }
+      if(proximos.length>=6 && ultimos.length>=4) break;
+    }
+    proximos.sort((a,b)=>a.__dt-b.__dt);
+    ultimos.sort((a,b)=>b.__dt-a.__dt);
+    const itens=[...proximos.slice(0,6).map(g=>itemLetreiroHTML('next',g)),...ultimos.slice(0,4).map(g=>itemLetreiroHTML('done',g))];
+    if(!itens.length){ track.innerHTML='<div class="ticker-empty">Nenhum jogo futuro ou resultado recente encontrado para este campeonato.</div>'; return; }
+    const html=itens.join('<span style="opacity:.35">•</span>');
+    track.innerHTML=`<div class="ticker-content">${html}<span style="opacity:.35">•</span>${html}</div>`;
+  }
+  async function irParaPrimeiroJogoSemPalpite(){
+    setBolaoView('jogos');
+    if(state.bolao && (!state.jogosExibidos || !state.jogosExibidos.length)){
+      await carregarJogos({auto:true}).catch(e=>console.warn(e));
+    }
+    const cards=$$('.match-card[data-palpite-aberto="1"]');
+    let alvo=null;
+    for(const card of cards){
+      const inputs=card.querySelectorAll('.inp-palpite');
+      if(inputs.length>=2 && (inputs[0].value==='' || inputs[1].value==='')){ alvo=card; break; }
+    }
+    if(!alvo) alvo=cards[0] || $('.match-card');
+    if(alvo){ alvo.scrollIntoView({behavior:'smooth',block:'center'}); const first=alvo.querySelector('.inp-palpite:not(:disabled)'); if(first) setTimeout(()=>first.focus(),450); }
+  }
+
   async function carregarJogos(opcoes){
     const opts = opcoes || {};
     if(!opts.keepView) setBolaoView('jogos');
@@ -1290,6 +1404,7 @@
       if(!rows||!rows.length){ toast(`Nenhum jogo encontrado para ${camp} • ${rodada}ª rodada.`); return; }
       rows.sort((a,b)=>(parseDateSafe(a.data_jogo||a.data||a.horario||a.inicio||'')?.getTime()||0)-(parseDateSafe(b.data_jogo||b.data||b.horario||b.inicio||'')?.getTime()||0));
       state.jogos=rows;
+      atualizarLetreiroCampeonato(camp).catch(e=>console.warn('Letreiro:',e));
 
       let rowsTela = rows;
       if(opts.somenteFuturos){
@@ -1312,7 +1427,7 @@
       $('#lista').innerHTML=rowsTela.map((g,idx)=>{
         const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''); const dts=fmtDataHoraJogo(d); const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d);
         const home=g.mandante||g.home||g.time_mandante||'-', away=g.visitante||g.away||g.time_visitante||'-'; const gm=numOrEmpty(g.gols_mandante_oficial??g.gm??g.gols_mandante,status), gv=numOrEmpty(g.gols_visitante_oficial??g.gv??g.gols_visitante,status); const id=g.id||`${camp}_${rodada}_${idx}`; const p=palpites[id]||{}; const abertoPalpite=isJogoAbertoParaPalpite(d,status); const disabled=!abertoPalpite;
-        return `<div class="match-card" data-jogo="${id}" data-home="${String(home).replace(/"/g,'&quot;')}" data-away="${String(away).replace(/"/g,'&quot;')}" data-palpite-aberto="${abertoPalpite?'1':'0'}"><div class="match-head"><div><div class="match-date">${dts}</div><div class="match-meta">${camp} • ${rodada}ª Rodada</div></div><span class="eta js-eta" data-status="${status}" data-t="${d?d.toISOString():''}">${status==='agendado'?liveCountdown(d):'encerrado'}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div>${teamHTML(home)}<div class="official-box">${gm}</div>${palpiteField(id+'_gm',p.gm,disabled)}${teamHTML(away)}<div class="official-box">${gv}</div>${palpiteField(id+'_gv',p.gv,disabled)}</div><div class="match-foot"><div><div class="foot-label">Seu palpite</div><div class="autosave-status" data-status-save="${id}">${p.atualizadoEm?'salvo anteriormente':(abertoPalpite?'':'palpite encerrado')}</div></div><span class="pts" data-pts="${id}">0 pts</span><button class="btn primary mini" data-save="${id}" ${disabled?'disabled':''}>Salvar</button></div></div>`;
+        return `<div class="match-card" data-jogo="${id}" data-home="${String(home).replace(/"/g,'&quot;')}" data-away="${String(away).replace(/"/g,'&quot;')}" data-palpite-aberto="${abertoPalpite?'1':'0'}"><div class="match-head"><div><div class="match-date">${dts}</div><div class="match-meta">${camp} • ${rodada}ª Rodada</div></div><span class="eta js-eta" data-status="${status}" data-t="${d?d.toISOString():''}">${status==='agendado'?liveCountdown(d):'encerrado'}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div>${teamHTML(home,'home')}<div class="official-box">${gm}</div>${palpiteField(id+'_gm',p.gm,disabled)}${teamHTML(away,'away')}<div class="official-box">${gv}</div>${palpiteField(id+'_gv',p.gv,disabled)}</div><div class="match-foot"><div><div class="foot-label">Seu palpite</div><div class="autosave-status" data-status-save="${id}">${p.atualizadoEm?'salvo anteriormente':(abertoPalpite?'':'palpite encerrado')}</div></div><span class="pts" data-pts="${id}">0 pts</span><button class="btn primary mini" data-save="${id}" ${disabled?'disabled':''}>Salvar</button></div></div>`;
       }).join('');
       $('#msg').hidden=true; $('#lista').hidden=false; attachSaveListeners(camp,rodada); applyPAIfNeeded(camp,rodada); gerarDesafianteParaJogos(camp,rodada).catch(e=>console.warn('Desafiante:',e)); startEtaTicker();
       window.PSS_V11_REFRESH_RESUMOS && setTimeout(window.PSS_V11_REFRESH_RESUMOS,150);
@@ -1663,7 +1778,7 @@
         const away=g.visitante||g.away||g.time_visitante||'-';
         const d=parseDateSafe(g.data_jogo || g.data || g.horario || g.inicio || '');
         const hora=fmtDataHoraCurta(d);
-        return '<div class="mini-row"><strong>'+miniTeamHTML(home)+' <span style="opacity:.55">x</span> '+miniTeamHTML(away)+'</strong><span>'+esc(hora)+'</span></div>'; 
+        return '<div class="mini-row"><strong>'+confrontoMiniHTML(home,away)+'</strong><span>'+esc(hora)+'</span></div>'; 
       }).join('');
       box.innerHTML=rows || '<div class="info-empty">Nenhum jogo disponível para esta rodada.</div>';
     }
@@ -1681,7 +1796,7 @@
         const away=g.visitante||g.away||g.time_visitante||'-';
         const p=(gm!==undefined && gm!=='' && gv!==undefined && gv!=='') ? (gm+' x '+gv) : 'sem palpite';
         if(p!=='sem palpite') count++;
-        return '<div class="mini-row"><strong>'+miniTeamHTML(home)+' <span style="opacity:.55">x</span> '+miniTeamHTML(away)+'</strong><span>'+esc(p)+'</span></div>'; 
+        return '<div class="mini-row"><strong>'+confrontoMiniHTML(home,away)+'</strong><span>'+esc(p)+'</span></div>'; 
       }).join('');
       box.innerHTML=rows || '<div class="info-empty">Nenhum jogo carregado.</div>';
     }
