@@ -97,7 +97,11 @@
 
   .empty{border:1px dashed #cbd5e1;border-radius:18px;padding:18px;background:#f8fafc;color:#64748b;font-weight:750}
 
-  .info-dashboard{display:grid;grid-template-columns:1fr;gap:14px;margin-top:18px}
+  .info-dashboard{display:none;grid-template-columns:1fr;gap:14px;margin-top:18px}
+  .info-dashboard.open{display:grid}
+  .info-card.is-hidden{display:none}
+  .admin-actions{display:none;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .admin-actions.open{display:flex}
   .info-card{border:1px solid var(--line);background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 8px 20px rgba(15,23,42,.04)}
   .info-card-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center;background:#f8fafc}
   .info-card-head h3{margin:0;font-size:16px;font-weight:1000;color:#0f172a}
@@ -461,7 +465,16 @@
       <div class="panel-body">
         <div id="bolaoSelecionado" class="selected-panel" style="display:none">
           <div class="selected-grid">
-            <div><h2 id="selNome">Bolão selecionado</h2><p id="selResumo">Tipo • Campeonato • Status</p><div class="bolao-meta" id="selBadges"></div></div>
+            <div>
+              <h2 id="selNome">Bolão selecionado</h2>
+              <p id="selResumo">Tipo • Campeonato • Status</p>
+              <div class="bolao-meta" id="selBadges"></div>
+              <div class="admin-actions" id="adminActions">
+                <button class="btn mini" id="btnEditarBolao" type="button">Editar nome</button>
+                <button class="btn warn mini" id="btnInativarBolao" type="button">Inativar</button>
+                <button class="btn danger mini" id="btnExcluirBolao" type="button">Excluir</button>
+              </div>
+            </div>
             <div class="bolao-actions"><button class="btn blue mini" id="btnConvidar">Copiar convite</button><button class="btn mini" id="btnGerenciar">Participantes</button></div>
           </div>
           <div class="share-box" id="shareBox">Convite ainda não gerado.</div>
@@ -478,8 +491,8 @@
         <div id="msg" class="empty" style="margin-top:16px">Selecione um bolão e carregue os jogos.</div>
         <div id="lista" class="game-list" hidden></div>
 
-        <div id="infoDashboard" class="info-dashboard">
-          <div class="info-card" id="rankingPanel">
+        <div id="infoDashboard" class="info-dashboard" aria-live="polite">
+          <div class="info-card is-hidden" id="rankingPanel">
             <div class="info-card-head">
               <h3>Ranking do bolão</h3>
               <span id="rankingStatus">aguardando consulta</span>
@@ -489,7 +502,7 @@
             </div>
           </div>
 
-          <div class="info-card" id="palpitesPanel">
+          <div class="info-card is-hidden" id="palpitesPanel">
             <div class="info-card-head">
               <h3>Palpites de todos</h3>
               <span id="palpitesStatus">aguardando consulta</span>
@@ -720,7 +733,7 @@
       console.warn('CollectionGroup participantes indisponível ou bloqueado:', e);
     }
 
-    const list = Array.from(byId.values());
+    const list = Array.from(byId.values()).filter(b => b.excluido !== true);
     state.meus = list.filter(b => b.minhaParticipacao?.status === 'APROVADO');
     state.privados = list.filter(b => b.tipo === 'PRIVADO' || b.publico === false || b.minhaParticipacao?.status === 'PENDENTE');
   }
@@ -745,7 +758,7 @@
     await db.collection('usuarios').doc(state.uid).collection('meusBoloes').doc(bolaoId).set(payload,{merge:true});
   }
   async function loadPublicos(){
-    try{ const q=await db.collection('boloes').where('ativo','==',true).where('publico','==',true).limit(30).get(); state.publicos=q.docs.map(d=>({id:d.id,...d.data()})); }
+    try{ const q=await db.collection('boloes').where('ativo','==',true).where('publico','==',true).limit(30).get(); state.publicos=q.docs.map(d=>({id:d.id,...d.data()})).filter(b=>b.excluido!==true); }
     catch(e){ console.warn(e); state.publicos=[]; }
   }
   function isAdminBolao(b){ const papel=b?.minhaParticipacao?.papel||''; return papel==='CRIADOR'||papel==='ADMIN'||b?.criadorUid===state.uid; }
@@ -761,21 +774,50 @@
     list.forEach(b=>{
       const part=b.minhaParticipacao||{}; const selected=state.bolao && state.bolao.id===b.id;
       const div=document.createElement('div'); div.className='bolao-card'+(selected?' selected':'');
-      div.innerHTML=`<div class="bolao-title"><div><h3>${b.nome||b.titulo||'Bolão sem nome'}</h3><div class="bolao-meta"><span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Público':'Privado'}</span>${isAdminBolao(b)?'<span class="badge admin">Você administra</span>':''}${part.status==='PENDENTE'?'<span class="badge pendente">Pendente</span>':''}<span class="badge">${b.campeonato||b.camp||'CUP'}</span></div></div></div><div class="muted">${b.descricao||'Bolão esportivo com ranking e palpites.'}</div><div class="bolao-actions"><button class="btn primary mini" data-open="${b.id}">Abrir</button>${!part.status&&state.uid!=='GUEST'?'<button class="btn blue mini" data-join="'+b.id+'">Participar</button>':''}${isAdminBolao(b)?'<button class="btn mini" data-share="'+b.id+'">Convidar</button>':''}</div>`;
+      div.innerHTML=`<div class="bolao-title"><div><h3>${b.nome||b.titulo||'Bolão sem nome'}</h3><div class="bolao-meta"><span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Público':'Privado'}</span>${isAdminBolao(b)?'<span class="badge admin">Você administra</span>':''}${part.status==='PENDENTE'?'<span class="badge pendente">Pendente</span>':''}${b.ativo===false?'<span class="badge pendente">Inativo</span>':''}<span class="badge">${b.campeonato||b.camp||'CUP'}</span></div></div></div><div class="muted">${b.descricao||'Bolão esportivo com ranking e palpites.'}</div><div class="bolao-actions"><button class="btn primary mini" data-open="${b.id}">Abrir</button>${!part.status&&state.uid!=='GUEST'?'<button class="btn blue mini" data-join="'+b.id+'">Participar</button>':''}${isAdminBolao(b)?'<button class="btn mini" data-share="'+b.id+'">Convidar</button>':''}</div>`;
       box.appendChild(div);
     });
     box.querySelectorAll('[data-open]').forEach(btn=>btn.onclick=()=>selectBolao(list.find(b=>b.id===btn.dataset.open)));
     box.querySelectorAll('[data-join]').forEach(btn=>btn.onclick=()=>entrarBolao(btn.dataset.join));
     box.querySelectorAll('[data-share]').forEach(btn=>btn.onclick=()=>copiarConvite(btn.dataset.share));
   }
-  function selectBolao(b){ state.bolao=b; if(b.campeonato||b.camp){ $('#selCamp').value=b.campeonato||b.camp; loadRodadas($('#selCamp').value); } if(isAdminBolao(b)) ensureDesafianteBolao(b.id); renderBoloes(); renderSelected(); toast('Bolão selecionado: '+(b.nome||b.titulo||b.id)); }
+  function hideInfoPanels(){
+    const dash=$('#infoDashboard');
+    if(dash) dash.classList.remove('open');
+    const rp=$('#rankingPanel'), pp=$('#palpitesPanel');
+    if(rp) rp.classList.add('is-hidden');
+    if(pp) pp.classList.add('is-hidden');
+  }
+  function showInfoPanel(kind){
+    const dash=$('#infoDashboard');
+    if(dash) dash.classList.add('open');
+    $('#rankingPanel')?.classList.toggle('is-hidden', kind !== 'ranking');
+    $('#palpitesPanel')?.classList.toggle('is-hidden', kind !== 'palpites');
+  }
+
+  function selectBolao(b){
+    state.bolao=b;
+    hideInfoPanels();
+    if(b.campeonato||b.camp){ $('#selCamp').value=b.campeonato||b.camp; loadRodadas($('#selCamp').value); }
+    if(isAdminBolao(b)) ensureDesafianteBolao(b.id);
+    renderBoloes(); renderSelected();
+    toast('Bolão selecionado: '+(b.nome||b.titulo||b.id));
+  }
   function renderSelected(){
     const box=$('#bolaoSelecionado');
-    if(!state.bolao){ box.style.display='none'; $('#mainHint').textContent='Selecione um bolão ou crie um novo para começar.'; return; }
-    const b=state.bolao; box.style.display='grid'; $('#mainHint').textContent='Agora carregue os jogos, salve palpites ou compartilhe o convite.';
-    $('#selNome').textContent=b.nome||b.titulo||'Bolão selecionado'; $('#selResumo').textContent=`${b.publico?'Público':'Privado'} • ${b.campeonato||b.camp||'CUP'} • ${b.ativo?'Ativo':'Inativo'}`;
-    $('#selBadges').innerHTML=`<span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Entrada automática':'Aprovação do criador'}</span>${isAdminBolao(b)?'<span class="badge admin">Administrador</span>':''}<span class="badge auto">Autosave ativo</span>`;
+    if(!state.bolao){
+      box.style.display='none'; $('#mainHint').textContent='Selecione um bolão ou crie um novo para começar.'; hideInfoPanels(); return;
+    }
+    const b=state.bolao;
+    const admin=isAdminBolao(b);
+    box.style.display='grid'; $('#mainHint').textContent='Agora carregue os jogos, salve palpites ou compartilhe o convite.';
+    $('#selNome').textContent=b.nome||b.titulo||'Bolão selecionado';
+    $('#selResumo').textContent=`${b.publico?'Público':'Privado'} • ${b.campeonato||b.camp||'CUP'} • ${b.ativo===false?'Inativo':'Ativo'}`;
+    $('#selBadges').innerHTML=`<span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Entrada automática':'Aprovação do criador'}</span>${admin?'<span class="badge admin">Administrador</span>':''}${b.ativo===false?'<span class="badge pendente">Inativo</span>':''}<span class="badge auto">Autosave ativo</span>`;
     $('#shareBox').textContent=shareUrl(b.id);
+    $('#adminActions')?.classList.toggle('open', admin);
+    const btnInativar=$('#btnInativarBolao');
+    if(btnInativar) btnInativar.textContent = b.ativo===false ? 'Reativar' : 'Inativar';
   }
 
   async function criarBolao(){
@@ -791,6 +833,66 @@
     $('#novoNome').value=''; $('#novoDesc').value=''; await refreshAll(); selectBolao({id,...payload,minhaParticipacao:{papel:'CRIADOR',status:'APROVADO',ativo:true}}); setTab('meus'); toast('Bolão criado. Você é o administrador deste bolão e o Desafiante Simon IA já foi incluído.');
   }
   $('#btnCriarBolao').onclick=()=>criarBolao().catch(e=>toast('Erro ao criar bolão: '+e.message));
+
+
+  function updateBolaoInMemory(id, patch){
+    const apply = b => b && b.id===id ? Object.assign(b, patch) : b;
+    state.meus = state.meus.map(apply);
+    state.publicos = state.publicos.map(apply).filter(b=>b.excluido!==true && b.ativo!==false);
+    state.privados = state.privados.map(apply).filter(b=>b.excluido!==true);
+    if(state.bolao && state.bolao.id===id) Object.assign(state.bolao, patch);
+  }
+
+  async function atualizarBolaoAdmin(patch, msgOk){
+    if(!state.bolao){ toast('Selecione um bolão.'); return; }
+    if(!isAdminBolao(state.bolao)){ toast('Apenas o administrador deste bolão pode alterar essas configurações.'); return; }
+    const id=state.bolao.id;
+    const payload={...patch, atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()};
+    await db.collection('boloes').doc(id).set(payload,{merge:true});
+    await db.collection('usuarios').doc(state.uid).collection('meusBoloes').doc(id).set(payload,{merge:true}).catch(()=>{});
+    updateBolaoInMemory(id, patch);
+    renderBoloes(); renderSelected();
+    toast(msgOk || 'Bolão atualizado.');
+  }
+
+  async function editarNomeBolao(){
+    if(!state.bolao){ toast('Selecione um bolão.'); return; }
+    const atual=state.bolao.nome||state.bolao.titulo||'';
+    const nome=prompt('Novo nome do bolão:', atual);
+    if(nome===null) return;
+    const novo=nome.trim();
+    if(!novo){ toast('O nome do bolão não pode ficar vazio.'); return; }
+    await atualizarBolaoAdmin({nome:novo,titulo:novo}, 'Nome do bolão atualizado.');
+  }
+
+  async function alternarBolaoAtivo(){
+    if(!state.bolao){ toast('Selecione um bolão.'); return; }
+    const novoAtivo = state.bolao.ativo === false;
+    const acao = novoAtivo ? 'reativar' : 'inativar';
+    if(!confirm(`Confirma ${acao} o bolão "${state.bolao.nome||state.bolao.titulo||state.bolao.id}"?`)) return;
+    await atualizarBolaoAdmin({ativo:novoAtivo}, novoAtivo ? 'Bolão reativado.' : 'Bolão inativado.');
+  }
+
+  async function excluirBolao(){
+    if(!state.bolao){ toast('Selecione um bolão.'); return; }
+    if(!isAdminBolao(state.bolao)){ toast('Apenas o administrador deste bolão pode excluir.'); return; }
+    const nome=state.bolao.nome||state.bolao.titulo||state.bolao.id;
+    if(!confirm(`Confirma excluir o bolão "${nome}"? Ele será ocultado das listas e inativado.`)) return;
+    const id=state.bolao.id;
+    const patch={ativo:false,excluido:true,excluidoEm:firebase.firestore.FieldValue.serverTimestamp(),excluidoPor:state.uid};
+    await db.collection('boloes').doc(id).set(patch,{merge:true});
+    await db.collection('usuarios').doc(state.uid).collection('meusBoloes').doc(id).delete().catch(()=>{});
+    state.meus=state.meus.filter(b=>b.id!==id);
+    state.publicos=state.publicos.filter(b=>b.id!==id);
+    state.privados=state.privados.filter(b=>b.id!==id);
+    state.bolao=null;
+    renderBoloes(); renderSelected(); hideInfoPanels();
+    toast('Bolão excluído da sua área e inativado no sistema.');
+  }
+
+  $('#btnEditarBolao')?.addEventListener('click',()=>editarNomeBolao().catch(e=>toast('Erro ao editar bolão: '+e.message)));
+  $('#btnInativarBolao')?.addEventListener('click',()=>alternarBolaoAtivo().catch(e=>toast('Erro ao alterar status do bolão: '+e.message)));
+  $('#btnExcluirBolao')?.addEventListener('click',()=>excluirBolao().catch(e=>toast('Erro ao excluir bolão: '+e.message)));
 
   async function ensureDesafianteBolao(bolaoId){
     if(!bolaoId) return;
@@ -1060,9 +1162,29 @@
     }
   }
 
+  function idJogoDaLinhaPalpite(r){
+    return String(getVal(r,['idJogo','jogo_id','id_jogo','jogo','partida','confronto','id'],'')).trim();
+  }
+
+  function jogoJaIniciadoParaExibirPalpite(r){
+    const id=idJogoDaLinhaPalpite(r);
+    const candidatos=[];
+    if(id) candidatos.push(...(state.jogos||[]).filter(g=>String(g.id||'')===id || String(g.jogo||'')===id || String(g.partida||'')===id || String(`${g.mandante||g.home||''} x ${g.visitante||g.away||''}`).trim()===id));
+    candidatos.push(r);
+    for(const g of candidatos){
+      const dt=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||g.dataHora||g.date||'');
+      if(dt && !isNaN(dt.getTime())) return dt.getTime() <= Date.now();
+      const st=String(g.status||g.situacao||'').toLowerCase();
+      if(['ao vivo','aovivo','em andamento','iniciado','encerrado','finalizado','fechado'].some(x=>st.includes(x))) return true;
+      if(['agendado','aberto','a começar','a comecar','programado'].some(x=>st.includes(x))) return false;
+    }
+    return false;
+  }
+
   function renderPalpites(payload){
     const body=$('#palpitesBody'), status=$('#palpitesStatus');
-    const rows=pickRows(payload);
+    let rows=pickRows(payload);
+    rows = rows.filter(jogoJaIniciadoParaExibirPalpite);
     status.textContent = fmtClock(new Date());
     if(rows.length){
       body.innerHTML = `<table class="info-table"><thead><tr><th>Jogo</th><th>Participante</th><th>Palpite</th><th>Origem</th></tr></thead><tbody>${rows.map((r)=>{
@@ -1075,14 +1197,11 @@
       }).join('')}</tbody></table>`;
       return;
     }
-    if(payload && typeof payload === 'object'){
-      body.innerHTML = `<div class="info-empty">A API respondeu, mas não retornou uma lista de palpites em formato de tabela. Exibindo retorno técnico abaixo.</div><pre class="info-json">${escapeHtml(JSON.stringify(payload,null,2))}</pre>`;
-    }else{
-      body.innerHTML = '<div class="info-empty">Nenhum palpite foi retornado.</div>';
-    }
+    body.innerHTML = '<div class="info-empty">Nenhum palpite liberado para exibição. Os palpites de jogos ainda não iniciados ficam ocultos; só aparecem jogos iniciados, ao vivo ou encerrados.</div>';
   }
 
   async function carregarRankingPainel(){
+    showInfoPanel('ranking');
     $('#rankingStatus').textContent='carregando...';
     $('#rankingBody').innerHTML='<div class="info-empty">Carregando ranking...</div>';
     try{
@@ -1096,8 +1215,11 @@
   }
 
   async function carregarPalpitesPainel(){
+    showInfoPanel('palpites');
     $('#palpitesStatus').textContent='carregando...';
     $('#palpitesBody').innerHTML='<div class="info-empty">Carregando palpites...</div>';
+    if(!state.bolao){ $('#palpitesStatus').textContent='aguardando bolão'; $('#palpitesBody').innerHTML='<div class="info-empty">Selecione um bolão antes de consultar os palpites.</div>'; return; }
+    if(!state.jogos || !state.jogos.length){ $('#palpitesStatus').textContent='carregue jogos'; $('#palpitesBody').innerHTML='<div class="info-empty">Carregue os jogos da rodada primeiro. Assim o sistema consegue ocultar corretamente palpites de jogos ainda não iniciados.</div>'; return; }
     try{
       const extra = `camp=${encodeURIComponent($('#selCamp').value||'')}&rodada=${encodeURIComponent($('#selRod').value||'')}&bolao=${encodeURIComponent(state.bolao?.id||'')}`;
       const data = await apiGet(withDualAction('palpitesDeTodos', extra));
