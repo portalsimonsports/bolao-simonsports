@@ -243,15 +243,16 @@
 <!-- =========================[ INÍCIO: Firebase (compat) ]========================= -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
   // ---------- INÍCIO BLOCO: firebaseConfig ----------
   const firebaseConfig = {
-    apiKey: "AIzaSyCrzPnWfKVsshLqcPRfizcOR2asyStrHCA",
-    authDomain: "bolao-esportivo-30732.firebaseapp.com",
-    projectId: "bolao-esportivo-30732",
-    storageBucket: "bolao-esportivo-30732.firebasestorage.app",
-    messagingSenderId: "27951826845",
-    appId: "1:27951826845:web:a939530927c887ec9c9174"
+    apiKey: "AIzaSyA8tO_E2s6R9bYnEW6_5skqCUrBSVLLKkw",
+    authDomain: "pss-bolao-esportivo.firebaseapp.com",
+    projectId: "pss-bolao-esportivo",
+    storageBucket: "pss-bolao-esportivo.firebasestorage.app",
+    messagingSenderId: "575209475526",
+    appId: "1:575209475526:web:7d2d1efa2d9fd8b600f6c7"
   };
   // ---------- FIM BLOCO: firebaseConfig ----------
 
@@ -260,6 +261,7 @@
   // ---------- INÍCIO BLOCO: Inicialização Firebase/Auth ----------
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
+  const db = firebase.firestore();
   const provider = new firebase.auth.GoogleAuthProvider();
   // ---------- FIM BLOCO: Inicialização Firebase/Auth ----------
 
@@ -293,11 +295,33 @@
       btnLogin.style.display = 'none';
       btnLogout.style.display = 'inline-block';
 
-      // signup leve no backend (garante cadastro)
+      // Cadastro automático no Firestore do projeto PSS Bolão Esportivo.
+      // Neste modelo, não existe aprovação central do cadastro:
+      // o usuário fica ATIVO ao entrar com Google.
+      try{
+        const refUsuario = db.collection('usuarios').doc(user.uid);
+        await refUsuario.set({
+          uid: user.uid,
+          nome: user.displayName || user.email || '',
+          email: user.email || '',
+          foto: user.photoURL || '',
+          ativo: true,
+          status: 'ATIVO',
+          perfilGlobal: 'USUARIO',
+          atualizadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+          ultimoLoginEm: firebase.firestore.FieldValue.serverTimestamp(),
+          criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      }catch(e){
+        console.warn('Falha ao criar/atualizar cadastro no Firestore:', e);
+      }
+
+      // Mantido apenas como compatibilidade com a WebAPI atual.
+      // Se o backend Apps Script não precisar mais disso, pode ser removido depois.
       try{
         await fetch(`${API_BASE}?action=signup&uid=${encodeURIComponent(user.uid)}&name=${encodeURIComponent(user.displayName||user.email)}`);
       }catch(e){
-        console.warn('Falha ao registrar signup leve:', e);
+        console.warn('Falha ao registrar signup leve na WebAPI:', e);
       }
 
     }else{
