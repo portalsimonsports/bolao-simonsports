@@ -306,11 +306,13 @@
   .ticker-track{position:relative;overflow:hidden;white-space:nowrap;min-height:48px;display:flex;align-items:center;background:rgba(2,6,23,.45)}
   .ticker-content{display:inline-flex;align-items:center;gap:18px;padding:0 18px;animation:pssTickerMove 42s linear infinite;will-change:transform}
   .ticker-track:hover .ticker-content{animation-play-state:paused}
+
+  .ticker-item .mini-team .team-title{white-space:nowrap;overflow:visible;text-overflow:clip}
   .ticker-item{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:#e2e8f0}
   .ticker-item .tag-mini{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:1000;text-transform:uppercase;letter-spacing:.04em;background:#0ea5e9;color:#042034}
   .ticker-item.done .tag-mini{background:#dcfce7;color:#166534}
   .ticker-item.next .tag-mini{background:#facc15;color:#111827}
-  .ticker-score{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);padding:5px 8px;color:#fff;font-weight:1000}
+  .ticker-score{display:inline-flex;align-items:center;justify-content:center;gap:4px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);padding:5px 9px;color:#fff;font-weight:1000;min-width:58px;text-align:center}
   .ticker-empty{padding:14px 18px;color:#9fb3cf;font-weight:850;font-size:13px}
   @keyframes pssTickerMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
   @media (max-width:620px){.ticker-head{display:block}.ticker-head span{display:block;text-align:left;margin-top:3px}.ticker-content{animation-duration:30s}.ticker-item{font-size:12px}}
@@ -324,9 +326,12 @@
   .mini-team{display:inline-flex;align-items:center;gap:8px;min-width:0;vertical-align:middle}
   .mini-team .team-logo{width:24px;height:24px;flex-basis:24px;font-size:9px;background:#f8fafc;border-color:#e2e8f0;color:#0f172a;box-shadow:none}
   .mini-team .team-title{color:#0f172a}
+  /* V16: em cards com seleções em linhas separadas, as duas bandeiras ficam à esquerda do nome. */
   .team.away{justify-content:flex-start}
-  .team.away .team-logo{order:2}
-  .team.away .team-title{order:1}
+  .match-table .team .team-logo{order:0}
+  .match-table .team .team-title{order:1;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.15}
+
+  /* Em confrontos compactos em linha única, mantém: bandeira mandante + nome x nome + bandeira visitante. */
   .mini-team.away .team-logo{order:2}
   .mini-team.away .team-title{order:1}
   .mini-row strong{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
@@ -1179,6 +1184,10 @@
   function confrontoMiniHTML(home,away){
     return `${miniTeamHTML(home,'home')} <span style="opacity:.55">x</span> ${miniTeamHTML(away,'away')}`;
   }
+  function confrontoMiniComPlacarHTML(home,away,score){
+    const placar = score || '-- x --';
+    return `${miniTeamHTML(home,'home')} <span class="ticker-score">${escapeHtml(placar)}</span> ${miniTeamHTML(away,'away')}`;
+  }
   function getVisualStatus(apiStatus, dt){
     const now=new Date();
     const st=String(apiStatus||'agendado').toLowerCase();
@@ -1341,7 +1350,7 @@
     const score=placarLetreiro(g);
     const cls=tipo==='done'?'done':'next';
     const tag=tipo==='done'?'Resultado':'Próximo';
-    return `<span class="ticker-item ${cls}"><span class="tag-mini">${tag}</span>${confrontoMiniHTML(home,away)}${score?`<span class="ticker-score">${score}</span>`:''}<span>${escapeHtml(quando)}</span></span>`;
+    return `<span class="ticker-item ${cls}"><span class="tag-mini">${tag}</span>${confrontoMiniComPlacarHTML(home,away,score)}<span>${escapeHtml(quando)}</span></span>`;
   }
   async function atualizarLetreiroCampeonato(camp){
     const track=$('#tickerTrack');
