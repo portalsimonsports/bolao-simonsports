@@ -300,11 +300,13 @@
 
   /* V13: bandeiras/logos e alinhamento profissional dos confrontos */
   .team{display:flex;align-items:center;gap:10px;min-width:0;color:#fff;font-size:16px;font-weight:1000;overflow:hidden;text-overflow:ellipsis}
-  .team-logo{width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 30px;background:#111c34;border:1px solid #263451;font-size:19px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+  .team-logo{width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 30px;background:#111c34;border:1px solid #263451;font-size:11px;font-weight:1000;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+  .team-logo img{width:100%;height:100%;display:block;object-fit:cover;border-radius:999px}
   .team-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .mini-team{display:flex;align-items:center;gap:8px;min-width:0}
-  .mini-team .team-logo{width:24px;height:24px;flex-basis:24px;font-size:15px;background:#f8fafc;border-color:#e2e8f0;color:#0f172a;box-shadow:none}
+  .mini-team{display:inline-flex;align-items:center;gap:8px;min-width:0;vertical-align:middle}
+  .mini-team .team-logo{width:24px;height:24px;flex-basis:24px;font-size:9px;background:#f8fafc;border-color:#e2e8f0;color:#0f172a;box-shadow:none}
   .mini-team .team-title{color:#0f172a}
+  .mini-row strong{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
   .match-card{border:1px solid rgba(148,163,184,.18)}
 
 </style>
@@ -1061,13 +1063,77 @@
   function fmtDataHoraJogo(d){ if(!d || isNaN(d.getTime())) return '--'; return `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}`; }
   function fmtDataHoraCurta(d){ if(!d || isNaN(d.getTime())) return '--'; return `${p2(d.getDate())}/${p2(d.getMonth()+1)} • ${p2(d.getHours())}:${p2(d.getMinutes())}`; }
 
-  const TEAM_FLAGS = {
-    'argentina':'🇦🇷','australia':'🇦🇺','belgium':'🇧🇪','belgica':'🇧🇪','brazil':'🇧🇷','brasil':'🇧🇷','bosnia-herzegovina':'🇧🇦','bosnia herzegovina':'🇧🇦','canada':'🇨🇦','cape verde':'🇨🇻','cabo verde':'🇨🇻','chile':'🇨🇱','china':'🇨🇳','colombia':'🇨🇴','congo dr':'🇨🇩','congo':'🇨🇩','costa rica':'🇨🇷','croatia':'🇭🇷','croacia':'🇭🇷','curacao':'🇨🇼','curaçao':'🇨🇼','czech republic':'🇨🇿','czechia':'🇨🇿','dinamarca':'🇩🇰','denmark':'🇩🇰','ecuador':'🇪🇨','egypt':'🇪🇬','egito':'🇪🇬','england':'🏴','inglaterra':'🏴','france':'🇫🇷','frança':'🇫🇷','germany':'🇩🇪','alemanha':'🇩🇪','ghana':'🇬🇭','haiti':'🇭🇹','honduras':'🇭🇳','iran':'🇮🇷','iraq':'🇮🇶','iraque':'🇮🇶','italy':'🇮🇹','italia':'🇮🇹','ivory coast':'🇨🇮','cote d ivoire':'🇨🇮','côte d\'ivoire':'🇨🇮','japan':'🇯🇵','japao':'🇯🇵','japão':'🇯🇵','korea republic':'🇰🇷','south korea':'🇰🇷','coreia do sul':'🇰🇷','mexico':'🇲🇽','méxico':'🇲🇽','morocco':'🇲🇦','marrocos':'🇲🇦','netherlands':'🇳🇱','países baixos':'🇳🇱','new zealand':'🇳🇿','nova zelandia':'🇳🇿','nova zelândia':'🇳🇿','norway':'🇳🇴','noruega':'🇳🇴','panama':'🇵🇦','panamá':'🇵🇦','paraguay':'🇵🇾','paraguai':'🇵🇾','poland':'🇵🇱','portugal':'🇵🇹','qatar':'🇶🇦','senegal':'🇸🇳','saudi arabia':'🇸🇦','arabia saudita':'🇸🇦','scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','escocia':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','espana':'🇪🇸','espanha':'🇪🇸','spain':'🇪🇸','sweden':'🇸🇪','suecia':'🇸🇪','suécia':'🇸🇪','switzerland':'🇨🇭','suica':'🇨🇭','suíça':'🇨🇭','tunisia':'🇹🇳','tunísia':'🇹🇳','turkiye':'🇹🇷','turkey':'🇹🇷','turquia':'🇹🇷','ukraine':'🇺🇦','ucrania':'🇺🇦','ucrânia':'🇺🇦','united states':'🇺🇸','usa':'🇺🇸','estados unidos':'🇺🇸','uruguay':'🇺🇾','uruguai':'🇺🇾','uzbekistan':'🇺🇿','uzbequistao':'🇺🇿','uzbequistão':'🇺🇿','wales':'🏴󠁧󠁢󠁷󠁬󠁳󠁿','pais de gales':'🏴󠁧󠁢󠁷󠁬󠁳󠁿'
+  const TEAM_FLAG_CODES = {
+    'argentina':'ar','australia':'au','austrália':'au','belgium':'be','belgica':'be','bélgica':'be','brazil':'br','brasil':'br',
+    'bosnia-herzegovina':'ba','bosnia herzegovina':'ba','bósnia-herzegovina':'ba','bosnia and herzegovina':'ba',
+    'canada':'ca','canadá':'ca','cape verde':'cv','cabo verde':'cv','chile':'cl','china':'cn','colombia':'co','colômbia':'co',
+    'congo dr':'cd','dr congo':'cd','congo democratic republic':'cd','rd congo':'cd','republica democratica do congo':'cd','república democrática do congo':'cd',
+    'costa rica':'cr','croatia':'hr','croácia':'hr','croacia':'hr','curacao':'cw','curaçao':'cw','czech republic':'cz','czechia':'cz','república tcheca':'cz','republica tcheca':'cz',
+    'denmark':'dk','dinamarca':'dk','ecuador':'ec','egypt':'eg','egito':'eg','england':'gb-eng','inglaterra':'gb-eng','france':'fr','frança':'fr','franca':'fr',
+    'germany':'de','alemanha':'de','ghana':'gh','haiti':'ht','honduras':'hn','iran':'ir','iraq':'iq','iraque':'iq','italy':'it','italia':'it','itália':'it',
+    'ivory coast':'ci','cote d ivoire':'ci','côte d ivoire':'ci','côte d\'ivoire':'ci','costa do marfim':'ci',
+    'japan':'jp','japao':'jp','japão':'jp','korea republic':'kr','south korea':'kr','coreia do sul':'kr',
+    'mexico':'mx','méxico':'mx','morocco':'ma','marrocos':'ma','netherlands':'nl','países baixos':'nl','paises baixos':'nl','holanda':'nl',
+    'new zealand':'nz','nova zelandia':'nz','nova zelândia':'nz','norway':'no','noruega':'no','panama':'pa','panamá':'pa','paraguay':'py','paraguai':'py',
+    'poland':'pl','polônia':'pl','polonia':'pl','portugal':'pt','qatar':'qa','catar':'qa','senegal':'sn','senegal':'sn','saudi arabia':'sa','arábia saudita':'sa','arabia saudita':'sa',
+    'scotland':'gb-sct','escócia':'gb-sct','escocia':'gb-sct','spain':'es','espanha':'es','sweden':'se','suécia':'se','suecia':'se','switzerland':'ch','suíça':'ch','suica':'ch',
+    'tunisia':'tn','tunísia':'tn','turkiye':'tr','türkiye':'tr','turkey':'tr','turquia':'tr','ukraine':'ua','ucrânia':'ua','ucrania':'ua',
+    'united states':'us','usa':'us','estados unidos':'us','uruguay':'uy','uruguai':'uy','uzbekistan':'uz','uzbequistão':'uz','uzbequistao':'uz',
+    'wales':'gb-wls','país de gales':'gb-wls','pais de gales':'gb-wls'
   };
-  function normFlagName(nome){ return String(nome||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(); }
-  function teamFlag(nome){ const raw=String(nome||'').trim().toLowerCase(); const n=normFlagName(nome); return TEAM_FLAGS[raw] || TEAM_FLAGS[n] || TEAM_FLAGS[n.replace(/ /g,'-')] || '⚽'; }
-  function teamHTML(nome){ return `<div class="team"><span class="team-logo">${teamFlag(nome)}</span><span class="team-title">${escapeHtml(nome||'-')}</span></div>`; }
-  function miniTeamHTML(nome){ return `<span class="mini-team"><span class="team-logo">${teamFlag(nome)}</span><span class="team-title">${escapeHtml(nome||'-')}</span></span>`; }
+
+  const TEAM_NAMES_PT = {
+    'argentina':'Argentina','australia':'Austrália','belgium':'Bélgica','belgica':'Bélgica','brazil':'Brasil','brasil':'Brasil',
+    'bosnia-herzegovina':'Bósnia-Herzegovina','bosnia herzegovina':'Bósnia-Herzegovina','bosnia and herzegovina':'Bósnia-Herzegovina',
+    'canada':'Canadá','cape verde':'Cabo Verde','cabo verde':'Cabo Verde','chile':'Chile','china':'China','colombia':'Colômbia',
+    'congo dr':'RD Congo','dr congo':'RD Congo','congo democratic republic':'RD Congo','republica democratica do congo':'RD Congo','república democrática do congo':'RD Congo',
+    'costa rica':'Costa Rica','croatia':'Croácia','curacao':'Curaçao','curaçao':'Curaçao','czech republic':'República Tcheca','czechia':'República Tcheca',
+    'denmark':'Dinamarca','ecuador':'Equador','egypt':'Egito','england':'Inglaterra','france':'França','germany':'Alemanha','ghana':'Gana','haiti':'Haiti','honduras':'Honduras',
+    'iran':'Irã','iraq':'Iraque','italy':'Itália','ivory coast':'Costa do Marfim','cote d ivoire':'Costa do Marfim','côte d ivoire':'Costa do Marfim','côte d\'ivoire':'Costa do Marfim',
+    'japan':'Japão','korea republic':'Coreia do Sul','south korea':'Coreia do Sul','mexico':'México','morocco':'Marrocos','netherlands':'Países Baixos',
+    'new zealand':'Nova Zelândia','norway':'Noruega','panama':'Panamá','paraguay':'Paraguai','poland':'Polônia','portugal':'Portugal','qatar':'Catar',
+    'senegal':'Senegal','saudi arabia':'Arábia Saudita','scotland':'Escócia','spain':'Espanha','sweden':'Suécia','switzerland':'Suíça','tunisia':'Tunísia',
+    'turkiye':'Turquia','türkiye':'Turquia','turkey':'Turquia','ukraine':'Ucrânia','united states':'Estados Unidos','usa':'Estados Unidos',
+    'uruguay':'Uruguai','uzbekistan':'Uzbequistão','wales':'País de Gales'
+  };
+
+  function normFlagName(nome){
+    return String(nome||'')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase()
+      .replace(/&/g,' and ')
+      .replace(/[^a-z0-9]+/g,' ')
+      .trim();
+  }
+  function translateTeam(nome){
+    const raw = String(nome||'').trim();
+    const lower = raw.toLowerCase();
+    const n = normFlagName(raw);
+    return TEAM_NAMES_PT[lower] || TEAM_NAMES_PT[n] || TEAM_NAMES_PT[n.replace(/ /g,'-')] || raw || '-';
+  }
+  function teamFlagCode(nome){
+    const raw = String(nome||'').trim().toLowerCase();
+    const n = normFlagName(nome);
+    return TEAM_FLAG_CODES[raw] || TEAM_FLAG_CODES[n] || TEAM_FLAG_CODES[n.replace(/ /g,'-')] || '';
+  }
+  function initialsFromName(nome){
+    const label = translateTeam(nome).replace(/[^A-Za-zÀ-ÿ0-9 ]+/g,' ').trim();
+    const parts = label.split(/\s+/).filter(Boolean);
+    if(!parts.length) return '⚽';
+    if(parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+    return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+  }
+  function teamLogoHTML(nome){
+    const code = teamFlagCode(nome);
+    const initials = initialsFromName(nome);
+    if(code){
+      const src = `https://flagcdn.com/w40/${code}.png`;
+      return `<span class="team-logo" title="${escapeHtml(translateTeam(nome))}"><img src="${src}" alt="${escapeHtml(translateTeam(nome))}" loading="lazy" onerror="this.parentNode.textContent='${escapeHtml(initials)}'"></span>`;
+    }
+    return `<span class="team-logo" title="${escapeHtml(translateTeam(nome))}">${escapeHtml(initials)}</span>`;
+  }
+  function teamHTML(nome){ return `<div class="team">${teamLogoHTML(nome)}<span class="team-title">${escapeHtml(translateTeam(nome))}</span></div>`; }
+  function miniTeamHTML(nome){ return `<span class="mini-team">${teamLogoHTML(nome)}<span class="team-title">${escapeHtml(translateTeam(nome))}</span></span>`; }
   function getVisualStatus(apiStatus, dt){
     const now=new Date();
     const st=String(apiStatus||'agendado').toLowerCase();
