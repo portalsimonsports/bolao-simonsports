@@ -325,6 +325,21 @@
     cursor:not-allowed;
   }
 
+  .autosave-status{
+    color:#94a3b8;
+    font-size:12px;
+    font-weight:900;
+    min-height:18px;
+  }
+
+  .autosave-status.ok{color:#86efac}
+  .autosave-status.err{color:#fecaca}
+  .autosave-status.saving{color:#bae6fd}
+
+  input.inp.dirty{border-color:#facc15}
+  input.inp.saved{border-color:#22c55e}
+  input.inp.error{border-color:#ef4444}
+
   .foot-label{
     color:#94a3b8;
     font-size:13px;
@@ -450,7 +465,7 @@
       </div>
     </div>
     <div class="row">
-      <label><input type="checkbox" id="paAplicarAgora" checked> Aplicar agora em jogos já bloqueados que estejam sem palpite</label>
+      <label><input type="checkbox" id="paAplicarAgora" checked> Aplicar agora nos jogos abertos que estejam sem palpite</label>
     </div>
     <div class="row" style="justify-content:flex-end;gap:8px">
       <button class="btn alt" id="paFechar">Fechar</button>
@@ -477,6 +492,9 @@
     bolaoAtualId:'',
     convitePendenteId:''
   };
+
+  const autosaveTimers = {};
+  const AUTO_SAVE_DELAY_MS = 650;
   /********* FIM: CONFIG & REFS *********/
 </script>
 
@@ -681,7 +699,142 @@
 
   function palpiteField(id, value, disabled){
     const v = (value===''||value==null||value==undefined) ? '' : String(value);
-    return `<input class="inp" type="number" min="0" inputmode="numeric" data-id="${id}" value="${v}" ${disabled?'disabled':''}>`;
+    return `<input class="inp js-palpite" type="number" min="0" inputmode="numeric" data-id="${id}" value="${v}" ${disabled?'disabled':''}>`;
+  }
+
+  function firstValue(){
+    for(const v of arguments){
+      if(v !== undefined && v !== null && v !== '') return v;
+    }
+    return '';
+  }
+
+  function normalizeGol(v){
+    if(v === null || v === undefined) return '';
+    const s = String(v).trim();
+    if(s === '') return '';
+    const n = Number(s);
+    if(!Number.isFinite(n) || n < 0) return '';
+    return String(Math.floor(n));
+  }
+
+  function cssEsc(v){
+    return (window.CSS && CSS.escape) ? CSS.escape(String(v)) : String(v).replace(/[^A-Za-z0-9_-]/g, '\\$&');
+  }
+
+  function setSaveStatus(id, txt, cls){
+    const st = elLista.querySelector(`.autosave-status[data-status-save="${cssEsc(id)}"]`);
+    if(!st) return;
+    st.className = 'autosave-status ' + (cls || '');
+    st.textContent = txt || '';
+  }
+
+  function markInputs(id, cls){
+    [`${id}_gm`, `${id}_gv`].forEach(k=>{
+      const input = elLista.querySelector(`input[data-id="${cssEsc(k)}"]`);
+      if(!input) return;
+      input.classList.remove('dirty','saved','error');
+      if(cls) input.classList.add(cls);
+    });
+  }
+
+  async function salvarPalpiteJogo(id, camp, rodada, origem){
+    if(state.uid === 'GUEST'){
+      setSaveStatus(id, 'Entre com Google para salvar.', 'err');
+      markInputs(id, 'error');
+      return false;
+    }
+
+    const gmEl = elLista.querySelector(`input[data-id="${cssEsc(id + '_gm')}"]`);
+    const gvEl = elLista.querySelector(`input[data-id="${cssEsc(id + '_gv')}"]`);
+    if(!gmEl || !gvEl || gmEl.disabled || gvEl.disabled) return false;
+
+    const gm = normalizeGol(gmEl.value);
+    const gv = normalizeGol(gvEl.value);
+    gmEl.value = gm;
+    gvEl.value = gv;
+
+    if(gm === '' || gv === ''){
+      setSaveStatus(id, 'Preencha os dois placares.', 'err');
+      markInputs(id, 'error');
+      return false;
+    }
+
+    setSaveStatus(id, origem === 'auto' ? 'Salvando automaticamente...' : 'Salvando...', 'saving');
+    markInputs(id, 'dirty');
+
+    try{
+      await apiGet(withDualAction('salvarPalpite', `camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}&id=${encodeURIComponent(id)}&gm=${encodeURIComponent(gm)}&gv=${encodeURIComponent(gv)}&origem=${encodeURIComponent(origem || 'manual')}`));
+
+      // Espelha também no Firestore quando houver bolão atual selecionado/criado.
+      if(window.PSS_BOLAO_FB && window.PSS_BOLAO_FB.salvarPalpiteFirestore){
+        try{
+          await window.PSS_BOLAO_FB.salvarPalpiteFirestore({ idJogo:id, camp, rodada, gm, gv, origem:origem || 'manual' });
+        }catch(eFb){
+          console.warn('Firestore palpites indisponível:', eFb);
+        }
+      }
+
+      setSaveStatus(id, origem === 'auto' ? 'Salvo automático ✓' : 'Salvo ✓', 'ok');
+      markInputs(id, 'saved');
+      setTimeout(()=>markInputs(id,''), 1200);
+      return true;
+    }catch(e){
+      setSaveStatus(id, 'Erro ao salvar: ' + e.message, 'err');
+      markInputs(id, 'error');
+      throw e;
+    }
+  }
+
+  function agendarAutoSave(id, camp, rodada){
+    clearTimeout(autosaveTimers[id]);
+    setSaveStatus(id, 'Aguardando digitação...', 'saving');
+    markInputs(id, 'dirty');
+    autosaveTimers[id] = setTimeout(()=>{
+      salvarPalpiteJogo(id, camp, rodada, 'auto').catch(e=>console.warn(e));
+    }, AUTO_SAVE_DELAY_MS);
+  }
+
+  function carregarPAStorage(){
+    try{
+      const raw = localStorage.getItem('PSS_PA_PADRAO');
+      if(!raw) return null;
+      const obj = JSON.parse(raw);
+      if(obj && obj.ativo && obj.gm !== '' && obj.gv !== '') return obj;
+    }catch(_){}
+    return null;
+  }
+
+  function salvarPAStorage(pa){
+    try{
+      if(pa) localStorage.setItem('PSS_PA_PADRAO', JSON.stringify(pa));
+      else localStorage.removeItem('PSS_PA_PADRAO');
+    }catch(_){}
+  }
+
+  async function aplicarPAEmJogosAbertos(camp, rodada, salvarAgora){
+    if(!state.pa || state.pa.gm === '' || state.pa.gv === '') return 0;
+    let aplicados = 0;
+
+    for(const card of Array.from(elLista.querySelectorAll('.match-card'))){
+      const id = card.dataset.jogo;
+      const gmEl = card.querySelector(`input[data-id="${cssEsc(id + '_gm')}"]`);
+      const gvEl = card.querySelector(`input[data-id="${cssEsc(id + '_gv')}"]`);
+      if(!gmEl || !gvEl || gmEl.disabled || gvEl.disabled) continue;
+      if(gmEl.value !== '' || gvEl.value !== '') continue;
+
+      gmEl.value = String(state.pa.gm);
+      gvEl.value = String(state.pa.gv);
+      aplicados++;
+
+      if(salvarAgora){
+        try{ await salvarPalpiteJogo(id, camp, rodada, 'PA'); }
+        catch(e){ console.warn('Falha ao aplicar P.A. no jogo ' + id, e); }
+      }else{
+        agendarAutoSave(id, camp, rodada);
+      }
+    }
+    return aplicados;
   }
 
   async function carregarJogos(){
@@ -723,6 +876,15 @@
 
         const id = g.id || `${camp}_${rodada}_${idx}`;
 
+        const palpiteGM = firstValue(
+          g.palpite_gm, g.gm_palpite, g.palpite_mandante, g.meu_palpite_gm,
+          g.meu_palpite_mandante, g.gols_mandante_palpite, g.pm, g.pgm
+        );
+        const palpiteGV = firstValue(
+          g.palpite_gv, g.gv_palpite, g.palpite_visitante, g.meu_palpite_gv,
+          g.meu_palpite_visitante, g.gols_visitante_palpite, g.pv, g.pgv
+        );
+
         // countdown vivo
         const etaHTML = `<span class="eta js-eta" data-status="${status}" data-t="${d?d.toISOString():''}">
           ${status==='agendado' ? liveCountdown(d) : 'encerrado'}
@@ -747,42 +909,55 @@
 
               <div class="team">${home}</div>
               <div class="official-box">${gm}</div>
-              ${palpiteField(id+'_gm', '', disabled)}
+              ${palpiteField(id+'_gm', palpiteGM, disabled)}
 
               <div class="team">${away}</div>
               <div class="official-box">${gv}</div>
-              ${palpiteField(id+'_gv', '', disabled)}
+              ${palpiteField(id+'_gv', palpiteGV, disabled)}
             </div>
 
             <div class="match-foot">
               <div class="foot-label">Seu palpite</div>
               <span class="pts" data-pts="${id}">0 pts</span>
               <button class="save" data-save="${id}" ${disabled?'disabled':''}>Salvar</button>
+              <div class="autosave-status" data-status-save="${id}"></div>
             </div>
           </div>`;
       }).join('');
 
       elMsg.hidden=true; elLista.hidden=false;
 
-      // listeners de salvar
+      // listeners de salvar manual e salvamento automático
       elLista.querySelectorAll('button[data-save]').forEach(btn=>{
         btn.addEventListener('click', async ()=>{
           const id = btn.dataset.save;
-          const gmEl = elLista.querySelector(`input[data-id="${id}_gm"]`);
-          const gvEl = elLista.querySelector(`input[data-id="${id}_gv"]`);
-          const gm = gmEl?.value ?? '';
-          const gv = gvEl?.value ?? '';
-
           try{
-            await apiGet(withDualAction('salvarPalpite', `camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}&id=${encodeURIComponent(id)}&gm=${encodeURIComponent(gm)}&gv=${encodeURIComponent(gv)}`));
-            // feedback simples local
-            const chip = elLista.querySelector(`.pts[data-pts="${id}"]`);
-            if (chip) chip.textContent = chip.textContent; // mantém
+            await salvarPalpiteJogo(id, camp, rodada, 'manual');
             btn.blur();
           }catch(e){
             toast('Erro ao salvar: ' + e.message);
           }
         });
+      });
+
+      elLista.querySelectorAll('input.js-palpite').forEach(inp=>{
+        const baseId = String(inp.dataset.id || '').replace(/_(gm|gv)$/,'');
+        inp.addEventListener('input', ()=>agendarAutoSave(baseId, camp, rodada));
+        inp.addEventListener('blur', ()=>{
+          if(inp.value !== '') agendarAutoSave(baseId, camp, rodada);
+        });
+        inp.addEventListener('keydown', ev=>{
+          if(ev.key === 'Enter'){
+            ev.preventDefault();
+            salvarPalpiteJogo(baseId, camp, rodada, 'manual').catch(e=>toast('Erro ao salvar: ' + e.message));
+          }
+        });
+      });
+
+      // Aplica P.A. local nos jogos abertos sem palpite, igual à lógica do miniapp.
+      if(!state.pa) state.pa = carregarPAStorage();
+      if(state.pa) aplicarPAEmJogosAbertos(camp, rodada, true).then(qtd=>{
+        if(qtd > 0) setTimeout(()=>toast(`P.A. aplicado em ${qtd} jogo(s) aberto(s) sem palpite.`), 300);
       });
 
       // inicia o ticker da contagem
@@ -806,21 +981,44 @@
   $('#paFechar').addEventListener('click', closePA);
   $('#paRemover').addEventListener('click', async ()=>{
     state.pa = null;
+    salvarPAStorage(null);
     try{ await apiGet(withDualAction('paRemover')); }catch(_){}
     closePA();
+    toast('P.A. removido.');
   });
   $('#paSalvar').addEventListener('click', async ()=>{
-    const gm = Number($('#paGM').value||0);
-    const gv = Number($('#paGV').value||0);
+    const gm = normalizeGol($('#paGM').value);
+    const gv = normalizeGol($('#paGV').value);
     const aplicar = $('#paAplicarAgora').checked ? 1 : 0;
-    state.pa = { gm, gv, ts: Date.now() };
-    try{
-      await apiGet(withDualAction('paSalvar', `gm=${gm}&gv=${gv}&aplicar=${aplicar}`));
-      closePA();
-    }catch(e){
-      alert('Erro ao salvar P.A.: ' + e.message);
+
+    if(gm === '' || gv === ''){
+      alert('Informe os dois placares do P.A.');
+      return;
     }
+
+    state.pa = { ativo:true, gm, gv, ts: Date.now() };
+    salvarPAStorage(state.pa);
+
+    try{ await apiGet(withDualAction('paSalvar', `gm=${gm}&gv=${gv}&aplicar=${aplicar}`)); }catch(e){ console.warn('P.A. Apps Script indisponível:', e); }
+
+    if(aplicar){
+      const camp = elCamp.value;
+      const rodada = elRod.value;
+      const qtd = await aplicarPAEmJogosAbertos(camp, rodada, true);
+      toast(qtd ? `P.A. salvo e aplicado em ${qtd} jogo(s).` : 'P.A. salvo. Nenhum jogo aberto sem palpite para aplicar agora.');
+    }else{
+      toast('P.A. salvo para próximos jogos carregados.');
+    }
+
+    closePA();
   });
+
+  // restaura P.A. salvo no navegador ao abrir a página
+  state.pa = carregarPAStorage();
+  if(state.pa){
+    $('#paGM').value = state.pa.gm;
+    $('#paGV').value = state.pa.gv;
+  }
   /********* FIM: P.A. *********/
 </script>
 
@@ -1131,10 +1329,33 @@
       }
     });
 
+    async function salvarPalpiteFirestore({ idJogo, camp, rodada, gm, gv, origem }){
+      const user = auth.currentUser;
+      if(!user || !state.bolaoAtualId) return false;
+
+      const palpiteId = `${user.uid}_${String(idJogo).replace(/[^A-Za-z0-9_-]/g,'_')}`;
+      await db.collection('boloes').doc(state.bolaoAtualId).collection('palpites').doc(palpiteId).set({
+        id: palpiteId,
+        uid: user.uid,
+        nome: safeName(user),
+        email: user.email || '',
+        idJogo: String(idJogo),
+        campeonato: camp || '',
+        rodada: String(rodada || ''),
+        gm: Number(gm),
+        gv: Number(gv),
+        origem: origem || 'manual',
+        atualizadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge:true });
+      return true;
+    }
+
     window.PSS_BOLAO_FB = {
       criarBolao,
       ensureUsuario,
-      entrarPorConviteSeExistir
+      entrarPorConviteSeExistir,
+      salvarPalpiteFirestore
     };
   });
   /********* FIM: FIREBASE NOVO + USUÁRIO AUTOATIVO + ADMIN DO BOLÃO *********/
