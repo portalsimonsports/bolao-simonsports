@@ -40,30 +40,32 @@
 
   .app{width:100%;max-width:1240px;margin:0 auto;padding:22px}
 
-  /* OPÇÃO A — CABEÇALHO CLARO E OBJETIVO */
+  /* TOPO ESCURO PRESERVADO + OPÇÃO A APLICADA ABAIXO */
   .hero{
-    background:var(--panel);
-    color:var(--ink);
-    border:1px solid var(--line);
+    background:
+      radial-gradient(circle at 86% 6%,rgba(22,163,74,.28),transparent 34%),
+      linear-gradient(135deg,#071126 0%,#0b152b 58%,#062216 100%);
+    color:#fff;
+    border:1px solid rgba(255,255,255,.10);
     border-radius:30px;
     padding:22px;
-    box-shadow:var(--shadow);
+    box-shadow:0 18px 44px rgba(15,23,42,.18);
     overflow:hidden;
     position:relative;
   }
   .hero:after{
     content:"";position:absolute;right:-120px;top:-110px;width:280px;height:280px;border-radius:50%;
-    background:radial-gradient(circle,rgba(14,165,233,.14),rgba(22,163,74,.08) 48%,transparent 72%);
+    background:radial-gradient(circle,rgba(250,204,21,.16),rgba(22,163,74,.10) 48%,transparent 72%);
     pointer-events:none;
   }
   .hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr;gap:18px;align-items:center}
   .brand-kicker{
     display:inline-flex;gap:8px;align-items:center;
-    background:#eef6ff;border:1px solid #dbeafe;border-radius:999px;padding:7px 12px;
-    color:#075985;font-size:12px;font-weight:1000;letter-spacing:.02em;text-transform:uppercase;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 12px;
+    color:#dff7ef;font-size:12px;font-weight:1000;letter-spacing:.02em;text-transform:uppercase;
   }
-  .hero h1{margin:12px 0 6px;font-size:clamp(30px,5vw,48px);line-height:1.02;font-weight:1000;letter-spacing:-.045em;color:#0f172a}
-  .hero p{margin:0;color:#475569;max-width:760px;font-weight:750;line-height:1.45}
+  .hero h1{margin:12px 0 6px;font-size:clamp(30px,5vw,48px);line-height:1.02;font-weight:1000;letter-spacing:-.045em;color:#fff}
+  .hero p{margin:0;color:#cbd5e1;max-width:760px;font-weight:750;line-height:1.45}
   .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 
   .btn{
@@ -83,9 +85,10 @@
   .mini{min-height:36px;padding:8px 11px;border-radius:11px;font-size:13px}
 
   .auth-card{
-    background:linear-gradient(135deg,#071126,#0b2541);
-    color:#e5e7eb;border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:16px;
-    display:grid;gap:12px;min-width:0;box-shadow:0 10px 28px rgba(15,23,42,.16);
+    background:rgba(15,23,42,.74);
+    color:#e5e7eb;border:1px solid rgba(255,255,255,.16);border-radius:22px;padding:16px;
+    display:grid;gap:12px;min-width:0;box-shadow:0 10px 28px rgba(0,0,0,.18);
+    backdrop-filter:blur(12px);
   }
   .auth-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .who{min-width:0}.who strong{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.who span{display:block;color:#cbd5e1;font-size:12px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -121,10 +124,10 @@
   .bolao-actions{display:flex;gap:8px;flex-wrap:wrap}.bolao-actions .btn{flex:1 1 110px}
   .empty{border:1px dashed #cbd5e1;border-radius:18px;padding:18px;background:#f8fafc;color:#64748b;font-weight:800;min-height:86px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.35}
 
-  .workspace{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}
-  .selected-panel{background:linear-gradient(135deg,#071126,#0b152b);color:#e5e7eb;border-radius:20px;padding:18px;display:grid;gap:12px}
-  .selected-panel h2{margin:0;font-size:24px;line-height:1.15;color:#fff}.selected-panel p{margin:4px 0 0;color:#94a3b8;font-weight:800}
-  .selected-grid{display:grid;grid-template-columns:1fr;gap:14px;align-items:center}.share-box{background:#0f1d37;border:1px solid #213250;color:#e5e7eb;border-radius:14px;padding:11px;font-weight:800;word-break:break-all;font-size:13px;min-height:44px;display:flex;align-items:center}
+  .workspace{display:block;margin-top:18px}
+  .selected-panel{background:#fff;color:#0f172a;border:1px solid var(--line);border-radius:20px;padding:16px;display:grid;gap:12px;box-shadow:var(--shadow2)}
+  .selected-panel h2{margin:0;font-size:23px;line-height:1.15;color:#0f172a}.selected-panel p{margin:4px 0 0;color:#64748b;font-weight:800}
+  .selected-grid{display:grid;grid-template-columns:1fr;gap:14px;align-items:center}.share-box{background:#f8fafc;border:1px solid #e2e8f0;color:#334155;border-radius:14px;padding:11px;font-weight:800;word-break:break-all;font-size:13px;min-height:44px;display:flex;align-items:center}
   .admin-actions{display:none;gap:8px;flex-wrap:wrap;margin-top:10px}.admin-actions.open{display:flex}
 
   .game-tools{display:grid;grid-template-columns:1fr;gap:12px;margin-top:0;align-items:end}
@@ -148,9 +151,68 @@
   .pa-profile-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}.pa-profile{border:1px solid #dbe3ef;background:#f8fafc;border-radius:16px;padding:12px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;cursor:pointer}.pa-profile:hover{border-color:#94a3b8;background:#fff}.pa-profile input{margin-top:4px;width:auto;min-height:0}.pa-profile strong{display:block;font-size:15px;font-weight:1000;color:#0f172a}.pa-profile span{display:block;font-size:12px;font-weight:750;color:#64748b;margin-top:3px;line-height:1.35}.pa-note{margin-top:12px;border:1px dashed #cbd5e1;background:#f8fafc;border-radius:14px;padding:10px;color:#475569;font-size:13px;font-weight:750;line-height:1.4}
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.58);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}.modal.open{display:flex}.modal-card{background:#fff;color:#111827;width:min(560px,96vw);border-radius:22px;padding:18px;box-shadow:0 22px 90px rgba(0,0,0,.35)}.modal-card h3{margin:0 0 8px;font-size:22px;font-weight:1000}.modal-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
 
+
+  /* V10 — painel real por abas: não empilha resumo, jogos, ranking e palpites ao mesmo tempo */
+  .bolao-tabs{
+    display:flex;
+    gap:8px;
+    overflow:auto;
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+    background:#fff;
+  }
+  .bolao-tab{
+    border:1px solid var(--line);
+    background:#fff;
+    color:#334155;
+    border-radius:14px;
+    padding:10px 14px;
+    min-height:42px;
+    font-weight:1000;
+    white-space:nowrap;
+  }
+  .bolao-tab.active{
+    background:#071126;
+    color:#fff;
+    border-color:#071126;
+    box-shadow:0 8px 20px rgba(15,23,42,.12);
+  }
+  .bolao-view{display:none}
+  .bolao-view.active{display:block}
+  .dashboard-panel{margin-top:18px}
+  .dashboard-two{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+  .quick-card{
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:18px;
+    padding:14px;
+    box-shadow:var(--shadow2);
+  }
+  .quick-card h3{margin:0 0 10px;font-size:16px;font-weight:1000}
+  .quick-card p{margin:0;color:#64748b;font-weight:750;font-size:13px}
+  .mini-board{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    margin-top:12px;
+  }
+  .mini-metric{
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    border-radius:14px;
+    padding:12px;
+    text-align:center;
+  }
+  .mini-metric strong{display:block;font-size:22px;line-height:1;font-weight:1000;color:#0f172a}
+  .mini-metric span{display:block;margin-top:6px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#64748b;font-weight:1000}
+
   @media (min-width:780px){
     .hero-grid{grid-template-columns:minmax(0,1.55fr) minmax(330px,.65fr)}
-    .workspace{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}
+    .dashboard-two{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
     .selected-grid{grid-template-columns:1fr auto}
     .game-tools{grid-template-columns:1.2fr 1fr auto auto auto}
     .field-grid{grid-template-columns:1fr 1fr}
@@ -231,64 +293,114 @@
   </section>
 
   <main class="workspace">
-    <section class="panel">
+    <section class="panel dashboard-panel">
       <div class="panel-head">
         <div>
-          <h2>Resumo do bolão</h2>
+          <h2>Painel do bolão</h2>
           <p id="mainHint">Selecione um bolão ou crie um novo para começar.</p>
         </div>
         <button class="btn dark mini" id="btnAtualizar">Atualizar</button>
       </div>
+
+      <div class="bolao-tabs" role="tablist" aria-label="Painel do bolão">
+        <button class="bolao-tab active" data-view="resumo">Resumo</button>
+        <button class="bolao-tab" data-view="jogos">Jogos</button>
+        <button class="bolao-tab" data-view="ranking">Ranking</button>
+        <button class="bolao-tab" data-view="palpites">Palpites de todos</button>
+        <button class="bolao-tab" data-view="participantes">Participantes</button>
+        <button class="bolao-tab" data-view="config">Configurações</button>
+      </div>
+
       <div class="panel-body">
-        <div id="bolaoSelecionado" class="selected-panel" style="display:none">
-          <div class="selected-grid">
+        <section class="bolao-view active" id="view-resumo">
+          <div class="dashboard-two">
             <div>
-              <h2 id="selNome">Bolão selecionado</h2>
-              <p id="selResumo">Tipo • Campeonato • Status</p>
-              <div class="bolao-meta" id="selBadges"></div>
-              <div class="admin-actions" id="adminActions">
-                <button class="btn mini" id="btnEditarBolao" type="button">Editar nome</button>
-                <button class="btn warn mini" id="btnInativarBolao" type="button">Inativar</button>
-                <button class="btn danger mini" id="btnExcluirBolao" type="button">Excluir</button>
+              <div id="bolaoSelecionado" class="selected-panel" style="display:none">
+                <div class="selected-grid">
+                  <div>
+                    <h2 id="selNome">Bolão selecionado</h2>
+                    <p id="selResumo">Tipo • Campeonato • Status</p>
+                    <div class="bolao-meta" id="selBadges"></div>
+                  </div>
+                  <div class="bolao-actions">
+                    <button class="btn blue mini" id="btnConvidar">Copiar convite</button>
+                    <button class="btn mini" id="btnGerenciar">Participantes</button>
+                  </div>
+                </div>
+                <div class="share-box" id="shareBox">Convite ainda não gerado.</div>
+              </div>
+              <div id="msg" class="empty" style="margin-top:14px">Selecione um bolão e carregue os jogos.</div>
+            </div>
+
+            <div class="quick-card">
+              <h3>Visão rápida</h3>
+              <p>Depois de abrir um bolão, use as abas acima para navegar sem misturar tudo na mesma tela.</p>
+              <div class="mini-board">
+                <div class="mini-metric"><strong id="miniCamp">-</strong><span>Campeonato</span></div>
+                <div class="mini-metric"><strong id="miniRodada">-</strong><span>Rodada</span></div>
+                <div class="mini-metric"><strong id="miniStatus">-</strong><span>Status</span></div>
+              </div>
+              <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn dark mini" data-shortcut-view="jogos">Carregar jogos</button>
+                <button class="btn mini" data-shortcut-view="ranking">Ver ranking</button>
+                <button class="btn mini" data-shortcut-view="palpites">Ver palpites</button>
               </div>
             </div>
-            <div class="bolao-actions">
-              <button class="btn blue mini" id="btnConvidar">Copiar convite</button>
-              <button class="btn mini" id="btnGerenciar">Participantes</button>
+          </div>
+        </section>
+
+        <section class="bolao-view" id="view-jogos">
+          <div class="panel-head" style="padding:0 0 14px;border-bottom:0">
+            <div>
+              <h2>Jogos da rodada</h2>
+              <p>Salve palpites aqui. O P.A. só atua em jogos futuros e sem palpite.</p>
             </div>
           </div>
-          <div class="share-box" id="shareBox">Convite ainda não gerado.</div>
-        </div>
-        <div id="msg" class="empty" style="margin-top:0">Selecione um bolão e carregue os jogos.</div>
-      </div>
-    </section>
+          <div class="game-tools">
+            <div><label>Campeonato</label><select class="select-dark" id="selCamp"></select></div>
+            <div><label>Rodada</label><select class="select-dark" id="selRod"></select></div>
+            <button class="btn dark" id="btnCarregar">Carregar jogos</button>
+            <button class="btn" id="btnRanking">Ranking</button>
+            <button class="btn" id="btnTodos">Palpites de todos</button>
+          </div>
+          <div id="lista" class="game-list" hidden></div>
+        </section>
 
-    <section class="panel">
-      <div class="panel-head">
-        <div>
-          <h2>Jogos, ranking e palpites</h2>
-          <p>Carregue a rodada. Ranking e palpites aparecem apenas quando houver jogos iniciados ou encerrados.</p>
-        </div>
-      </div>
-      <div class="panel-body">
-        <div class="game-tools">
-          <div><label>Campeonato</label><select class="select-dark" id="selCamp"></select></div>
-          <div><label>Rodada</label><select class="select-dark" id="selRod"></select></div>
-          <button class="btn dark" id="btnCarregar">Carregar jogos</button>
-          <button class="btn" id="btnRanking">Ranking</button>
-          <button class="btn" id="btnTodos">Palpites de todos</button>
-        </div>
-        <div id="lista" class="game-list" hidden></div>
-        <div id="infoDashboard" class="info-dashboard" aria-live="polite">
-          <div class="info-card is-hidden" id="rankingPanel">
+        <section class="bolao-view" id="view-ranking">
+          <div class="info-card" id="rankingPanel">
             <div class="info-card-head"><h3>Ranking do bolão</h3><span id="rankingStatus">aguardando consulta</span></div>
-            <div class="info-card-body" id="rankingBody"><div class="info-empty">Clique em Ranking para carregar a classificação aqui, sem abrir mensagem do navegador.</div></div>
+            <div class="info-card-body" id="rankingBody"><div class="info-empty">Clique em Ranking para carregar a classificação aqui.</div></div>
           </div>
-          <div class="info-card is-hidden" id="palpitesPanel">
+        </section>
+
+        <section class="bolao-view" id="view-palpites">
+          <div class="info-card" id="palpitesPanel">
             <div class="info-card-head"><h3>Palpites de todos</h3><span id="palpitesStatus">aguardando consulta</span></div>
-            <div class="info-card-body" id="palpitesBody"><div class="info-empty">Clique em Palpites de todos para exibir os palpites do bolão nesta área.</div></div>
+            <div class="info-card-body" id="palpitesBody"><div class="info-empty">Só serão exibidos palpites de jogos já iniciados, ao vivo ou encerrados.</div></div>
           </div>
-        </div>
+        </section>
+
+        <section class="bolao-view" id="view-participantes">
+          <div class="quick-card">
+            <h3>Participantes</h3>
+            <p>Use esta área para abrir a lista de participantes e aprovar solicitações de bolões privados.</p>
+            <div style="margin-top:12px">
+              <button class="btn dark" id="btnGerenciarView">Abrir participantes</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="bolao-view" id="view-config">
+          <div class="quick-card">
+            <h3>Configurações do bolão</h3>
+            <p>As opções abaixo aparecem para quem administra o bolão selecionado.</p>
+            <div class="admin-actions" id="adminActions">
+              <button class="btn mini" id="btnEditarBolao" type="button">Editar nome</button>
+              <button class="btn warn mini" id="btnInativarBolao" type="button">Inativar</button>
+              <button class="btn danger mini" id="btnExcluirBolao" type="button">Excluir</button>
+            </div>
+          </div>
+        </section>
       </div>
     </section>
   </main>
@@ -385,6 +497,22 @@
     $$('.section').forEach(s=>s.classList.toggle('active', s.id === 'sec-'+name));
   }
   $$('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+
+  function setBolaoView(name){
+    $$('.bolao-tab').forEach(b=>b.classList.toggle('active', b.dataset.view===name));
+    $$('.bolao-view').forEach(v=>v.classList.toggle('active', v.id === 'view-'+name));
+  }
+  $$('.bolao-tab').forEach(b=>b.addEventListener('click',()=>{
+    setBolaoView(b.dataset.view);
+    if(b.dataset.view === 'ranking') carregarRankingPainel().catch(e=>console.warn(e));
+    if(b.dataset.view === 'palpites') carregarPalpitesPainel().catch(e=>console.warn(e));
+    if(b.dataset.view === 'participantes') abrirParticipantes();
+  }));
+  $$('[data-shortcut-view]').forEach(b=>b.addEventListener('click',()=>{
+    setBolaoView(b.dataset.shortcutView);
+    if(b.dataset.shortcutView === 'ranking') carregarRankingPainel().catch(e=>console.warn(e));
+    if(b.dataset.shortcutView === 'palpites') carregarPalpitesPainel().catch(e=>console.warn(e));
+  }));
   $('#btnExplorarTopo').onclick=()=>setTab('publicos');
   $('#btnCriarTopo').onclick=()=>setTab('criar');
   $('#btnHome').onclick=()=>location.href='index.html';
@@ -570,22 +698,15 @@
     box.querySelectorAll('[data-share]').forEach(btn=>btn.onclick=()=>copiarConvite(btn.dataset.share));
   }
   function hideInfoPanels(){
-    const dash=$('#infoDashboard');
-    if(dash) dash.classList.remove('open');
-    const rp=$('#rankingPanel'), pp=$('#palpitesPanel');
-    if(rp) rp.classList.add('is-hidden');
-    if(pp) pp.classList.add('is-hidden');
+    // V10: ranking e palpites ficam em abas próprias; não há painel misturado abaixo dos jogos.
   }
   function showInfoPanel(kind){
-    const dash=$('#infoDashboard');
-    if(dash) dash.classList.add('open');
-    $('#rankingPanel')?.classList.toggle('is-hidden', kind !== 'ranking');
-    $('#palpitesPanel')?.classList.toggle('is-hidden', kind !== 'palpites');
+    setBolaoView(kind === 'palpites' ? 'palpites' : 'ranking');
   }
 
   function selectBolao(b){
     state.bolao=b;
-    hideInfoPanels();
+    setBolaoView('resumo');
     if(b.campeonato||b.camp){ $('#selCamp').value=b.campeonato||b.camp; loadRodadas($('#selCamp').value); }
     if(isAdminBolao(b)) ensureDesafianteBolao(b.id);
     renderBoloes(); renderSelected();
@@ -594,7 +715,9 @@
   function renderSelected(){
     const box=$('#bolaoSelecionado');
     if(!state.bolao){
-      box.style.display='none'; $('#mainHint').textContent='Selecione um bolão ou crie um novo para começar.'; hideInfoPanels(); return;
+      box.style.display='none'; $('#mainHint').textContent='Selecione um bolão ou crie um novo para começar.';
+      $('#miniCamp').textContent='-'; $('#miniRodada').textContent='-'; $('#miniStatus').textContent='-';
+      return;
     }
     const b=state.bolao;
     const admin=isAdminBolao(b);
@@ -603,6 +726,9 @@
     $('#selResumo').textContent=`${b.publico?'Público':'Privado'} • ${b.campeonato||b.camp||'CUP'} • ${b.ativo===false?'Inativo':'Ativo'}`;
     $('#selBadges').innerHTML=`<span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Entrada automática':'Aprovação do criador'}</span>${admin?'<span class="badge admin">Administrador</span>':''}${b.ativo===false?'<span class="badge pendente">Inativo</span>':''}<span class="badge auto">Autosave ativo</span>`;
     $('#shareBox').textContent=shareUrl(b.id);
+    $('#miniCamp').textContent=b.campeonato||b.camp||'CUP';
+    $('#miniRodada').textContent=$('#selRod')?.value ? ($('#selRod').value + 'ª') : '-';
+    $('#miniStatus').textContent=b.ativo===false?'Inativo':'Ativo';
     $('#adminActions')?.classList.toggle('open', admin);
     const btnInativar=$('#btnInativarBolao');
     if(btnInativar) btnInativar.textContent = b.ativo===false ? 'Reativar' : 'Inativar';
@@ -731,7 +857,7 @@
       lista.querySelectorAll('[data-recusar]').forEach(btn=>btn.onclick=()=>aprovarParticipante(btn.dataset.recusar,false));
     }catch(e){ lista.innerHTML='<div class="empty">Erro: '+e.message+'</div>'; }
   }
-  $('#btnGerenciar').onclick=abrirParticipantes; $('#partFechar').onclick=()=>$('#participantesModal').classList.remove('open');
+  $('#btnGerenciar').onclick=abrirParticipantes; $('#btnGerenciarView')?.addEventListener('click', abrirParticipantes); $('#partFechar').onclick=()=>$('#participantesModal').classList.remove('open');
   async function aprovarParticipante(uid, ok){
     if(!state.bolao) return;
     const status = ok ? 'APROVADO' : 'RECUSADO';
@@ -784,6 +910,7 @@
   const PLACE='–'; function numOrEmpty(v,st){ if(st==='agendado'||v===''||v==null) return PLACE; const n=Number(v); return Number.isFinite(n)?String(n):PLACE; }
   function palpiteField(id,value,disabled){ const v=(value===''||value==null)?'':String(value); return `<input class="inp-palpite" type="number" min="0" inputmode="numeric" data-id="${id}" value="${v}" ${disabled?'disabled':''}>`; }
   async function carregarJogos(){
+    setBolaoView('jogos');
     const camp=$('#selCamp').value, rodada=$('#selRod').value; if(!state.bolao){ toast('Selecione ou crie um bolão antes de carregar jogos.'); return; }
     $('#msg').hidden=false; $('#msg').textContent='Carregando jogos...'; $('#lista').hidden=true;
     try{
@@ -796,7 +923,7 @@
         const home=g.mandante||g.home||g.time_mandante||'-', away=g.visitante||g.away||g.time_visitante||'-'; const gm=numOrEmpty(g.gols_mandante_oficial??g.gm??g.gols_mandante,status), gv=numOrEmpty(g.gols_visitante_oficial??g.gv??g.gols_visitante,status); const id=g.id||`${camp}_${rodada}_${idx}`; const p=palpites[id]||{}; const abertoPalpite=isJogoAbertoParaPalpite(d,status); const disabled=!abertoPalpite;
         return `<div class="match-card" data-jogo="${id}" data-home="${String(home).replace(/"/g,'&quot;')}" data-away="${String(away).replace(/"/g,'&quot;')}" data-palpite-aberto="${abertoPalpite?'1':'0'}"><div class="match-head"><div><div class="match-date">${dts}</div><div class="match-meta">${camp} • ${rodada}ª Rodada</div></div><span class="eta js-eta" data-status="${status}" data-t="${d?d.toISOString():''}">${status==='agendado'?liveCountdown(d):'encerrado'}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div><div class="team">${home}</div><div class="official-box">${gm}</div>${palpiteField(id+'_gm',p.gm,disabled)}<div class="team">${away}</div><div class="official-box">${gv}</div>${palpiteField(id+'_gv',p.gv,disabled)}</div><div class="match-foot"><div><div class="foot-label">Seu palpite</div><div class="autosave-status" data-status-save="${id}">${p.atualizadoEm?'salvo anteriormente':(abertoPalpite?'':'palpite encerrado')}</div></div><span class="pts" data-pts="${id}">0 pts</span><button class="btn primary mini" data-save="${id}" ${disabled?'disabled':''}>Salvar</button></div></div>`;
       }).join('');
-      $('#msg').hidden=true; $('#lista').hidden=false; attachSaveListeners(camp,rodada); applyPAIfNeeded(camp,rodada); gerarDesafianteParaJogos(camp,rodada).catch(e=>console.warn('Desafiante:',e)); startEtaTicker(); atualizarPaineisAutomaticos().catch(e=>console.warn('Painéis automáticos:',e));
+      $('#msg').hidden=true; $('#lista').hidden=false; attachSaveListeners(camp,rodada); applyPAIfNeeded(camp,rodada); gerarDesafianteParaJogos(camp,rodada).catch(e=>console.warn('Desafiante:',e)); startEtaTicker();
     }catch(e){ toast('Erro: '+e.message); }
   }
   $('#btnCarregar').onclick=carregarJogos;
