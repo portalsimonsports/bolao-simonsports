@@ -589,7 +589,7 @@
 
   const $ = s => document.querySelector(s);
   const $$ = s => Array.from(document.querySelectorAll(s));
-  const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', camp:'', bolao:null, meus:[], publicos:[], privados:[], pa:null, jogos:[] };
+  const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', camp:'', bolao:null, meus:[], publicos:[], privados:[], pa:null, jogos:[], jogosExibidos:[], autoLoadToken:0, autoLoading:false };
   const autosaveTimers = {};
   const DESAFIANTE_UID = 'DESAFIANTE_SIMON_IA';
   const DESAFIANTE_NOME = '🤖 Desafiante Simon IA';
@@ -638,6 +638,7 @@
     setBolaoView(b.dataset.shortcutView);
     if(b.dataset.shortcutView === 'ranking') carregarRankingPainel().catch(e=>console.warn(e));
     if(b.dataset.shortcutView === 'palpites') carregarPalpitesPainel().catch(e=>console.warn(e));
+    if(b.dataset.shortcutView === 'jogos' && state.bolao && (!state.jogos || !state.jogos.length)) carregarJogos({auto:true}).catch(e=>console.warn(e));
   }));
   $('#btnExplorarTopo').onclick=()=>setTab('publicos');
   $('#btnCriarTopo').onclick=()=>setTab('criar');
@@ -832,11 +833,17 @@
 
   function selectBolao(b){
     state.bolao=b;
+    state.jogos=[];
+    state.jogosExibidos=[];
     setBolaoView('resumo');
-    if(b.campeonato||b.camp){ $('#selCamp').value=b.campeonato||b.camp; loadRodadas($('#selCamp').value); }
     if(isAdminBolao(b)) ensureDesafianteBolao(b.id);
-    renderBoloes(); renderSelected();
-    toast('Bolão selecionado: '+(b.nome||b.titulo||b.id));
+    renderBoloes();
+    renderSelected();
+    toast('Bolão selecionado: '+(b.nome||b.titulo||b.id)+'. Buscando automaticamente a próxima rodada disponível...');
+    iniciarBolaoSelecionadoAuto(b).catch(e=>{
+      console.warn('Auto abertura do bolão:', e);
+      toast('Bolão selecionado. Não foi possível carregar automaticamente: '+e.message);
+    });
   }
   function renderSelected(){
     const box=$('#bolaoSelecionado');
@@ -1035,21 +1042,170 @@
   let etaTimer=null; function startEtaTicker(){ if(etaTimer)clearInterval(etaTimer); const t=()=>{$$('.js-eta').forEach(el=>{ const status=(el.dataset.status||'').toLowerCase(); if(status!=='agendado'){el.classList.add('enc');return;} const dt=new Date(el.dataset.t||''); if(dt-new Date()<=0){el.textContent='encerrado';el.classList.add('enc');el.dataset.status='encerrado';}else{el.textContent=liveCountdown(dt);el.classList.remove('enc');} });}; t(); etaTimer=setInterval(t,1000); }
   const PLACE='–'; function numOrEmpty(v,st){ if(st==='agendado'||v===''||v==null) return PLACE; const n=Number(v); return Number.isFinite(n)?String(n):PLACE; }
   function palpiteField(id,value,disabled){ const v=(value===''||value==null)?'':String(value); return `<input class="inp-palpite" type="number" min="0" inputmode="numeric" data-id="${id}" value="${v}" ${disabled?'disabled':''}>`; }
-  async function carregarJogos(){
-    setBolaoView('jogos');
-    const camp=$('#selCamp').value, rodada=$('#selRod').value; if(!state.bolao){ toast('Selecione ou crie um bolão antes de carregar jogos.'); return; }
-    $('#msg').hidden=false; $('#msg').textContent='Carregando jogos...'; $('#lista').hidden=true;
+
+  function getRodadasDisponiveis(){
+    return Array.from($('#selRod')?.options || []).map(o=>String(o.value||'').trim()).filter(Boolean);
+  }
+
+  function jogoFuturoAberto(g){
+    const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||'');
+    const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d);
+    return isJogoAbertoParaPalpite(d,status);
+  }
+
+  async function buscarJogosRodada(camp,rodada){
+    const rows=await apiGet(withDualAction('jogos', `camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}`));
+    return Array.isArray(rows) ? rows : [];
+  }
+
+  async function encontrarProximaRodadaDisponivel(camp){
+    const rodadas=getRodadasDisponiveis();
+    let fallback=null;
+    for(const rodada of rodadas){
+      try{
+        const rows=await buscarJogosRodada(camp,rodada);
+        if(!rows || !rows.length) continue;
+        rows.sort((a,b)=>(parseDateSafe(a.data_jogo||a.data||a.horario||a.inicio||'')?.getTime()||0)-(parseDateSafe(b.data_jogo||b.data||b.horario||b.inicio||'')?.getTime()||0));
+        if(!fallback) fallback={rodada,rows};
+        const futuros=rows.filter(jogoFuturoAberto);
+        if(futuros.length){ return {rodada, rows, futuros}; }
+      }catch(e){ console.warn('Falha ao consultar rodada '+rodada, e); }
+    }
+    return fallback;
+  }
+
+  async function iniciarBolaoSelecionadoAuto(b){
+    if(!b || !state.bolao || state.bolao.id!==b.id) return;
+    const token=Date.now();
+    state.autoLoadToken=token;
+    state.autoLoading=true;
+    const camp=b.campeonato || b.camp || $('#selCamp')?.value || 'CUP';
+    if($('#selCamp')) $('#selCamp').value=camp;
+    await loadRodadas(camp);
+    if(state.autoLoadToken!==token) return;
+
+    const resumo=document.getElementById('proxJogosResumo');
+    if(resumo) resumo.innerHTML='<div class="info-empty">Buscando automaticamente a próxima rodada aberta para palpite...</div>';
+    const rankResumo=document.getElementById('rankingResumoBody');
+    if(rankResumo) rankResumo.innerHTML='<div class="info-empty">Atualizando ranking automaticamente...</div>';
+    const palpResumo=document.getElementById('meusPalpitesResumo');
+    if(palpResumo) palpResumo.innerHTML='<div class="info-empty">Carregando seus palpites da próxima rodada...</div>';
+
+    const prox=await encontrarProximaRodadaDisponivel(camp);
+    if(state.autoLoadToken!==token) return;
+    if(prox && prox.rodada){
+      $('#selRod').value=prox.rodada;
+      await carregarJogos({auto:true, keepView:true, somenteFuturos:!!prox.futuros?.length, rowsPreloaded:prox.rows, atualizarRanking:false});
+      await carregarRankingGeralAuto(camp);
+      setBolaoView('resumo');
+      toast(`Bolão aberto. Próxima rodada disponível: ${prox.rodada}ª rodada.`);
+    }else{
+      setBolaoView('resumo');
+      toast('Bolão aberto. Não encontrei rodada futura aberta para palpite.');
+      await carregarRankingGeralAuto(camp).catch(()=>{});
+    }
+    state.autoLoading=false;
+    window.PSS_V11_REFRESH_RESUMOS && setTimeout(window.PSS_V11_REFRESH_RESUMOS,150);
+  }
+
+  async function buscarTodosPalpitesCamp(camp){
+    if(!state.bolao) return [];
+    const snap=await db.collection('boloes').doc(state.bolao.id).collection('palpites').where('camp','==',camp).get();
+    return snap.docs.map(d=>({id:d.id,...d.data()}));
+  }
+
+  function renderRankingComJogos(palpites,jogos,contexto){
+    const body=$('#rankingBody'), status=$('#rankingStatus');
+    const map=new Map();
+    const validos=new Set();
+    (jogos||[]).forEach((g,idx)=>{
+      const id=String(g.id||`${g.__camp||$('#selCamp').value}_${g.__rodada||$('#selRod').value}_${idx}`);
+      map.set(id,g); validos.add(id);
+      const confronto=String(`${g.mandante||g.home||''} x ${g.visitante||g.away||''}`).trim();
+      if(confronto!=='x') map.set(confronto,g);
+    });
+    const agg=new Map();
+    (palpites||[]).forEach(p=>{
+      const id=String(p.idJogo||''); const g=map.get(id);
+      if(!g || !validos.has(id)) return;
+      const uidp=p.uid||p.nome||'participante';
+      const atual=agg.get(uidp)||{nome:p.nome||uidp,pontos:0,jogos:0,exatos:0,virtual:p.virtual===true};
+      const pts=pontuarPalpite(p,g);
+      atual.pontos+=pts; atual.jogos+=1; if(pts===25) atual.exatos+=1; if(p.virtual) atual.virtual=true;
+      agg.set(uidp,atual);
+    });
+    const rows=Array.from(agg.values()).sort((a,b)=>b.pontos-a.pontos || b.exatos-a.exatos || a.nome.localeCompare(b.nome));
+    status.textContent = fmtClock(new Date()) + ' • automático' + (contexto ? ' • '+contexto : '');
+    if(!rows.length){ body.innerHTML='<div class="info-empty">Ranking automático carregado, mas ainda não há palpites pontuáveis em jogos iniciados ou encerrados.</div>'; return; }
+    body.innerHTML = `<table class="info-table"><thead><tr><th>#</th><th>Participante</th><th>Pontos</th><th>Jogos</th><th>Exatos</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td><span class="info-pill">${i+1}</span></td><td>${escapeHtml(r.nome)} ${r.virtual?'<span class="badge virtual">Virtual</span>':''}</td><td><strong>${r.pontos}</strong></td><td>${r.jogos}</td><td>${r.exatos}</td></tr>`).join('')}</tbody></table>`;
+  }
+
+  async function carregarRankingGeralAuto(camp){
+    if(!state.bolao) return;
+    const rodadas=getRodadasDisponiveis();
+    const jogosPontuaveis=[];
+    const maxScan = camp==='CUP' ? rodadas.length : Math.min(rodadas.length, 12);
+    for(const rodada of rodadas.slice(0,maxScan)){
+      try{
+        const rows=await buscarJogosRodada(camp,rodada);
+        rows.forEach((g,idx)=>{
+          const id=String(g.id||`${camp}_${rodada}_${idx}`);
+          const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||'');
+          if(jogoJaIniciadoParaExibirPalpite(g) || (d && d.getTime()<=Date.now())){
+            jogosPontuaveis.push({...g,id,__camp:camp,__rodada:rodada});
+          }
+        });
+      }catch(e){ console.warn('Ranking automático rodada '+rodada, e); }
+    }
+    const palpites=await buscarTodosPalpitesCamp(camp).catch(e=>{ console.warn('Palpites ranking geral:',e); return []; });
+    renderRankingComJogos(palpites,jogosPontuaveis,`${jogosPontuaveis.length} jogos avaliados`);
+    window.PSS_V11_REFRESH_RESUMOS && setTimeout(window.PSS_V11_REFRESH_RESUMOS,100);
+  }
+
+  async function carregarJogos(opcoes){
+    const opts = opcoes || {};
+    if(!opts.keepView) setBolaoView('jogos');
+    const camp=$('#selCamp').value;
+    const rodada=$('#selRod').value;
+    if(!state.bolao){ toast('Selecione ou crie um bolão antes de carregar jogos.'); return; }
+
+    $('#msg').hidden=false;
+    $('#msg').textContent = opts.auto ? 'Carregando automaticamente a próxima rodada disponível...' : 'Carregando jogos...';
+    $('#lista').hidden=true;
+
     try{
-      const rows=await apiGet(withDualAction('jogos', `camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}`));
+      let rows = Array.isArray(opts.rowsPreloaded) ? opts.rowsPreloaded : await apiGet(withDualAction('jogos', `camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}`));
       if(!rows||!rows.length){ toast(`Nenhum jogo encontrado para ${camp} • ${rodada}ª rodada.`); return; }
-      rows.sort((a,b)=>(parseDateSafe(a.data_jogo||a.data||'')?.getTime()||0)-(parseDateSafe(b.data_jogo||b.data||'')?.getTime()||0)); state.jogos=rows;
+      rows.sort((a,b)=>(parseDateSafe(a.data_jogo||a.data||a.horario||a.inicio||'')?.getTime()||0)-(parseDateSafe(b.data_jogo||b.data||b.horario||b.inicio||'')?.getTime()||0));
+      state.jogos=rows;
+
+      let rowsTela = rows;
+      if(opts.somenteFuturos){
+        rowsTela = rows.filter(g=>{
+          const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||'');
+          const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d);
+          return isJogoAbertoParaPalpite(d,status);
+        });
+      }
+      state.jogosExibidos = rowsTela;
+
       const palpites=await carregarPalpitesFirestore(camp,rodada);
-      $('#lista').innerHTML=rows.map((g,idx)=>{
+      if(!rowsTela.length){
+        $('#lista').innerHTML='<div class="info-empty">Nenhum jogo futuro aberto para palpite nesta rodada. Altere a rodada para consultar jogos passados ou encerrados.</div>';
+        $('#msg').hidden=true; $('#lista').hidden=false;
+        window.PSS_V11_REFRESH_RESUMOS && window.PSS_V11_REFRESH_RESUMOS();
+        return;
+      }
+
+      $('#lista').innerHTML=rowsTela.map((g,idx)=>{
         const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''); const dts=d?(d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})):'--'; const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d);
         const home=g.mandante||g.home||g.time_mandante||'-', away=g.visitante||g.away||g.time_visitante||'-'; const gm=numOrEmpty(g.gols_mandante_oficial??g.gm??g.gols_mandante,status), gv=numOrEmpty(g.gols_visitante_oficial??g.gv??g.gols_visitante,status); const id=g.id||`${camp}_${rodada}_${idx}`; const p=palpites[id]||{}; const abertoPalpite=isJogoAbertoParaPalpite(d,status); const disabled=!abertoPalpite;
         return `<div class="match-card" data-jogo="${id}" data-home="${String(home).replace(/"/g,'&quot;')}" data-away="${String(away).replace(/"/g,'&quot;')}" data-palpite-aberto="${abertoPalpite?'1':'0'}"><div class="match-head"><div><div class="match-date">${dts}</div><div class="match-meta">${camp} • ${rodada}ª Rodada</div></div><span class="eta js-eta" data-status="${status}" data-t="${d?d.toISOString():''}">${status==='agendado'?liveCountdown(d):'encerrado'}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div><div class="team">${home}</div><div class="official-box">${gm}</div>${palpiteField(id+'_gm',p.gm,disabled)}<div class="team">${away}</div><div class="official-box">${gv}</div>${palpiteField(id+'_gv',p.gv,disabled)}</div><div class="match-foot"><div><div class="foot-label">Seu palpite</div><div class="autosave-status" data-status-save="${id}">${p.atualizadoEm?'salvo anteriormente':(abertoPalpite?'':'palpite encerrado')}</div></div><span class="pts" data-pts="${id}">0 pts</span><button class="btn primary mini" data-save="${id}" ${disabled?'disabled':''}>Salvar</button></div></div>`;
       }).join('');
       $('#msg').hidden=true; $('#lista').hidden=false; attachSaveListeners(camp,rodada); applyPAIfNeeded(camp,rodada); gerarDesafianteParaJogos(camp,rodada).catch(e=>console.warn('Desafiante:',e)); startEtaTicker();
+      window.PSS_V11_REFRESH_RESUMOS && setTimeout(window.PSS_V11_REFRESH_RESUMOS,150);
+      if(opts.atualizarRanking !== false){ carregarRankingGeralAuto(camp).catch(e=>console.warn('Ranking automático:', e)); }
+      if(opts.keepView) setBolaoView('resumo');
     }catch(e){ toast('Erro: '+e.message); }
   }
   $('#btnCarregar').onclick=carregarJogos;
@@ -1346,12 +1502,10 @@
   async function carregarRankingPainel(){
     showInfoPanel('ranking');
     $('#rankingStatus').textContent='carregando...';
-    $('#rankingBody').innerHTML='<div class="info-empty">Carregando ranking...</div>';
+    $('#rankingBody').innerHTML='<div class="info-empty">Carregando ranking automático...</div>';
     if(!state.bolao){ $('#rankingStatus').textContent='aguardando bolão'; $('#rankingBody').innerHTML='<div class="info-empty">Selecione um bolão antes de consultar o ranking.</div>'; return; }
-    if(!state.jogos || !state.jogos.length){ $('#rankingStatus').textContent='carregue jogos'; $('#rankingBody').innerHTML='<div class="info-empty">Carregue os jogos da rodada primeiro para calcular o ranking com base nos jogos iniciados ou encerrados.</div>'; return; }
     try{
-      const palpites=await buscarPalpitesFirestoreRodada();
-      renderRankingLocal(palpites);
+      await carregarRankingGeralAuto($('#selCamp').value || state.bolao.campeonato || state.bolao.camp || 'CUP');
     }catch(e){
       $('#rankingStatus').textContent='erro';
       $('#rankingBody').innerHTML=`<div class="info-empty">Erro ao carregar ranking: ${escapeHtml(e.message)}</div>`;
