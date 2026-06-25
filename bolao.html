@@ -219,6 +219,83 @@
   }
   @media (max-width:920px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.match-table{grid-template-columns:minmax(0,1fr) 76px 86px}}
   @media (max-width:640px){.app{padding:12px}.hero{padding:18px;border-radius:22px}.auth-row:last-child{display:grid;grid-template-columns:1fr;gap:10px}.hero-actions .btn{width:100%}.tabs{grid-template-columns:repeat(5,minmax(86px,1fr));overflow:auto;padding:12px}.panel-body{padding:14px}.match-table{grid-template-columns:minmax(0,1fr) 58px 64px;gap:7px;padding:10px}.team{font-size:15px}.official-box,.inp-palpite{height:38px;font-size:15px}.match-foot{grid-template-columns:1fr auto}.autosave-status{grid-column:1/-1}.info-table{font-size:12px}}
+
+
+  /* ================= V11 REAL — OPÇÃO A MASTER-DETAIL ================= */
+  .app{max-width:1320px;padding:18px 22px 32px}
+  .hero{margin-bottom:16px}
+  .stats{margin:16px 0 16px}
+  .opA-shell{background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);overflow:hidden;margin-top:16px}
+  .opA-titlebar{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:#fff}
+  .opA-titlebar h2{margin:0;font-size:22px;font-weight:1000;letter-spacing:-.03em;color:#0f172a}
+  .opA-titlebar p{margin:4px 0 0;color:#64748b;font-weight:750;font-size:14px}
+  .opA-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;border-bottom:1px solid var(--line);background:#fff}
+  .opA-tabs .tab{border:0;border-right:1px solid var(--line);border-radius:0;min-height:52px;background:#fff;color:#334155;font-size:14px}
+  .opA-tabs .tab:last-child{border-right:0}
+  .opA-tabs .tab.active{background:#fff;color:#071126;box-shadow:inset 0 -3px 0 #0ea5e9;border-color:transparent}
+  .opA-body{padding:18px;background:#fff}
+  .opA-main{display:grid;grid-template-columns:minmax(320px,.85fr) minmax(0,1.35fr);gap:18px;align-items:stretch}
+  .opA-list-card,.opA-detail-card{border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:var(--shadow2);overflow:hidden;min-height:275px}
+  .opA-card-head{padding:14px 16px;border-bottom:1px solid var(--line);background:#fbfdff;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .opA-card-head h3{margin:0;font-size:16px;font-weight:1000;color:#0f172a;letter-spacing:-.02em}
+  .opA-card-head span{font-size:12px;color:#64748b;font-weight:900}
+  .opA-card-body{padding:14px 16px}
+  .opA-list-card .cards{display:grid;grid-template-columns:1fr!important;gap:8px;max-height:360px;overflow:auto;padding-right:4px}
+  .opA-list-card .bolao-card{min-height:auto;border-radius:14px;padding:11px 12px;box-shadow:none;gap:8px;background:#fff}
+  .opA-list-card .bolao-title h3{font-size:14px}
+  .opA-list-card .muted{font-size:12px;line-height:1.25}
+  .opA-list-card .bolao-meta{margin-top:6px;gap:5px}
+  .opA-list-card .badge{font-size:10px;padding:4px 7px}
+  .opA-list-card .bolao-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .opA-list-card .bolao-actions .btn{min-height:34px;font-size:12px;border-radius:10px;padding:7px 8px}
+  .opA-list-card .empty{min-height:170px}
+  .opA-detail-card{display:grid;grid-template-rows:auto 1fr}
+  .opA-detail-inner{padding:18px;display:grid;gap:14px;align-content:start}
+  .selected-panel{box-shadow:none;border:0;border-radius:0;padding:0;background:transparent}
+  .selected-panel h2{font-size:22px}
+  .share-box{font-size:12px;background:#f8fafc;min-height:40px}
+  .opA-detail-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .opA-detail-metric{border:1px solid #e2e8f0;border-radius:14px;background:#fff;padding:11px;text-align:center;min-height:66px;display:grid;align-content:center}
+  .opA-detail-metric strong{display:block;font-size:18px;font-weight:1000;color:#0f172a;line-height:1}
+  .opA-detail-metric span{display:block;margin-top:6px;color:#64748b;font-size:10px;font-weight:1000;text-transform:uppercase;letter-spacing:.04em}
+  .opA-detail-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .opA-bottom-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+  .opA-mini-panel{border:1px solid var(--line);background:#fff;border-radius:18px;box-shadow:var(--shadow2);overflow:hidden;min-height:190px}
+  .opA-mini-panel .mini-head{padding:13px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fbfdff}
+  .opA-mini-panel .mini-head h3{margin:0;font-size:15px;font-weight:1000;color:#0f172a}
+  .opA-mini-panel .mini-head button{border:0;background:#f1f5f9;border-radius:10px;min-height:30px;padding:6px 9px;font-size:12px;font-weight:900;color:#0f172a}
+  .opA-mini-panel .mini-body{padding:14px;display:grid;gap:8px}
+  .mini-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:12px;padding:9px 10px;font-size:12px;font-weight:850;color:#0f172a}
+  .mini-row strong{font-weight:1000}
+  .mini-row span{color:#64748b;font-weight:850;white-space:nowrap}
+  .opA-focus{margin-top:18px;border:1px solid var(--line);background:#fff;border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+  .opA-focus .bolao-tabs{padding:12px 16px;background:#fff;border-bottom:1px solid var(--line)}
+  .opA-focus .panel-body{padding:18px}
+  .opA-create-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .opA-create-grid .wide{grid-column:1/-1}
+  #msg.empty{margin:0;min-height:95px}
+  #view-resumo .empty{min-height:95px}
+
+  @media (max-width:980px){
+    .opA-main{grid-template-columns:1fr}
+    .opA-bottom-grid{grid-template-columns:1fr}
+    .opA-detail-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .opA-tabs{grid-template-columns:repeat(5,minmax(120px,1fr));overflow:auto}
+    .opA-tabs .tab{white-space:nowrap}
+  }
+  @media (max-width:620px){
+    .app{padding:10px}
+    .hero{border-radius:22px;padding:16px}
+    .hero h1{font-size:30px}
+    .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .stat{min-height:82px;padding:14px 8px}.stat .n{font-size:28px}
+    .opA-body{padding:12px}.opA-titlebar{padding:16px}.opA-main{gap:12px}.opA-bottom-grid{gap:12px}
+    .opA-list-card .cards{max-height:none}
+    .opA-detail-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .opA-create-grid{grid-template-columns:1fr}
+    .match-table{grid-template-columns:minmax(0,1fr) 64px 74px}.match-card{padding:13px;border-radius:18px}.team{font-size:14px}
+  }
+
 </style>
 </head>
 <body>
@@ -227,8 +304,8 @@
     <div class="hero-grid">
       <div>
         <span class="brand-kicker">🏆 Portal SimonSports • Bolões Esportivos</span>
-        <h1>Dashboard</h1>
-        <p>Gerencie seus bolões públicos e privados, convites, palpites automáticos, ranking e jogos em uma tela limpa, organizada por abas.</p>
+        <h1>Seu painel de bolões</h1>
+        <p>Crie bolões públicos ou privados, acompanhe ranking, convites e palpites em uma tela clara, separada por seções e sem conteúdo espremido.</p>
         <div class="hero-actions">
           <button class="btn primary" id="btnCriarTopo">+ Criar bolão</button>
           <button class="btn ghost" id="btnExplorarTopo">Explorar públicos</button>
@@ -255,66 +332,33 @@
     <div class="stat"><div class="n" id="stPendentes">0</div><div class="t">Pendências</div></div>
   </section>
 
-  <section class="panel">
-    <div class="panel-head">
+  <section class="opA-shell">
+    <div class="opA-titlebar">
       <div>
-        <h2>Bolões</h2>
-        <p>Escolha uma aba. O conteúdo muda por seção, sem deixar tudo espremido na mesma tela.</p>
+        <h2>Dashboard</h2>
+        <p>Escolha uma aba. A lista fica à esquerda e o detalhe do bolão aparece à direita, como na Opção A.</p>
       </div>
+      <button class="btn dark mini" id="btnAtualizar">Atualizar</button>
     </div>
-    <div class="tabs" role="tablist">
+
+    <div class="opA-tabs tabs" role="tablist">
       <button class="tab active" data-tab="meus">Meus</button>
       <button class="tab" data-tab="publicos">Públicos</button>
       <button class="tab" data-tab="privados">Privados</button>
       <button class="tab" data-tab="convites">Convites</button>
       <button class="tab" data-tab="criar">Criar</button>
     </div>
-    <div class="panel-body">
-      <section class="section active" id="sec-meus"><div class="cards" id="meusBoloes"><div class="empty">Entre com Google para carregar seus bolões.</div></div></section>
-      <section class="section" id="sec-publicos"><div class="cards" id="publicosBoloes"><div class="empty">Carregando bolões públicos...</div></div></section>
-      <section class="section" id="sec-privados"><div class="cards" id="privadosBoloes"><div class="empty">Aqui aparecem seus bolões privados e os que aguardam aprovação.</div></div></section>
-      <section class="section" id="sec-convites">
-        <div class="field-grid" style="grid-template-columns:1fr">
-          <div><label>Código ou link de convite</label><input id="inviteCode" placeholder="Cole o link ou código do bolão"></div>
-          <button class="btn primary" id="btnEntrarConvite">Entrar / Solicitar participação</button>
-          <div class="empty" id="inviteMsg">Bolão público entra automático. Bolão privado fica pendente para o criador aprovar.</div>
-        </div>
-      </section>
-      <section class="section" id="sec-criar">
-        <div class="field-grid">
-          <div><label>Nome do bolão</label><input id="novoNome" placeholder="Ex.: Bolão da Rua Norte"></div>
-          <div><label>Campeonato base</label><select id="novoCamp"></select></div>
-          <div><label>Tipo</label><select id="novoTipo"><option value="PUBLICO">Público - entrada automática</option><option value="PRIVADO">Privado - aprovação pelo criador</option></select></div>
-          <div><label>Descrição</label><textarea id="novoDesc" placeholder="Regras rápidas, grupo, premiação ou observações."></textarea></div>
-          <button class="btn primary" id="btnCriarBolao">Criar bolão agora</button>
-        </div>
-      </section>
-    </div>
-  </section>
 
-  <main class="workspace">
-    <section class="panel dashboard-panel">
-      <div class="panel-head">
-        <div>
-          <h2>Painel do bolão</h2>
-          <p id="mainHint">Selecione um bolão ou crie um novo para começar.</p>
-        </div>
-        <button class="btn dark mini" id="btnAtualizar">Atualizar</button>
-      </div>
-
-      <div class="bolao-tabs" role="tablist" aria-label="Painel do bolão">
-        <button class="bolao-tab active" data-view="resumo">Resumo</button>
-        <button class="bolao-tab" data-view="jogos">Jogos</button>
-        <button class="bolao-tab" data-view="ranking">Ranking</button>
-        <button class="bolao-tab" data-view="palpites">Palpites de todos</button>
-        <button class="bolao-tab" data-view="participantes">Participantes</button>
-        <button class="bolao-tab" data-view="config">Configurações</button>
-      </div>
-
-      <div class="panel-body">
-        <section class="bolao-view active" id="view-resumo">
-          <div class="dashboard-two">
-            <div>
+    <div class="opA-body">
+      <section class="section active" id="sec-meus">
+        <div class="opA-main">
+          <aside class="opA-list-card">
+            <div class="opA-card-head"><h3>Meus bolões</h3><span>selecione para abrir</span></div>
+            <div class="opA-card-body"><div class="cards" id="meusBoloes"><div class="empty">Entre com Google para carregar seus bolões.</div></div></div>
+          </aside>
+          <section class="opA-detail-card">
+            <div class="opA-card-head"><h3>Detalhe do bolão</h3><span id="mainHint">Selecione um bolão ou crie um novo para começar.</span></div>
+            <div class="opA-detail-inner">
               <div id="bolaoSelecionado" class="selected-panel" style="display:none">
                 <div class="selected-grid">
                   <div>
@@ -322,88 +366,170 @@
                     <p id="selResumo">Tipo • Campeonato • Status</p>
                     <div class="bolao-meta" id="selBadges"></div>
                   </div>
-                  <div class="bolao-actions">
+                  <div class="opA-detail-actions">
                     <button class="btn blue mini" id="btnConvidar">Copiar convite</button>
                     <button class="btn mini" id="btnGerenciar">Participantes</button>
                   </div>
                 </div>
+                <div class="opA-detail-metrics">
+                  <div class="opA-detail-metric"><strong id="miniCamp">-</strong><span>Campeonato</span></div>
+                  <div class="opA-detail-metric"><strong id="miniRodada">-</strong><span>Rodada</span></div>
+                  <div class="opA-detail-metric"><strong id="miniStatus">-</strong><span>Status</span></div>
+                  <div class="opA-detail-metric"><strong id="miniParticipantes">-</strong><span>Participantes</span></div>
+                </div>
                 <div class="share-box" id="shareBox">Convite ainda não gerado.</div>
               </div>
-              <div id="msg" class="empty" style="margin-top:14px">Selecione um bolão e carregue os jogos.</div>
+              <div id="msg" class="empty">Selecione um bolão para ver detalhes, próximos jogos, ranking e seus palpites.</div>
             </div>
+          </section>
+        </div>
 
-            <div class="quick-card">
-              <h3>Visão rápida</h3>
-              <p>Depois de abrir um bolão, use as abas acima para navegar sem misturar tudo na mesma tela.</p>
-              <div class="mini-board">
-                <div class="mini-metric"><strong id="miniCamp">-</strong><span>Campeonato</span></div>
-                <div class="mini-metric"><strong id="miniRodada">-</strong><span>Rodada</span></div>
-                <div class="mini-metric"><strong id="miniStatus">-</strong><span>Status</span></div>
-              </div>
-              <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-                <button class="btn dark mini" data-shortcut-view="jogos">Carregar jogos</button>
-                <button class="btn mini" data-shortcut-view="ranking">Ver ranking</button>
-                <button class="btn mini" data-shortcut-view="palpites">Ver palpites</button>
-              </div>
-            </div>
+        <div class="opA-bottom-grid">
+          <div class="opA-mini-panel">
+            <div class="mini-head"><h3>Próximos jogos</h3><button data-shortcut-view="jogos">Ver jogos</button></div>
+            <div class="mini-body" id="proxJogosResumo"><div class="info-empty">Abra um bolão e carregue uma rodada para listar os próximos jogos.</div></div>
           </div>
-        </section>
+          <div class="opA-mini-panel">
+            <div class="mini-head"><h3>Ranking em destaque</h3><button data-shortcut-view="ranking">Ver ranking</button></div>
+            <div class="mini-body" id="rankingResumoBody"><div class="info-empty">O ranking será calculado quando houver jogos iniciados ou encerrados.</div></div>
+          </div>
+          <div class="opA-mini-panel">
+            <div class="mini-head"><h3>Meus palpites</h3><button data-shortcut-view="jogos">Palpitar</button></div>
+            <div class="mini-body" id="meusPalpitesResumo"><div class="info-empty">Carregue os jogos para acompanhar seus palpites da rodada.</div></div>
+          </div>
+        </div>
+      </section>
 
-        <section class="bolao-view" id="view-jogos">
-          <div class="panel-head" style="padding:0 0 14px;border-bottom:0">
-            <div>
-              <h2>Jogos da rodada</h2>
-              <p>Salve palpites aqui. O P.A. só atua em jogos futuros e sem palpite.</p>
-            </div>
-          </div>
-          <div class="game-tools">
-            <div><label>Campeonato</label><select class="select-dark" id="selCamp"></select></div>
-            <div><label>Rodada</label><select class="select-dark" id="selRod"></select></div>
-            <button class="btn dark" id="btnCarregar">Carregar jogos</button>
-            <button class="btn" id="btnRanking">Ranking</button>
-            <button class="btn" id="btnTodos">Palpites de todos</button>
-          </div>
-          <div id="lista" class="game-list" hidden></div>
-        </section>
+      <section class="section" id="sec-publicos">
+        <div class="opA-list-card">
+          <div class="opA-card-head"><h3>Bolões públicos</h3><span>entrada automática</span></div>
+          <div class="opA-card-body"><div class="cards" id="publicosBoloes"><div class="empty">Carregando bolões públicos...</div></div></div>
+        </div>
+      </section>
 
-        <section class="bolao-view" id="view-ranking">
-          <div class="info-card" id="rankingPanel">
-            <div class="info-card-head"><h3>Ranking do bolão</h3><span id="rankingStatus">aguardando consulta</span></div>
-            <div class="info-card-body" id="rankingBody"><div class="info-empty">Clique em Ranking para carregar a classificação aqui.</div></div>
-          </div>
-        </section>
+      <section class="section" id="sec-privados">
+        <div class="opA-list-card">
+          <div class="opA-card-head"><h3>Bolões privados</h3><span>aprovação pelo criador</span></div>
+          <div class="opA-card-body"><div class="cards" id="privadosBoloes"><div class="empty">Aqui aparecem seus bolões privados e os que aguardam aprovação.</div></div></div>
+        </div>
+      </section>
 
-        <section class="bolao-view" id="view-palpites">
-          <div class="info-card" id="palpitesPanel">
-            <div class="info-card-head"><h3>Palpites de todos</h3><span id="palpitesStatus">aguardando consulta</span></div>
-            <div class="info-card-body" id="palpitesBody"><div class="info-empty">Só serão exibidos palpites de jogos já iniciados, ao vivo ou encerrados.</div></div>
-          </div>
-        </section>
-
-        <section class="bolao-view" id="view-participantes">
-          <div class="quick-card">
-            <h3>Participantes</h3>
-            <p>Use esta área para abrir a lista de participantes e aprovar solicitações de bolões privados.</p>
-            <div style="margin-top:12px">
-              <button class="btn dark" id="btnGerenciarView">Abrir participantes</button>
+      <section class="section" id="sec-convites">
+        <div class="opA-list-card">
+          <div class="opA-card-head"><h3>Convites</h3><span>link ou código</span></div>
+          <div class="opA-card-body">
+            <div class="field-grid" style="grid-template-columns:1fr">
+              <div><label>Código ou link de convite</label><input id="inviteCode" placeholder="Cole o link ou código do bolão"></div>
+              <button class="btn primary" id="btnEntrarConvite">Entrar / Solicitar participação</button>
+              <div class="empty" id="inviteMsg">Bolão público entra automático. Bolão privado fica pendente para o criador aprovar.</div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section class="bolao-view" id="view-config">
-          <div class="quick-card">
-            <h3>Configurações do bolão</h3>
-            <p>As opções abaixo aparecem para quem administra o bolão selecionado.</p>
-            <div class="admin-actions" id="adminActions">
-              <button class="btn mini" id="btnEditarBolao" type="button">Editar nome</button>
-              <button class="btn warn mini" id="btnInativarBolao" type="button">Inativar</button>
-              <button class="btn danger mini" id="btnExcluirBolao" type="button">Excluir</button>
+      <section class="section" id="sec-criar">
+        <div class="opA-list-card">
+          <div class="opA-card-head"><h3>Criar bolão</h3><span>você vira administrador</span></div>
+          <div class="opA-card-body">
+            <div class="opA-create-grid">
+              <div><label>Nome do bolão</label><input id="novoNome" placeholder="Ex.: Bolão da Rua Norte"></div>
+              <div><label>Campeonato base</label><select id="novoCamp"></select></div>
+              <div><label>Tipo</label><select id="novoTipo"><option value="PUBLICO">Público - entrada automática</option><option value="PRIVADO">Privado - aprovação pelo criador</option></select></div>
+              <div class="wide"><label>Descrição</label><textarea id="novoDesc" placeholder="Regras rápidas, grupo, premiação ou observações."></textarea></div>
+              <button class="btn primary wide" id="btnCriarBolao">Criar bolão agora</button>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="opA-focus">
+    <div class="opA-titlebar">
+      <div>
+        <h2>Área do bolão</h2>
+        <p>Abra um bolão e navegue por resumo, jogos, ranking, palpites, participantes e configurações.</p>
       </div>
-    </section>
-  </main>
+    </div>
+
+    <div class="bolao-tabs" role="tablist" aria-label="Painel do bolão">
+      <button class="bolao-tab active" data-view="resumo">Resumo</button>
+      <button class="bolao-tab" data-view="jogos">Jogos</button>
+      <button class="bolao-tab" data-view="ranking">Ranking</button>
+      <button class="bolao-tab" data-view="palpites">Palpites de todos</button>
+      <button class="bolao-tab" data-view="participantes">Participantes</button>
+      <button class="bolao-tab" data-view="config">Configurações</button>
+    </div>
+
+    <div class="panel-body">
+      <section class="bolao-view active" id="view-resumo">
+        <div class="dashboard-two">
+          <div class="quick-card">
+            <h3>Resumo operacional</h3>
+            <p>Selecione um bolão nos cards acima. Aqui fica apenas o resumo de orientação, sem repetir todos os menus.</p>
+            <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn dark mini" data-shortcut-view="jogos">Carregar jogos</button>
+              <button class="btn mini" data-shortcut-view="ranking">Ver ranking</button>
+              <button class="btn mini" data-shortcut-view="palpites">Ver palpites</button>
+            </div>
+          </div>
+          <div class="quick-card">
+            <h3>Status do bolão</h3>
+            <div class="mini-board">
+              <div class="mini-metric"><strong id="miniCampResumo">-</strong><span>Campeonato</span></div>
+              <div class="mini-metric"><strong id="miniRodadaResumo">-</strong><span>Rodada</span></div>
+              <div class="mini-metric"><strong id="miniStatusResumo">-</strong><span>Status</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bolao-view" id="view-jogos">
+        <div class="game-tools">
+          <div><label>Campeonato</label><select class="select-dark" id="selCamp"></select></div>
+          <div><label>Rodada</label><select class="select-dark" id="selRod"></select></div>
+          <button class="btn dark" id="btnCarregar">Carregar jogos</button>
+          <button class="btn" id="btnRanking">Ranking</button>
+          <button class="btn" id="btnTodos">Palpites de todos</button>
+        </div>
+        <div id="lista" class="game-list" hidden></div>
+      </section>
+
+      <section class="bolao-view" id="view-ranking">
+        <div class="info-card" id="rankingPanel">
+          <div class="info-card-head"><h3>Ranking do bolão</h3><span id="rankingStatus">aguardando consulta</span></div>
+          <div class="info-card-body" id="rankingBody"><div class="info-empty">Clique em Ranking para carregar a classificação aqui.</div></div>
+        </div>
+      </section>
+
+      <section class="bolao-view" id="view-palpites">
+        <div class="info-card" id="palpitesPanel">
+          <div class="info-card-head"><h3>Palpites de todos</h3><span id="palpitesStatus">aguardando consulta</span></div>
+          <div class="info-card-body" id="palpitesBody"><div class="info-empty">Só serão exibidos palpites de jogos já iniciados, ao vivo ou encerrados.</div></div>
+        </div>
+      </section>
+
+      <section class="bolao-view" id="view-participantes">
+        <div class="quick-card">
+          <h3>Participantes</h3>
+          <p>Use esta área para abrir a lista de participantes e aprovar solicitações de bolões privados.</p>
+          <div style="margin-top:12px"><button class="btn dark" id="btnGerenciarView">Abrir participantes</button></div>
+        </div>
+      </section>
+
+      <section class="bolao-view" id="view-config">
+        <div class="quick-card">
+          <h3>Configurações do bolão</h3>
+          <p>As opções abaixo aparecem para quem administra o bolão selecionado.</p>
+          <div class="admin-actions" id="adminActions">
+            <button class="btn mini" id="btnEditarBolao" type="button">Editar nome</button>
+            <button class="btn warn mini" id="btnInativarBolao" type="button">Inativar</button>
+            <button class="btn danger mini" id="btnExcluirBolao" type="button">Excluir</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
 </div>
 
 <div class="modal" id="paModal" aria-hidden="true">
@@ -1252,5 +1378,92 @@
 
   (async function boot(){ loadPA(); await loadCatalog(); await loadPublicos(); renderBoloes(); })();
 </script>
+
+<script>
+  /* V11: complementos visuais da Opção A sem alterar a regra de negócio principal */
+  (function(){
+    function esc(v){ return String(v ?? '').replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch])); }
+    function safeText(sel, value){ const e=document.querySelector(sel); if(e) e.textContent=value; }
+    function renderMiniProximos(){
+      const box=document.getElementById('proxJogosResumo');
+      if(!box) return;
+      const jogos=(typeof state!=='undefined' && Array.isArray(state.jogos)) ? state.jogos : [];
+      if(!jogos.length){ box.innerHTML='<div class="info-empty">Abra um bolão e carregue uma rodada para listar os próximos jogos.</div>'; return; }
+      const futuros=jogos.filter(g=>{
+        try{ const d=parseDateSafe(g.data_jogo || g.data || g.horario || g.inicio || ''); return d && d>new Date(); }catch(_){ return false; }
+      }).slice(0,4);
+      const rows=(futuros.length?futuros:jogos.slice(0,4)).map(g=>{
+        const home=g.mandante||g.home||g.time_mandante||'-';
+        const away=g.visitante||g.away||g.time_visitante||'-';
+        const d=parseDateSafe(g.data_jogo || g.data || g.horario || g.inicio || '');
+        const hora=d ? d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' • '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '--';
+        return '<div class="mini-row"><strong>'+esc(home)+' x '+esc(away)+'</strong><span>'+esc(hora)+'</span></div>';
+      }).join('');
+      box.innerHTML=rows || '<div class="info-empty">Nenhum jogo disponível para esta rodada.</div>';
+    }
+    function renderMeusPalpitesResumo(){
+      const box=document.getElementById('meusPalpitesResumo');
+      if(!box) return;
+      const jogos=(typeof state!=='undefined' && Array.isArray(state.jogos)) ? state.jogos : [];
+      if(!jogos.length){ box.innerHTML='<div class="info-empty">Carregue os jogos para acompanhar seus palpites da rodada.</div>'; return; }
+      let count=0;
+      const rows=jogos.slice(0,4).map((g,idx)=>{
+        const id=String(g.id||`${document.querySelector('#selCamp')?.value||''}_${document.querySelector('#selRod')?.value||''}_${idx}`);
+        const gm=document.querySelector(`input[data-id="${id}_gm"]`)?.value;
+        const gv=document.querySelector(`input[data-id="${id}_gv"]`)?.value;
+        const home=g.mandante||g.home||g.time_mandante||'-';
+        const away=g.visitante||g.away||g.time_visitante||'-';
+        const p=(gm!==undefined && gm!=='' && gv!==undefined && gv!=='') ? (gm+' x '+gv) : 'sem palpite';
+        if(p!=='sem palpite') count++;
+        return '<div class="mini-row"><strong>'+esc(home)+' x '+esc(away)+'</strong><span>'+esc(p)+'</span></div>';
+      }).join('');
+      box.innerHTML=rows || '<div class="info-empty">Nenhum jogo carregado.</div>';
+    }
+    function renderRankingResumoFromMain(){
+      const box=document.getElementById('rankingResumoBody');
+      const main=document.getElementById('rankingBody');
+      if(!box) return;
+      if(!main || main.querySelector('.info-empty')){
+        box.innerHTML='<div class="info-empty">O ranking será calculado quando houver jogos iniciados ou encerrados.</div>'; return;
+      }
+      const trs=[...main.querySelectorAll('tbody tr')].slice(0,5);
+      if(!trs.length){ box.innerHTML='<div class="info-empty">Ranking ainda sem dados pontuáveis.</div>'; return; }
+      box.innerHTML=trs.map((tr,i)=>{
+        const tds=tr.querySelectorAll('td');
+        const nome=tds[1]?.innerText?.trim()||'Participante';
+        const pts=tds[2]?.innerText?.trim()||'0';
+        return '<div class="mini-row"><strong>'+(i+1)+'. '+esc(nome)+'</strong><span>'+esc(pts)+' pts</span></div>';
+      }).join('');
+    }
+    window.PSS_V11_REFRESH_RESUMOS=function(){
+      try{
+        if(typeof state!=='undefined' && state.bolao){
+          safeText('#miniParticipantes', state.bolao.participantes || state.bolao.qtdParticipantes || '-');
+          safeText('#miniCampResumo', state.bolao.campeonato || state.bolao.camp || 'CUP');
+          safeText('#miniRodadaResumo', (document.querySelector('#selRod')?.value || '-') + (document.querySelector('#selRod')?.value ? 'ª' : ''));
+          safeText('#miniStatusResumo', state.bolao.ativo===false?'Inativo':'Ativo');
+        }
+      }catch(_){ }
+      renderMiniProximos(); renderMeusPalpitesResumo(); renderRankingResumoFromMain();
+    };
+    const wait=()=>{
+      if(typeof carregarJogos==='function'){
+        const oldCarregar=carregarJogos;
+        carregarJogos=async function(){ const r=await oldCarregar.apply(this,arguments); setTimeout(window.PSS_V11_REFRESH_RESUMOS,200); return r; };
+      }
+      if(typeof renderRankingLocal==='function'){
+        const oldRank=renderRankingLocal;
+        renderRankingLocal=function(){ const r=oldRank.apply(this,arguments); setTimeout(renderRankingResumoFromMain,50); return r; };
+      }
+      if(typeof selectBolao==='function'){
+        const oldSelect=selectBolao;
+        selectBolao=function(){ const r=oldSelect.apply(this,arguments); setTimeout(window.PSS_V11_REFRESH_RESUMOS,150); return r; };
+      }
+      document.addEventListener('input', function(e){ if(e.target && e.target.classList && e.target.classList.contains('inp-palpite')) setTimeout(renderMeusPalpitesResumo,80); });
+    };
+    setTimeout(wait,0);
+  })();
+</script>
+
 </body>
 </html>
