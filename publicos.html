@@ -154,6 +154,11 @@
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+  auth.useDeviceLanguage();
+  const AUTH_LOCAL_READY = auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e=>{
+    console.warn('Falha ao definir persistência local do login:', e);
+  });
   const db = firebase.firestore();
 
   const $ = s => document.querySelector(s);
@@ -175,6 +180,55 @@
   }
   function participantesLabel(b){ return b?.qtdParticipantes || b?.participantes || b?.totalParticipantes || '—'; }
   function proximaLabel(b){ return b?.proximaRodada ? `${b.proximaRodada}ª Rodada` : (b?.rodadaInicial ? `${b.rodadaInicial}ª Rodada` : formatoLabel(b)); }
+
+  function mensagemErroAuth(e){
+    const code = String((e && e.code) || '');
+    const msg = String((e && e.message) || '');
+    if(code.includes('unauthorized-domain')) return 'Domínio não autorizado no Firebase Auth. Inclua bolao.portalsimonsports.com em Authorized domains.';
+    if(code.includes('popup-blocked')) return 'O navegador bloqueou a janela do Google. Vou tentar por redirecionamento.';
+    if(code.includes('popup-closed')) return 'Login cancelado ou janela do Google fechada antes de concluir.';
+    if(code.includes('network-request-failed')) return 'Falha de rede ao autenticar com Google.';
+    return msg || code || 'Erro desconhecido no login.';
+  }
+
+  async function concluirLoginRedirectPendente(){
+    try{
+      await AUTH_LOCAL_READY;
+      const r = await auth.getRedirectResult();
+      if(r && r.user){ toast('Login realizado com sucesso.'); }
+    }catch(e){
+      console.warn('Falha ao concluir retorno do login Google:', e);
+      toast('Falha ao concluir login: '+mensagemErroAuth(e));
+    }
+  }
+
+  async function loginGoogleSeguro(){
+    await AUTH_LOCAL_READY;
+    const btn = $('#btnLogin');
+    const textoOriginal = btn ? btn.textContent : '';
+    if(btn){ btn.disabled = true; btn.textContent = 'Abrindo Google...'; }
+    try{
+      try{
+        await auth.signInWithPopup(provider);
+      }catch(ePopup){
+        const code = String((ePopup && ePopup.code) || '');
+        console.warn('Login por popup falhou, tentando redirect:', ePopup);
+        if(code.includes('popup-closed')) throw ePopup;
+        await auth.signInWithRedirect(provider);
+      }
+    }catch(e){
+      console.warn('Falha no login Google:', e);
+      toast('Falha no login: '+mensagemErroAuth(e));
+      if(btn && state.uid === 'GUEST'){ btn.disabled = false; btn.textContent = textoOriginal || 'Entrar com Google'; }
+      return;
+    }
+    if(btn && state.uid === 'GUEST'){
+      btn.disabled = false;
+      btn.textContent = textoOriginal || 'Entrar com Google';
+    }
+  }
+
+  concluirLoginRedirectPendente();
 
   async function ensureUser(user){
     if(!user) return;
@@ -294,8 +348,7 @@
       state.pendingEnter=id;
       sessionStorage.setItem('PSS_PUBLICO_PENDING_BOLAO', id);
       toast('Entre com Google para participar automaticamente.');
-      try{ if(/Mobi|Android/i.test(navigator.userAgent)) await auth.signInWithRedirect(provider); else await auth.signInWithPopup(provider); }
-      catch(e){ toast('Falha no login: '+e.message); }
+      await loginGoogleSeguro();
       return;
     }
     await entrarBolaoPublico(id);
@@ -333,9 +386,11 @@
 
   $('#btnLogin').onclick=async()=>{
     if(state.uid==='GUEST'){
-      try{ if(/Mobi|Android/i.test(navigator.userAgent)) await auth.signInWithRedirect(provider); else await auth.signInWithPopup(provider); }
-      catch(e){ toast('Falha no login: '+e.message); }
-    }else{ await auth.signOut(); toast('Você saiu.'); }
+      await loginGoogleSeguro();
+    }else{
+      await auth.signOut();
+      toast('Você saiu.');
+    }
   };
   $('#btnAtualizar').onclick=()=>carregarPublicos();
   $('#btnLimpar').onclick=()=>{ $('#fBusca').value=''; $('#fCamp').value=''; $('#fPeso').value=''; aplicarFiltros(); };
