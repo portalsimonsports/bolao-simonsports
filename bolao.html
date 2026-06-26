@@ -381,17 +381,20 @@
 
 
   .score-clean{font-weight:1000;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;min-width:54px}
-  .palpite-jogo-oficial{display:grid;grid-template-columns:minmax(130px,1fr) 82px minmax(130px,1fr);align-items:center;column-gap:10px;min-width:0;width:100%;white-space:nowrap}
+  .ranking-table th:nth-child(3),.ranking-table th:nth-child(4),.ranking-table th:nth-child(5),
+  .ranking-table td:nth-child(3),.ranking-table td:nth-child(4),.ranking-table td:nth-child(5){text-align:center}
+  .ranking-table td:nth-child(3) strong{display:inline-flex;justify-content:center;min-width:44px}
+  .palpite-jogo-oficial{display:grid;grid-template-columns:minmax(190px,1fr) 86px minmax(190px,1fr);align-items:center;column-gap:12px;min-width:0;width:100%;white-space:nowrap}
   .palpite-jogo-oficial .team-logo{flex:0 0 auto}
   .palpite-jogo-oficial .team-title{font-weight:1000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
   .palpite-jogo-oficial .score-num,.palpite-jogo-oficial .score-x{font-weight:1000;font-size:15px;color:#0f172a;text-align:center}
   .palpite-jogo-oficial .score-x{opacity:.75}
-  .palpite-oficial-side{display:inline-flex;align-items:center;gap:7px;min-width:0;max-width:100%;flex:0 1 auto}
-  .palpite-oficial-side.home{justify-content:flex-start}
-  .palpite-oficial-side.away{justify-content:flex-start}
-  .palpite-oficial-side.away .team-title{order:1;flex:0 1 auto}
-  .palpite-oficial-side.away .team-logo{order:2;margin-left:2px}
-  .palpite-oficial-score{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:0 0 82px;min-width:82px}
+  .palpite-oficial-side{display:grid;align-items:center;gap:8px;min-width:0;max-width:100%}
+  .palpite-oficial-side.home{grid-template-columns:30px minmax(0,1fr);justify-items:start}
+  .palpite-oficial-side.away{grid-template-columns:minmax(0,1fr) 30px;justify-items:start}
+  .palpite-oficial-side.away .team-title{order:1;width:100%}
+  .palpite-oficial-side.away .team-logo{order:2;justify-self:start;margin-left:0}
+  .palpite-oficial-score{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:0 0 86px;min-width:86px}
   .palpite-participante{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 </style>
 </head>
@@ -2659,7 +2662,7 @@
     const rows=Array.from(agg.values()).sort((a,b)=>b.pontos-a.pontos || b.exatos-a.exatos || a.nome.localeCompare(b.nome));
     status.textContent = fmtClock(new Date()) + ' • automático' + (contexto ? ' • '+contexto : '');
     if(!rows.length){ body.innerHTML='<div class="info-empty">Ranking automático carregado, mas ainda não há palpites pontuáveis em jogos iniciados ou encerrados.</div>'; return; }
-    body.innerHTML = `<table class="info-table"><thead><tr><th>#</th><th>Participante</th><th>Pontos</th><th>Jogos</th><th>Exatos</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td><span class="info-pill">${i+1}</span></td><td>${escapeHtml(r.nome)} ${r.virtual?'<span class="badge virtual">Virtual</span>':''}</td><td><strong>${r.pontos}</strong></td><td>${r.jogos}</td><td>${r.exatos}</td></tr>`).join('')}</tbody></table>`;
+    body.innerHTML = `<table class="info-table ranking-table"><thead><tr><th>#</th><th>Participante</th><th>Pontos</th><th>Jogos</th><th>Exatos</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td><span class="info-pill">${i+1}</span></td><td>${escapeHtml(r.nome)} ${r.virtual?'<span class="badge virtual">Virtual</span>':''}</td><td><strong>${r.pontos}</strong></td><td>${r.jogos}</td><td>${r.exatos}</td></tr>`).join('')}</tbody></table>`;
   }
 
   async function carregarRankingGeralAuto(camp){
@@ -3154,7 +3157,7 @@
       body.innerHTML='<div class="info-empty">Nenhum palpite pontuável encontrado para jogos iniciados ou encerrados desta rodada.</div>';
       return;
     }
-    body.innerHTML = `<table class="info-table"><thead><tr><th>#</th><th>Participante</th><th>Pontos</th><th>Jogos</th><th>Exatos</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td><span class="info-pill">${i+1}</span></td><td>${escapeHtml(r.nome)} ${r.virtual?'<span class="badge virtual">Virtual</span>':''}</td><td><strong>${r.pontos}</strong></td><td>${r.jogos}</td><td>${r.exatos}</td></tr>`).join('')}</tbody></table>`;
+    body.innerHTML = `<table class="info-table ranking-table"><thead><tr><th>#</th><th>Participante</th><th>Pontos</th><th>Jogos</th><th>Exatos</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td><span class="info-pill">${i+1}</span></td><td>${escapeHtml(r.nome)} ${r.virtual?'<span class="badge virtual">Virtual</span>':''}</td><td><strong>${r.pontos}</strong></td><td>${r.jogos}</td><td>${r.exatos}</td></tr>`).join('')}</tbody></table>`;
   }
 
   function renderPalpitesLocal(palpites){
@@ -3185,7 +3188,7 @@
     const rows=pickRows(payload);
     status.textContent = fmtClock(new Date());
     if(rows.length){
-      body.innerHTML = `<table class="info-table"><thead><tr><th>#</th><th>Participante</th><th>Pontos</th><th>Detalhe</th></tr></thead><tbody>${rows.map((r,i)=>{
+      body.innerHTML = `<table class="info-table ranking-table"><thead><tr><th>#</th><th>Participante</th><th>Pontos</th><th>Detalhe</th></tr></thead><tbody>${rows.map((r,i)=>{
         const pos=getVal(r,['posicao','pos','rank','classificacao'],i+1);
         const nome=getVal(r,['nome','name','participante','usuario','displayName','apelido'],'Participante');
         const pts=getVal(r,['pontos','pts','total_pontos','total','score'],0);
