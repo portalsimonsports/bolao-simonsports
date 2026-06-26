@@ -147,6 +147,12 @@
   .match-foot{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;margin-top:12px}.foot-label{color:#94a3b8;font-size:13px;font-weight:1000}.pts{justify-self:start;background:#065f46;color:#d1fae5;border-radius:999px;padding:8px 12px;font-weight:1000;font-size:13px}.hit-type{display:inline-flex;align-items:center;width:max-content;margin-top:5px;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:1000;text-transform:uppercase;letter-spacing:.03em;background:#e0f2fe;color:#075985;border:1px solid #bae6fd}.hit-type.exato{background:#dcfce7;color:#166534;border-color:#86efac}.hit-type.saldo{background:#fef3c7;color:#92400e;border-color:#fde68a}.hit-type.vencedor{background:#e0f2fe;color:#075985;border-color:#bae6fd}.hit-type.gol{background:#ede9fe;color:#5b21b6;border-color:#ddd6fe}.autosave-status{font-size:12px;color:#94a3b8;font-weight:950}.autosave-status.ok{color:#86efac}.autosave-status.err{color:#fecaca}.autosave-status.saving{color:#bae6fd}
 
   .info-dashboard{display:none;grid-template-columns:1fr;gap:14px;margin-top:18px}.info-dashboard.open{display:grid}.info-card.is-hidden{display:none}.info-card{border:1px solid var(--line);background:#fff;border-radius:18px;overflow:hidden;box-shadow:var(--shadow2)}.info-card-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center;background:#f8fafc}.info-card-head h3{margin:0;font-size:16px;font-weight:1000;color:#0f172a}.info-card-head span{font-size:12px;font-weight:900;color:#64748b}.info-card-body{padding:14px 16px;display:grid;gap:10px}.info-table{width:100%;border-collapse:separate;border-spacing:0 8px}.info-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#64748b;text-align:left;padding:0 8px 4px;font-weight:1000}.info-table td{background:#f8fafc;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:10px 8px;font-size:13px;font-weight:800;color:#0f172a}.info-table td:first-child{border-left:1px solid #e2e8f0;border-radius:12px 0 0 12px}.info-table td:last-child{border-right:1px solid #e2e8f0;border-radius:0 12px 12px 0}.info-json{white-space:pre-wrap;background:#071126;color:#e5e7eb;border-radius:14px;padding:12px;font-size:12px;line-height:1.45;overflow:auto;max-height:360px}.info-empty{border:1px dashed #cbd5e1;border-radius:14px;padding:14px;background:#f8fafc;color:#64748b;font-weight:800;text-align:center}.info-pill{display:inline-flex;align-items:center;justify-content:center;min-width:28px;border-radius:999px;background:#e0f2fe;color:#075985;padding:4px 8px;font-weight:1000;font-size:12px}
+  .info-card-body{overflow-x:auto}
+  .info-table.palpites-table{table-layout:fixed;min-width:980px}
+  .info-table.palpites-table th:nth-child(1),.info-table.palpites-table td:nth-child(1){width:44%}
+  .info-table.palpites-table th:nth-child(2),.info-table.palpites-table td:nth-child(2){width:10%;text-align:center}
+  .info-table.palpites-table th:nth-child(3),.info-table.palpites-table td:nth-child(3){width:30%}
+  .info-table.palpites-table th:nth-child(4),.info-table.palpites-table td:nth-child(4){width:16%;text-align:center}
   .pontuacao-wrap{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
   .hit-abbr{display:inline-flex;align-items:center;justify-content:center;min-width:28px;border-radius:999px;padding:4px 7px;font-size:11px;font-weight:1000;line-height:1;border:1px solid #e2e8f0;background:#f8fafc;color:#475569}
   .hit-abbr.pe{background:#dcfce7;color:#166534;border-color:#bbf7d0}
@@ -234,7 +240,7 @@
 
 
   /* ================= V11 REAL — OPÇÃO A MASTER-DETAIL ================= */
-  .app{max-width:1320px;padding:18px 22px 32px}
+  .app{width:min(96vw,1560px);max-width:1560px;padding:18px 22px 32px}
   .hero{margin-bottom:16px}
   .stats{margin:16px 0 16px}
   .opA-shell{background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);overflow:hidden;margin-top:16px}
@@ -246,7 +252,7 @@
   .opA-tabs .tab:last-child{border-right:0}
   .opA-tabs .tab.active{background:#fff;color:#071126;box-shadow:inset 0 -3px 0 #0ea5e9;border-color:transparent}
   .opA-body{padding:18px;background:#fff}
-  .opA-main{display:grid;grid-template-columns:minmax(320px,.85fr) minmax(0,1.35fr);gap:18px;align-items:stretch}
+  .opA-main{display:grid;grid-template-columns:minmax(330px,.78fr) minmax(0,1.62fr);gap:18px;align-items:stretch}
   .opA-list-card,.opA-detail-card{border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:var(--shadow2);overflow:hidden;min-height:275px}
   .opA-card-head{padding:14px 16px;border-bottom:1px solid var(--line);background:#fbfdff;display:flex;align-items:center;justify-content:space-between;gap:10px}
   .opA-card-head h3{margin:0;font-size:16px;font-weight:1000;color:#0f172a;letter-spacing:-.02em}
@@ -375,17 +381,17 @@
 
 
   .score-clean{font-weight:1000;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;min-width:54px}
-  .palpite-jogo-oficial{display:flex;align-items:center;justify-content:flex-start;gap:12px;min-width:0;width:100%;white-space:nowrap;flex-wrap:nowrap}
+  .palpite-jogo-oficial{display:grid;grid-template-columns:minmax(130px,1fr) 82px minmax(130px,1fr);align-items:center;column-gap:10px;min-width:0;width:100%;white-space:nowrap}
   .palpite-jogo-oficial .team-logo{flex:0 0 auto}
-  .palpite-jogo-oficial .team-title{font-weight:1000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .palpite-jogo-oficial .team-title{font-weight:1000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
   .palpite-jogo-oficial .score-num,.palpite-jogo-oficial .score-x{font-weight:1000;font-size:15px;color:#0f172a;text-align:center}
   .palpite-jogo-oficial .score-x{opacity:.75}
-  .palpite-oficial-side{display:inline-flex;align-items:center;gap:8px;min-width:0;flex:0 1 auto}
+  .palpite-oficial-side{display:inline-flex;align-items:center;gap:7px;min-width:0;max-width:100%;flex:0 1 auto}
   .palpite-oficial-side.home{justify-content:flex-start}
   .palpite-oficial-side.away{justify-content:flex-start}
-  .palpite-oficial-side.away .team-title{order:1}
-  .palpite-oficial-side.away .team-logo{order:2}
-  .palpite-oficial-score{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:0 0 auto;min-width:86px}
+  .palpite-oficial-side.away .team-title{order:1;flex:0 1 auto}
+  .palpite-oficial-side.away .team-logo{order:2;margin-left:2px}
+  .palpite-oficial-score{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:0 0 82px;min-width:82px}
   .palpite-participante{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 </style>
 </head>
@@ -3160,7 +3166,7 @@
       body.innerHTML = '<div class="info-empty">Nenhum palpite liberado para exibição. Jogos futuros continuam ocultos.</div>';
       return;
     }
-    body.innerHTML = `${legendaAcertosHTML()}<table class="info-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th><th>Pontuação</th></tr></thead><tbody>${rows.map(({p,g})=>`<tr><td>${confrontoOficialPalpiteHTML(g,p.idJogo)}</td><td><span class="score-clean">${escapeHtml(p.gm)} x ${escapeHtml(p.gv)}</span></td><td><span class="palpite-participante">${escapeHtml(p.nome||p.uid||'Participante')} ${p.virtual?'<span class="badge virtual">Virtual</span>':''}</span></td><td>${pontuacaoAcertoHTML(p,g)}</td></tr>`).join('')}</tbody></table>`;
+    body.innerHTML = `${legendaAcertosHTML()}<table class="info-table palpites-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th><th>Pontuação</th></tr></thead><tbody>${rows.map(({p,g})=>`<tr><td>${confrontoOficialPalpiteHTML(g,p.idJogo)}</td><td><span class="score-clean">${escapeHtml(p.gm)} x ${escapeHtml(p.gv)}</span></td><td><span class="palpite-participante">${escapeHtml(p.nome||p.uid||'Participante')} ${p.virtual?'<span class="badge virtual">Virtual</span>':''}</span></td><td>${pontuacaoAcertoHTML(p,g)}</td></tr>`).join('')}</tbody></table>`;
   }
 
   async function atualizarPaineisAutomaticos(){
@@ -3220,7 +3226,7 @@
     rows = rows.filter(jogoJaIniciadoParaExibirPalpite);
     status.textContent = fmtClock(new Date());
     if(rows.length){
-      body.innerHTML = `${legendaAcertosHTML()}<table class="info-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th><th>Pontuação</th></tr></thead><tbody>${rows.map((r)=>{
+      body.innerHTML = `${legendaAcertosHTML()}<table class="info-table palpites-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th><th>Pontuação</th></tr></thead><tbody>${rows.map((r)=>{
         const jogo=getVal(r,['jogo','idJogo','partida','confronto','id'],'-');
         const nome=getVal(r,['nome','name','participante','usuario','displayName','apelido'],'Participante');
         const gm=getVal(r,['gm','gols_mandante','palpite_mandante','mandante'],'');
