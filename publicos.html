@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- V004_PUBLICOS_FIRESTORE_READ_PUBLICO_EXCLUIDO_FALSE -->
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -196,11 +197,11 @@
   async function carregarPublicos(){
     $('#publicosGrid').innerHTML='<div class="loading">Carregando bolões públicos...</div>';
     try{
-      const qs=await db.collection('boloes').where('ativo','==',true).where('publico','==',true).limit(120).get();
+      const qs=await db.collection('boloes').where('ativo','==',true).where('publico','==',true).where('excluido','==',false).limit(120).get();
       state.publicos=qs.docs.map(d=>({id:d.id,...d.data()})).filter(b=>b.excluido!==true && b.ativo!==false && (b.publico===true || b.tipo==='PUBLICO'));
     }catch(e){
       console.warn(e);
-      $('#publicosGrid').innerHTML=`<div class="empty"><strong>Não foi possível carregar os bolões públicos.</strong>Verifique as regras do Firestore e tente novamente.<br><br>${esc(e.message)}</div>`;
+      $('#publicosGrid').innerHTML=`<div class="empty"><strong>Não foi possível carregar os bolões públicos.</strong>Verifique se as regras públicas foram atualizadas e se os bolões possuem excluido:false.<br><br>${esc(e.message)}</div>`;
       return;
     }
     montarFiltroCampeonatos();
@@ -346,3 +347,4 @@
 </script>
 </body>
 </html>
+
