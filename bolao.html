@@ -3059,10 +3059,17 @@
 
     const res = (a,b)=> a>b ? 'M' : (a<b ? 'V' : 'E');
     const rp=res(pgm,pgv), ro=res(of.gm,of.gv);
+
+    // Regra correta do empate:
+    // - Jogo empatado + palpite empatado, mas não exato: conta como SALDO DE GOLS (SG), porque o saldo é 0.
+    // - Empate garantido (E): participante marcou empate, mas o jogo teve vencedor.
+    if(rp === 'E' && ro !== 'E'){
+      return {base:4,label:'Empate garantido',classe:'vencedor',abbr:'E'};
+    }
     if(rp!==ro) return {base:0,label:'',classe:'',abbr:'—'};
 
     if(ro==='E'){
-      return {base:4,label:'Empate',classe:'vencedor',abbr:'E'};
+      return {base:15,label:'Saldo',classe:'saldo',abbr:'SG'};
     }
 
     const mandanteVenceu = ro === 'M';
@@ -3113,7 +3120,7 @@
     return mapa[String(abbr||'—').toUpperCase()] || 'Sem acerto';
   }
   function legendaAcertosHTML(){
-    return `<div class="palpites-legend"><strong>Legenda:</strong><span><b>PE</b> Placar exato</span><span><b>GV</b> Gol vencedor</span><span><b>SG</b> Saldo</span><span><b>GP</b> Gol perdedor</span><span><b>V</b> Vencedor</span><span><b>E</b> Empate</span><span><b>—</b> Sem acerto</span></div>`;
+    return `<div class="palpites-legend"><strong>Legenda:</strong><span><b>PE</b> Placar exato</span><span><b>GV</b> Gol vencedor</span><span><b>SG</b> Saldo</span><span><b>GP</b> Gol perdedor</span><span><b>V</b> Vencedor</span><span><b>E</b> Empate garantido</span><span><b>—</b> Sem acerto</span></div>`;
   }
   function pontuarPalpite(p,g){
     const base=pontosBasePalpite(p,g);
