@@ -1,934 +1,348 @@
-<!DOCTYPE html>
-<!-- V003_INDEX_LINK_BOLOES_PUBLICOS_PORTAL_SIMONSPORTS_2026-06-26 -->
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title>Bolão Portal SimonSports | Bolões Públicos, Palpites, Ranking e Regulamento</title>
-  <meta name="description" content="Portal SimonSports: bolões públicos disponíveis, palpites esportivos, ranking automático, regulamento, campeonatos disponíveis e atualização de resultados.">
-  <meta name="robots" content="index, follow">
-  <meta name="theme-color" content="#1f8a36">
-  <link rel="canonical" href="https://bolao.portalsimonsports.com/">
-
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="pt_BR">
-  <meta property="og:site_name" content="Portal SimonSports">
-  <meta property="og:title" content="Bolão Portal SimonSports | Bolões Públicos, Palpites e Ranking">
-  <meta property="og:description" content="Portal SimonSports: bolões públicos disponíveis, regulamento, palpites esportivos, ranking automático, campeonatos e atualização de resultados.">
-  <meta property="og:url" content="https://bolao.portalsimonsports.com/">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Bolão Portal SimonSports | Bolões Públicos, Palpites e Ranking">
-  <meta name="twitter:description" content="Portal SimonSports: bolões públicos disponíveis, regulamento, palpites esportivos, ranking automático, campeonatos e atualização de resultados.">
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Bolão Portal SimonSports",
-    "description": "Informações do bolão esportivo do Portal SimonSports, com bolões públicos disponíveis, regulamento, palpites, ranking automático e campeonatos disponíveis.",
-    "url": "https://bolao.portalsimonsports.com/",
-    "publisher": {
-      "@type": "Organization",
-      "name": "Portal SimonSports",
-      "url": "https://portalsimonsports.com/"
-    },
-    "inLanguage": "pt-BR"
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bolões públicos | Portal SimonSports</title>
+<meta name="description" content="Explore bolões públicos do Portal SimonSports. Entre com Google e participe automaticamente.">
+<style>
+  :root{
+    --bg:#f5f7fb;
+    --panel:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --soft:#f8fafc;
+    --dark:#0b1222;
+    --dark2:#101b33;
+    --green:#10b981;
+    --green2:#059669;
+    --blue:#2563eb;
+    --yellow:#f59e0b;
+    --red:#ef4444;
+    --shadow:0 18px 46px rgba(15,23,42,.10);
+    --radius:22px;
   }
-  </script>
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.45}
+  a{color:inherit;text-decoration:none}
+  button,input,select{font:inherit}
+  .page{width:min(96vw,1560px);margin:0 auto;padding:18px 0 36px}
 
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "Preciso fazer login para acessar?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Sim. O login com Google identifica o usuário e permite registrar ou consultar informações vinculadas ao perfil."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Posso editar um palpite?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Sim, desde que o prazo para o jogo ainda esteja aberto no sistema."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Como entro em um bolão público?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Acesse a página de bolões públicos, escolha um bolão disponível, clique em entrar, faça login com Google e participe automaticamente quando o bolão estiver ativo e público."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Onde vejo o regulamento completo?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "O regulamento completo está disponível em https://bolao.portalsimonsports.com/regulamento.html."
-        }
-      }
-    ]
+  .hero{
+    background:linear-gradient(135deg,#07111f 0%,#0b1f3f 54%,#073a2c 100%);
+    color:#fff;border-radius:28px;padding:26px;box-shadow:var(--shadow);overflow:hidden;position:relative
   }
-  </script>
-
-
-  <!-- =========================================================
-  = = = HOME – Bolão Portal SimonSports = = =
-  Estrutura com separadores por bloco/função para facilitar manutenção.
-  ========================================================= -->
-
-  <!-- =========================[ INÍCIO: CSS GLOBAL ]========================= -->
-  <style>
-    :root{
-      --prim:#1f8a36;
-      --prim2:#166a29;
-      --escuro:#0f172a;
-      --claro:#f6f7fb;
-      --card:#ffffff;
-      --txt:#0b1020;
-      --muted:#5b6475;
-      --borda:#e6e9ef;
-    }
-
-    *{box-sizing:border-box}
-
-    html{scroll-behavior:smooth}
-
-    body{
-      margin:0;
-      font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
-      color:var(--txt);
-      line-height:1.6;
-      background:#fff;
-    }
-
-    a{color:var(--prim2)}
-
-    .home-wrap{min-height:100vh}
-
-    .container{
-      max-width:1050px;
-      margin:0 auto;
-      padding:24px;
-    }
-
-    .btn{
-      display:inline-block;
-      padding:12px 18px;
-      border-radius:10px;
-      font-weight:700;
-      text-decoration:none;
-      cursor:pointer;
-      border:0;
-      font:inherit;
-      transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
-    }
-
-    .btn:hover{
-      transform:translateY(-1px);
-      opacity:.96;
-    }
-
-    .btn-primary{
-      background:var(--prim);
-      color:#fff;
-      box-shadow:0 6px 18px rgba(31,138,54,.25);
-    }
-
-    .btn-ghost{
-      border:2px solid var(--prim);
-      color:var(--prim);
-      background:#fff;
-    }
-
-    .btn-light{
-      background:#fff;
-      color:var(--prim2);
-      box-shadow:0 6px 18px rgba(255,255,255,.16);
-    }
-
-    .topbar-link-publicos{
-      padding:10px 12px;
-      font-size:14px;
-      line-height:1;
-    }
-
-    .tag{
-      display:inline-block;
-      font-size:12px;
-      padding:6px 10px;
-      border-radius:999px;
-      background:#e8f6ed;
-      color:#1e7f33;
-      font-weight:800;
-      letter-spacing:.02em;
-    }
-
-    /* header/login */
-    .topbar{
-      background:#fff;
-      border-bottom:1px solid #e8eaf1;
-      position:sticky;
-      top:0;
-      z-index:20;
-    }
-
-    .topbar .row{
-      max-width:1050px;
-      margin:0 auto;
-      padding:10px 16px;
-      display:flex;
-      gap:12px;
-      align-items:center;
-      justify-content:space-between;
-    }
-
-    .brand{
-      display:flex;
-      flex-direction:column;
-      line-height:1.2;
-    }
-
-    .brand b{
-      font-size:16px;
-    }
-
-    .brand span{
-      font-size:12px;
-      color:var(--muted);
-    }
-
-    .login-area{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      justify-content:flex-end;
-      flex-wrap:wrap;
-    }
-
-    .user{
-      font-size:14px;
-      color:#445;
-    }
-
-    @media (max-width:640px){
-      .topbar .row{
-        align-items:flex-start;
-        flex-direction:column;
-      }
-
-      .login-area{
-        width:100%;
-        justify-content:space-between;
-      }
-
-      .login-area .btn{
-        padding:10px 12px;
-      }
-    }
-
-    /* HERO */
-    .hero{
-      background:
-        linear-gradient(180deg,rgba(0,0,0,.38),rgba(0,0,0,.62)),
-        url('https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;
-      color:#fff;
-      padding:74px 16px 58px;
-      text-align:center;
-    }
-
-    .hero h1{
-      font-size:clamp(28px,5vw,46px);
-      line-height:1.15;
-      margin:12px auto 14px;
-      max-width:880px;
-    }
-
-    .hero p{
-      opacity:.96;
-      margin:0 auto 18px;
-      max-width:740px;
-      font-size:clamp(16px,2.4vw,19px);
-    }
-
-    .hero .cta{
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      flex-wrap:wrap;
-      margin-top:14px;
-    }
-
-    .hero-note{
-      font-size:14px;
-      opacity:.88;
-      margin-top:6px;
-    }
-
-    .sec-title{
-      font-size:clamp(22px,3.4vw,30px);
-      margin:0 0 14px;
-      line-height:1.2;
-    }
-
-    .sec-sub{
-      color:var(--muted);
-      margin:-6px 0 22px;
-    }
-
-    .grid{
-      display:grid;
-      gap:18px;
-    }
-
-    .g-3{
-      grid-template-columns:repeat(3,minmax(0,1fr));
-    }
-
-    @media (max-width:900px){
-      .g-3{grid-template-columns:repeat(2,1fr)}
-    }
-
-    @media (max-width:640px){
-      .g-3{grid-template-columns:1fr}
-    }
-
-    .card{
-      background:var(--card);
-      border-radius:14px;
-      padding:18px 18px 16px;
-      box-shadow:0 1px 0 #eef1f4,0 10px 24px rgba(16,24,40,.06);
-      border:1px solid rgba(230,233,239,.72);
-    }
-
-    .card h3{
-      margin:6px 0 10px;
-      font-size:18px;
-      line-height:1.25;
-    }
-
-    .card p,
-    .card li{
-      color:#4a5363;
-    }
-
-    .card ul,
-    .card ol{
-      margin:0 0 4px 18px;
-      padding:0;
-    }
-
-    .sec-light{
-      background:var(--claro);
-    }
-
-    .sec-dark{
-      background:var(--escuro);
-      color:#d9e1ef;
-    }
-
-    .sec-dark .card{
-      background:#0b1226;
-      color:#dbe5ff;
-      border:1px solid #1c2747;
-      box-shadow:none;
-    }
-
-    .sec-dark .card p,
-    .sec-dark .card li{
-      color:#b7c2de;
-    }
-
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      background:#0c132a;
-      color:#b7c2de;
-      font-weight:700;
-      white-space:nowrap;
-    }
-
-    /* Chamada para bolões públicos */
-    .sec-publicos{
-      background:linear-gradient(180deg,#fff 0%,#f2fbf5 100%);
-    }
-
-    .publicos-panel{
-      display:grid;
-      grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);
-      gap:18px;
-      align-items:stretch;
-      background:#fff;
-      border:1px solid rgba(31,138,54,.16);
-      border-radius:18px;
-      padding:22px;
-      box-shadow:0 12px 30px rgba(16,24,40,.08);
-    }
-
-    .publicos-panel h2{
-      margin:0 0 10px;
-    }
-
-    .publicos-panel p{
-      color:#4a5363;
-      margin:0 0 14px;
-    }
-
-    .publicos-actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:14px;
-    }
-
-    .publicos-card-grid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:10px;
-    }
-
-    .publicos-preview-card{
-      border:1px solid #dcefe2;
-      border-radius:14px;
-      padding:14px;
-      background:#fafffb;
-    }
-
-    .publicos-preview-card b{
-      display:block;
-      margin-bottom:4px;
-      color:#122019;
-    }
-
-    .publicos-preview-card span{
-      color:#607066;
-      font-size:13px;
-      font-weight:700;
-    }
-
-    .publicos-badges{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin:12px 0 0;
-    }
-
-    .publicos-badges .mini-badge{
-      display:inline-flex;
-      align-items:center;
-      border-radius:999px;
-      padding:7px 10px;
-      background:#e8f6ed;
-      color:#1e7f33;
-      font-size:12px;
-      font-weight:900;
-    }
-
-    @media (max-width:860px){
-      .publicos-panel{
-        grid-template-columns:1fr;
-      }
-    }
-
-    /* Lista dinâmica */
-    .list{
-      display:grid;
-      gap:12px;
-    }
-
-    .list a{
-      display:flex;
-      gap:12px;
-      justify-content:space-between;
-      align-items:center;
-      padding:14px 16px;
-      border-radius:12px;
-      background:#fff;
-      text-decoration:none;
-      color:#182033;
-      border:1px solid var(--borda);
-    }
-
-    .list a:hover{
-      border-color:#c7d5c9;
-      box-shadow:0 8px 18px rgba(32,120,55,.08);
-    }
-
-    .meta{
-      font-size:12px;
-      color:var(--muted);
-    }
-
-    .footer{
-      padding:28px 16px;
-      text-align:center;
-      color:#7b8598;
-      font-size:14px;
-    }
-
-    .footer a{
-      margin:0 6px;
-    }
-
-    /* FAQ */
-    details{
-      margin-bottom:16px;
-      background:#fff;
-      border:1px solid var(--borda);
-      border-radius:12px;
-      padding:0 16px;
-    }
-
-    details summary{
-      font-weight:800;
-      padding:14px 0;
-      cursor:pointer;
-    }
-
-    details .a{
-      padding:0 0 14px;
-      color:#4a5363;
-    }
-  </style>
-  <!-- =========================[ FIM: CSS GLOBAL ]========================= -->
+  .hero:after{content:"";position:absolute;right:-90px;top:-90px;width:260px;height:260px;border-radius:999px;background:rgba(16,185,129,.22);filter:blur(4px)}
+  .hero-grid{display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center;position:relative;z-index:1}
+  .kicker{display:inline-flex;gap:8px;align-items:center;padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);font-size:13px;font-weight:900;color:#d7ffe9}
+  h1{margin:12px 0 8px;font-size:clamp(28px,4vw,48px);letter-spacing:-.055em;line-height:1.05}
+  .hero p{margin:0;color:#cbd5e1;max-width:760px;font-weight:650}
+  .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .auth-card{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:14px;min-width:320px;backdrop-filter:blur(10px)}
+  .who{display:flex;flex-direction:column;gap:2px;margin-bottom:12px}.who strong{font-size:16px}.who span{font-size:13px;color:#cbd5e1}
+
+  .btn{border:0;border-radius:14px;padding:11px 14px;font-weight:1000;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;transition:.15s transform,.15s filter,.15s box-shadow;white-space:nowrap}
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.02)}
+  .btn.primary{background:linear-gradient(135deg,var(--green),var(--green2));color:#052e26;box-shadow:0 12px 28px rgba(16,185,129,.24)}
+  .btn.blue{background:#dbeafe;color:#1e3a8a}.btn.dark{background:#111827;color:#fff}.btn.ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.18)}
+  .btn.light{background:#fff;color:#0f172a;border:1px solid var(--line)}.btn.mini{padding:8px 11px;min-height:36px;border-radius:12px;font-size:13px}.btn.block{width:100%}
+
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:16px 0}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center;box-shadow:0 10px 28px rgba(15,23,42,.05)}
+  .stat .n{font-size:28px;font-weight:1000;letter-spacing:-.04em;color:#0f172a}.stat .t{color:var(--muted);font-size:13px;font-weight:850;margin-top:3px}
+
+  .shell{background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}
+  .titlebar{padding:22px 24px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;background:linear-gradient(180deg,#fff,#fbfdff)}
+  .titlebar h2{margin:0;font-size:26px;font-weight:1000;letter-spacing:-.04em;color:#0f172a}.titlebar p{margin:6px 0 0;color:var(--muted);font-weight:700;max-width:900px}
+  .filters{display:grid;grid-template-columns:1.4fr 1fr 1fr .8fr auto;gap:10px;padding:16px 24px;border-bottom:1px solid var(--line);background:#f8fafc}
+  .field{display:flex;flex-direction:column;gap:5px}.field label{font-size:12px;font-weight:950;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
+  input,select{width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 12px;color:#0f172a;outline:none;font-weight:750;min-height:43px}
+  input:focus,select:focus{border-color:#60a5fa;box-shadow:0 0 0 4px rgba(96,165,250,.16)}
+
+  .content{padding:22px 24px 26px}
+  .publicos-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
+  .bolao-card{border:1px solid var(--line);border-radius:22px;background:#fff;box-shadow:0 10px 26px rgba(15,23,42,.06);padding:17px;display:flex;flex-direction:column;min-height:255px;position:relative;overflow:hidden}
+  .bolao-card:before{content:"";position:absolute;left:0;top:0;right:0;height:5px;background:linear-gradient(90deg,#10b981,#2563eb)}
+  .bolao-card h3{margin:6px 0 8px;font-size:19px;font-weight:1000;letter-spacing:-.025em;color:#0f172a;line-height:1.18}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:1000;border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8}.badge.green{background:#ecfdf5;border-color:#bbf7d0;color:#047857}.badge.yellow{background:#fffbeb;border-color:#fde68a;color:#a16207}.badge.gray{background:#f1f5f9;border-color:#e2e8f0;color:#334155}
+  .meta-list{display:grid;gap:9px;margin-top:2px;color:#334155;font-weight:800;font-size:14px}.meta-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px dashed #e2e8f0;padding-bottom:7px}.meta-row span:first-child{color:#64748b;font-weight:800}.meta-row strong{text-align:right}
+  .card-actions{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:9px;padding-top:15px}.card-actions .btn{width:100%}
+  .empty{border:1px dashed #cbd5e1;border-radius:22px;padding:28px;text-align:center;color:#64748b;background:#f8fafc;font-weight:800;grid-column:1/-1}.empty strong{display:block;color:#0f172a;font-size:18px;margin-bottom:5px}
+  .loading{grid-column:1/-1;text-align:center;padding:30px;color:#64748b;font-weight:900}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0f172a;color:#fff;border-radius:16px;padding:12px 16px;box-shadow:var(--shadow);z-index:30;display:none;font-weight:850;max-width:min(92vw,680px);text-align:center}.toast.show{display:block}
+
+  .modal{position:fixed;inset:0;background:rgba(15,23,42,.58);display:none;place-items:center;z-index:40;padding:18px}.modal.open{display:grid}.modal-card{background:#fff;border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.32);width:min(560px,94vw);overflow:hidden}.modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.modal-head h3{margin:0;font-size:22px;font-weight:1000}.modal-body{padding:18px 20px}.modal-actions{display:flex;gap:10px;justify-content:flex-end;padding:16px 20px;border-top:1px solid var(--line);flex-wrap:wrap}.x{background:#f1f5f9;color:#0f172a;border:0;border-radius:12px;padding:8px 11px;font-weight:1000;cursor:pointer}
+
+  @media(max-width:1200px){.publicos-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.filters{grid-template-columns:1fr 1fr 1fr}.filters .field:first-child{grid-column:1/-1}.filters .btn{grid-column:1/-1}.hero-grid{grid-template-columns:1fr}.auth-card{min-width:0}}
+  @media(max-width:760px){.page{width:100%;padding:0 0 24px}.hero,.shell{border-radius:0}.stats{grid-template-columns:repeat(2,1fr);padding:0 12px}.filters{grid-template-columns:1fr;padding:14px}.content{padding:14px}.publicos-grid{grid-template-columns:1fr}.titlebar{padding:18px 14px}.hero{padding:22px 16px}.card-actions{grid-template-columns:1fr}.auth-card{width:100%}}
+</style>
 </head>
-
 <body>
-  <div class="home-wrap">
-
-    <!-- =====================[ INÍCIO: TOPBAR / LOGIN UI ]===================== -->
-    <header class="topbar">
-      <div class="row">
-        <div class="brand">
-          <b>Bolão Portal SimonSports</b>
-          <span>Palpites, ranking e regulamento</span>
-        </div>
-
-        <div class="login-area">
-          <a class="btn btn-ghost topbar-link-publicos" href="publicos.html">Bolões públicos</a>
-          <span id="userBox" class="user">Você não está logado</span>
-          <button id="btnLogin" class="btn btn-primary" type="button">Entrar com Google</button>
-          <button id="btnLogout" class="btn btn-ghost" type="button" style="display:none">Sair</button>
+<div class="page">
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <span class="kicker">🏆 Portal SimonSports • Bolões públicos</span>
+        <h1>Bolões públicos disponíveis</h1>
+        <p>Entre em bolões abertos criados pela comunidade. Clique em entrar, faça login com Google e participe automaticamente.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="bolao.html">Meu painel</a>
+          <a class="btn ghost" href="index.html">Página inicial</a>
         </div>
       </div>
-    </header>
-    <!-- =====================[ FIM: TOPBAR / LOGIN UI ]===================== -->
+      <div class="auth-card">
+        <div class="who"><strong id="nick">Visitante</strong><span id="authSub">Entre com Google para participar automaticamente</span></div>
+        <button class="btn blue block" id="btnLogin">Entrar com Google</button>
+      </div>
+    </div>
+  </section>
 
+  <section class="stats">
+    <div class="stat"><div class="n" id="stTotal">0</div><div class="t">Públicos ativos</div></div>
+    <div class="stat"><div class="n" id="stComPeso">0</div><div class="t">Com peso</div></div>
+    <div class="stat"><div class="n" id="stSemPeso">0</div><div class="t">Sem peso</div></div>
+    <div class="stat"><div class="n" id="stMeus">0</div><div class="t">Você participa</div></div>
+  </section>
 
-    <!-- ===========================[ INÍCIO: HERO ]=========================== -->
-    <main>
-      <section class="hero">
-        <div class="container">
-          <span class="tag">Portal SimonSports • Palpites esportivos • Ranking e regulamento</span>
-          <h1>Bolão Portal SimonSports: palpites esportivos, ranking automático e regulamento</h1>
-          <p>Consulte campeonatos disponíveis, regras de pontuação, prazo dos palpites e classificação atualizada pelo sistema.</p>
-          <p class="hero-note">Página oficial do Bolão Portal SimonSports para consulta de regulamento, campeonatos, palpites e ranking.</p>
-          <div class="cta">
-            <a class="btn btn-primary" href="publicos.html">Ver bolões públicos</a>
-            <a class="btn btn-light" href="bolao.html">Entrar no sistema</a>
-            <a class="btn btn-ghost" href="#como-funciona">Ver funcionamento</a>
-          </div>
-        </div>
-      </section>
-      <!-- ===========================[ FIM: HERO ]=========================== -->
+  <section class="shell">
+    <div class="titlebar">
+      <div>
+        <h2>Explorar bolões públicos</h2>
+        <p>Cards em 3 colunas no desktop, entrada automática para bolões públicos e visual adaptado para celular.</p>
+      </div>
+      <button class="btn dark" id="btnAtualizar">Atualizar</button>
+    </div>
 
+    <div class="filters">
+      <div class="field"><label>Buscar bolão</label><input id="fBusca" type="search" placeholder="Nome, criador ou campeonato..."></div>
+      <div class="field"><label>Campeonato</label><select id="fCamp"><option value="">Todos</option></select></div>
+      <div class="field"><label>Pontuação</label><select id="fPeso"><option value="">Com peso/Sem peso</option><option value="COM_PESO">Com peso</option><option value="SEM_PESO">Sem peso</option></select></div>
+      <div class="field"><label>Status</label><select id="fStatus"><option value="ATIVO">Ativos</option></select></div>
+      <button class="btn light" id="btnLimpar">Limpar</button>
+    </div>
 
-      <!-- =====================[ INÍCIO: CHAMADA BOLOES PUBLICOS ]===================== -->
-      <section class="sec-publicos" id="boloes-publicos">
-        <div class="container">
-          <div class="publicos-panel">
-            <div>
-              <span class="tag">Bolões públicos • Entrada rápida</span>
-              <h2 class="sec-title">🏆 Bolões públicos disponíveis</h2>
-              <p>Encontre bolões abertos criados pela comunidade, entre com sua conta Google e participe automaticamente quando o bolão estiver ativo e público.</p>
+    <div class="content">
+      <div class="publicos-grid" id="publicosGrid"><div class="loading">Carregando bolões públicos...</div></div>
+    </div>
+  </section>
+</div>
 
-              <div class="publicos-badges" aria-label="Recursos da página de bolões públicos">
-                <span class="mini-badge">3 colunas no desktop</span>
-                <span class="mini-badge">Filtros por campeonato</span>
-                <span class="mini-badge">Entrada automática</span>
-              </div>
+<div class="modal" id="detalheModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="detTitulo">Detalhes do bolão</h3><button class="x" id="detFechar">Fechar</button></div>
+    <div class="modal-body" id="detBody"></div>
+    <div class="modal-actions"><button class="btn light" id="detAbrir">Abrir painel</button><button class="btn primary" id="detEntrar">Entrar no bolão</button></div>
+  </div>
+</div>
 
-              <div class="publicos-actions">
-                <a class="btn btn-primary" href="publicos.html">Explorar bolões públicos</a>
-                <a class="btn btn-ghost" href="bolao.html">Criar ou gerenciar bolão</a>
-              </div>
-            </div>
+<div class="toast" id="toast"></div>
 
-            <div class="publicos-card-grid" aria-label="Prévia da página de bolões públicos">
-              <div class="publicos-preview-card">
-                <b>Bolão Copa 2026</b>
-                <span>Público • Copa do Mundo • Com peso • Ativo</span>
-              </div>
-              <div class="publicos-preview-card">
-                <b>Bolão Brasileirão</b>
-                <span>Público • Brasileirão • Sem peso • Ativo</span>
-              </div>
-              <div class="publicos-preview-card">
-                <b>Bolão Champions</b>
-                <span>Público • Champions • Com peso • Ativo</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <!-- =====================[ FIM: CHAMADA BOLOES PUBLICOS ]===================== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyA8tO_E2s6R9bYnEW6_5skqCUrBSVLLKkw",
+    authDomain: "pss-bolao-esportivo.firebaseapp.com",
+    projectId: "pss-bolao-esportivo",
+    storageBucket: "pss-bolao-esportivo.firebasestorage.app",
+    messagingSenderId: "575209475526",
+    appId: "1:575209475526:web:7d2d1efa2d9fd8b600f6c7"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const provider = new firebase.auth.GoogleAuthProvider();
+  const db = firebase.firestore();
 
+  const $ = s => document.querySelector(s);
+  const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', publicos:[], filtrados:[], meusIds:new Set(), detalhe:null, pendingEnter:null };
 
-            <!-- =====================[ INÍCIO: SOBRE/REGRAS/COMO ]===================== -->
-      <section class="sec-light">
-        <div class="container">
-          <h2 class="sec-title">Como funciona o Bolão Portal SimonSports</h2>
-          <p class="sec-sub">Informações organizadas para acompanhar palpites, pontuação, rodadas e regulamento.</p>
+  function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),3600); }
+  function esc(v){ return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+  function norm(v){ return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
+  function safeId(v){ return String(v||'').trim().replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,80) || ('BOLAO_'+Date.now()); }
+  function campLabel(c){ const m={CUP:'Copa do Mundo',BR:'Brasileirão',BRA:'Brasileirão',LIB:'Libertadores',UCL:'Champions League'}; return m[String(c||'').toUpperCase()] || c || 'Campeonato'; }
+  function pesoModo(b){ return (b?.usaPesoRodada===true || b?.pontuacaoModo==='COM_PESO') ? 'COM_PESO' : 'SEM_PESO'; }
+  function pesoLabel(b){ return pesoModo(b)==='COM_PESO' ? 'Com peso' : 'Sem peso'; }
+  function formatoLabel(b){
+    const f=String(b?.modoBolao || b?.formatoBolao || 'CAMPEONATO').toUpperCase();
+    if(f==='RODADA') return 'Bolão rápido / 1 rodada';
+    if(f==='SEMANA') return 'Bolão rápido / 1 semana';
+    if(f==='PERSONALIZADO') return 'Personalizado';
+    return 'Campeonato completo';
+  }
+  function participantesLabel(b){ return b?.qtdParticipantes || b?.participantes || b?.totalParticipantes || '—'; }
+  function proximaLabel(b){ return b?.proximaRodada ? `${b.proximaRodada}ª Rodada` : (b?.rodadaInicial ? `${b.rodadaInicial}ª Rodada` : formatoLabel(b)); }
 
-          <div class="grid g-3">
-            <article class="card">
-              <h3>🏆 Campeonatos e rodadas</h3>
-              <p>Consulte os campeonatos disponíveis, acompanhe as partidas cadastradas e veja quais rodadas estão liberadas para palpite.</p>
-            </article>
+  async function ensureUser(user){
+    if(!user) return;
+    const ref=db.collection('usuarios').doc(user.uid);
+    const payload={uid:user.uid,nome:user.displayName||user.email||'Usuário',email:user.email||'',foto:user.photoURL||'',ativo:true,status:'ATIVO',perfilGlobal:'USUARIO',ultimoLoginEm:firebase.firestore.FieldValue.serverTimestamp()};
+    const snap=await ref.get();
+    if(!snap.exists) payload.criadoEm=firebase.firestore.FieldValue.serverTimestamp();
+    await ref.set(payload,{merge:true});
+  }
 
-            <article class="card">
-              <h3>📋 Regulamento resumido</h3>
-              <ul>
-                <li>Palpites permitidos até o horário de início do jogo.</li>
-                <li>Placar exato: <b>25 pts</b>, conforme regra de pontuação vigente.</li>
-                <li>Ranking atualizado automaticamente.</li>
-                <li>Empate garantido: 4 pts, aplicado conforme o peso da rodada.</li>
-              </ul>
-              <p class="meta">Leia também: <a href="regulamento.html">regulamento completo</a></p>
-            </article>
+  async function carregarMeusIds(){
+    state.meusIds = new Set();
+    if(state.uid==='GUEST') return;
+    try{
+      const qs=await db.collection('usuarios').doc(state.uid).collection('meusBoloes').get();
+      qs.docs.forEach(d=>state.meusIds.add(d.id));
+    }catch(e){ console.warn('meusBoloes indisponível:', e); }
+  }
 
-            <article class="card" id="como-funciona">
-              <h3>⚙️ Passo a passo</h3>
-              <ol>
-                <li>Faça login com sua conta Google.</li>
-                <li>Escolha um bolão público disponível ou acesse o sistema para criar/gerenciar seus bolões.</li>
-                <li>Registre seus palpites dentro do prazo.</li>
-                <li>Acompanhe resultados e ranking atualizado.</li>
-              </ol>
-            </article>
-          </div>
-        </div>
-      </section>
-      <!-- =====================[ FIM: SOBRE/REGRAS/COMO ]===================== -->
-
-
-      <!-- =====================[ INÍCIO: CAMPEONATOS DISPONÍVEIS ]===================== -->
-      <section>
-        <div class="container">
-          <h2 class="sec-title">Campeonatos disponíveis</h2>
-          <p class="sec-sub">A lista abaixo é carregada automaticamente conforme os campeonatos publicados no sistema.</p>
-
-          <div id="catalogList" class="list" aria-live="polite">
-            <div class="meta">Carregando campeonatos disponíveis...</div>
-          </div>
-
-          <div style="text-align:center;margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-            <a class="btn btn-primary" href="bolao.html">Consultar palpites</a>
-            <a class="btn btn-ghost" href="publicos.html">Ver bolões públicos</a>
-          </div>
-        </div>
-      </section>
-      <!-- =====================[ FIM: CAMPEONATOS DISPONÍVEIS ]===================== -->
-
-
-      <!-- ===========================[ INÍCIO: BLOCO INSTITUCIONAL ]=========================== -->
-      <section class="sec-dark">
-        <div class="container">
-          <div class="grid g-3">
-            <article class="card">
-              <h3>🔒 Regras claras</h3>
-              <p>Horários de corte, critérios de pontuação e regulamento centralizado para facilitar a conferência.</p>
-            </article>
-
-            <article class="card">
-              <h3>🏅 Ranking automático</h3>
-              <p>A pontuação é organizada por rodada e exibida em ranking para acompanhamento dos participantes.</p>
-            </article>
-
-            <article class="card">
-              <h3>👥 Bolões públicos e privados</h3>
-              <p>Bolões públicos podem receber participantes automaticamente; bolões privados mantêm controle por convite e aprovação.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-      <!-- ===========================[ FIM: BLOCO INSTITUCIONAL ]=========================== -->
-
-
-      <!-- ===========================[ INÍCIO: FAQ ]=========================== -->
-      <section class="sec-light">
-        <div class="container">
-          <h2 class="sec-title">Perguntas frequentes</h2>
-
-          <div class="faq">
-            <details>
-              <summary>Preciso fazer login para acessar?</summary>
-              <div class="a">Sim. O login com Google identifica o usuário e permite registrar ou consultar informações vinculadas ao perfil.</div>
-            </details>
-
-            <details>
-              <summary>Posso editar um palpite?</summary>
-              <div class="a">Sim, desde que o prazo para o jogo ainda esteja aberto no sistema.</div>
-            </details>
-
-            <details>
-              <summary>Como é calculada a pontuação?</summary>
-              <div class="a">A pontuação segue o regulamento publicado, incluindo critérios como placar exato, resultado e peso da rodada.</div>
-            </details>
-
-            <details>
-              <summary>Como entro em um bolão público?</summary>
-              <div class="a">Acesse <a href="publicos.html">publicos.html</a>, escolha um bolão disponível, clique em entrar e faça login com Google. Se o bolão estiver público e ativo, a entrada é automática.</div>
-            </details>
-
-            <details>
-              <summary>Onde vejo o regulamento completo?</summary>
-              <div class="a">O regulamento completo está disponível na página <a href="regulamento.html">regulamento.html</a>.</div>
-            </details>
-          </div>
-        </div>
-      </section>
-      <!-- ===========================[ FIM: FAQ ]=========================== -->
-    </main>
-
-
-    <!-- ===========================[ INÍCIO: RODAPÉ ]=========================== -->
-    <footer class="footer">
-      © <span id="y"></span> Portal SimonSports •
-      <a href="publicos.html">Bolões públicos</a> •
-      <a href="regulamento.html">Regulamento</a> •
-      <a href="bolao.html">Sistema do bolão</a>
-    </footer>
-    <!-- ===========================[ FIM: RODAPÉ ]=========================== -->
-
-  </div><!-- /.home-wrap -->
-
-
-  <!-- =========================[ INÍCIO: JS UTIL / CONFIG ]========================= -->
-  <script>
-    /* ---------- UTIL: ano do rodapé ---------- */
-    document.getElementById('y').textContent = new Date().getFullYear();
-
-    /* ---------- CONFIG: URL da WebAPI (Apps Script) ---------- */
-    // ATUALIZE se publicar nova versão do WebApp.
-    const API_BASE = "https://script.google.com/macros/s/AKfycbxbFTg0YODAo1oSX6OQe4HPbMnkrMsXQP93oJsTj4ilhA2fTiZgxk-4qKv1XPiNyyaC/exec";
-  </script>
-  <!-- =========================[ FIM: JS UTIL / CONFIG ]========================= -->
-
-
-  <!-- =========================[ INÍCIO: Firebase (compat) ]========================= -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
-  <script>
-    // ---------- INÍCIO BLOCO: firebaseConfig ----------
-    const firebaseConfig = {
-      apiKey: "AIzaSyA8tO_E2s6R9bYnEW6_5skqCUrBSVLLKkw",
-      authDomain: "pss-bolao-esportivo.firebaseapp.com",
-      projectId: "pss-bolao-esportivo",
-      storageBucket: "pss-bolao-esportivo.firebasestorage.app",
-      messagingSenderId: "575209475526",
-      appId: "1:575209475526:web:7d2d1efa2d9fd8b600f6c7"
-    };
-    // ---------- FIM BLOCO: firebaseConfig ----------
-
-    // ---------- INÍCIO BLOCO: Inicialização Firebase/Auth ----------
-    firebase.initializeApp(firebaseConfig);
-
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const provider = new firebase.auth.GoogleAuthProvider();
-    // ---------- FIM BLOCO: Inicialização Firebase/Auth ----------
-
-    // ---------- INÍCIO BLOCO: Referências DOM ----------
-    const userBox  = document.getElementById('userBox');
-    const btnLogin = document.getElementById('btnLogin');
-    const btnLogout= document.getElementById('btnLogout');
-    const listEl   = document.getElementById('catalogList');
-    // ---------- FIM BLOCO: Referências DOM ----------
-
-    // ---------- INÍCIO FUNÇÃO: handleLogin ----------
-    btnLogin.onclick = () => auth.signInWithPopup(provider);
-    // ---------- FIM FUNÇÃO: handleLogin ----------
-
-    // ---------- INÍCIO FUNÇÃO: handleLogout ----------
-    btnLogout.onclick = () => auth.signOut();
-    // ---------- FIM FUNÇÃO: handleLogout ----------
-
-    // ---------- INÍCIO OBSERVADOR: onAuthStateChanged ----------
-    auth.onAuthStateChanged(async (user) => {
-      if(user){
-        userBox.textContent = `Olá, ${user.displayName || user.email}`;
-        btnLogin.style.display = 'none';
-        btnLogout.style.display = 'inline-block';
-
-        // Cadastro automático no Firestore do projeto PSS Bolão Esportivo.
-        // Neste modelo, não existe aprovação central do cadastro:
-        // o usuário fica ATIVO ao entrar com Google.
-        try{
-          const refUsuario = db.collection('usuarios').doc(user.uid);
-          const snapUsuario = await refUsuario.get();
-
-          const dadosUsuario = {
-            uid: user.uid,
-            nome: user.displayName || user.email || '',
-            email: user.email || '',
-            foto: user.photoURL || '',
-            ativo: true,
-            status: 'ATIVO',
-            perfilGlobal: 'USUARIO',
-            atualizadoEm: firebase.firestore.FieldValue.serverTimestamp(),
-            ultimoLoginEm: firebase.firestore.FieldValue.serverTimestamp()
-          };
-
-          if(!snapUsuario.exists){
-            dadosUsuario.criadoEm = firebase.firestore.FieldValue.serverTimestamp();
-          }
-
-          await refUsuario.set(dadosUsuario, { merge: true });
-        }catch(e){
-          console.warn('Falha ao criar/atualizar cadastro no Firestore:', e);
-        }
-
-        // Mantido apenas como compatibilidade com a WebAPI atual.
-        // Se o backend Apps Script não precisar mais disso, pode ser removido depois.
-        try{
-          await fetch(`${API_BASE}?action=signup&uid=${encodeURIComponent(user.uid)}&name=${encodeURIComponent(user.displayName || user.email || '')}`);
-        }catch(e){
-          console.warn('Falha ao registrar signup leve na WebAPI:', e);
-        }
-
-      }else{
-        userBox.textContent = 'Você não está logado';
-        btnLogin.style.display = 'inline-block';
-        btnLogout.style.display = 'none';
-      }
-    });
-    // ---------- FIM OBSERVADOR: onAuthStateChanged ----------
-  </script>
-  <!-- =========================[ FIM: Firebase (compat) ]========================= -->
-
-
-  <!-- =========================[ INÍCIO: Catálogo Dinâmico ]========================= -->
-  <script>
-    // ---------- INÍCIO FUNÇÃO: formatDateOnly ----------
-    function formatDateOnly(isoOrGs){
-      if(!isoOrGs) return '';
-
-      const d = new Date(isoOrGs);
-
-      if(isNaN(d)) return '';
-
-      return String(d.getDate()).padStart(2,'0') + '/' +
-             String(d.getMonth()+1).padStart(2,'0') + '/' +
-             d.getFullYear();
+  async function carregarPublicos(){
+    $('#publicosGrid').innerHTML='<div class="loading">Carregando bolões públicos...</div>';
+    try{
+      const qs=await db.collection('boloes').where('ativo','==',true).where('publico','==',true).limit(120).get();
+      state.publicos=qs.docs.map(d=>({id:d.id,...d.data()})).filter(b=>b.excluido!==true && b.ativo!==false && (b.publico===true || b.tipo==='PUBLICO'));
+    }catch(e){
+      console.warn(e);
+      $('#publicosGrid').innerHTML=`<div class="empty"><strong>Não foi possível carregar os bolões públicos.</strong>Verifique as regras do Firestore e tente novamente.<br><br>${esc(e.message)}</div>`;
+      return;
     }
-    // ---------- FIM FUNÇÃO: formatDateOnly ----------
+    montarFiltroCampeonatos();
+    aplicarFiltros();
+  }
 
-    // ---------- INÍCIO FUNÇÃO: ligaEmoji ----------
-    function ligaEmoji(sig){
-      const map = {
-        BRA:'🇧🇷',
-        ESP:'🇪🇸',
-        ENG:'🏴',
-        ITA:'🇮🇹',
-        FRA:'🇫🇷',
-        SUP:'🌍'
-      };
+  function montarFiltroCampeonatos(){
+    const sel=$('#fCamp');
+    const atual=sel.value;
+    const camps=[...new Set(state.publicos.map(b=>String(b.campeonato||b.camp||'CUP')).filter(Boolean))].sort((a,b)=>campLabel(a).localeCompare(campLabel(b),'pt-BR'));
+    sel.innerHTML='<option value="">Todos</option>'+camps.map(c=>`<option value="${esc(c)}">${esc(campLabel(c))}</option>`).join('');
+    sel.value=atual;
+  }
 
-      return map[sig] || '🏟️';
+  function atualizarStats(list){
+    $('#stTotal').textContent=list.length;
+    $('#stComPeso').textContent=list.filter(b=>pesoModo(b)==='COM_PESO').length;
+    $('#stSemPeso').textContent=list.filter(b=>pesoModo(b)==='SEM_PESO').length;
+    $('#stMeus').textContent=list.filter(b=>state.meusIds.has(b.id)).length;
+  }
+
+  function aplicarFiltros(){
+    const q=norm($('#fBusca').value);
+    const camp=$('#fCamp').value;
+    const peso=$('#fPeso').value;
+    let list=state.publicos.slice();
+    if(q){
+      list=list.filter(b=>norm(`${b.nome||b.titulo||''} ${b.criadorNome||''} ${campLabel(b.campeonato||b.camp||'')} ${b.descricao||''}`).includes(q));
     }
-    // ---------- FIM FUNÇÃO: ligaEmoji ----------
+    if(camp) list=list.filter(b=>String(b.campeonato||b.camp||'')===camp);
+    if(peso) list=list.filter(b=>pesoModo(b)===peso);
+    state.filtrados=list;
+    renderPublicos(list);
+    atualizarStats(list);
+  }
 
-    // ---------- INÍCIO FUNÇÃO: renderCatalog ----------
-    function renderCatalog(items){
-      listEl.innerHTML = '';
-
-      if(!items || !items.length){
-        const vazio = document.createElement('div');
-        vazio.className = 'meta';
-        vazio.textContent = 'Nenhum campeonato disponível no momento.';
-        listEl.appendChild(vazio);
-        return;
-      }
-
-      // SUP por último.
-      items.sort((a,b) => {
-        const sigA = String(a.sigla || '');
-        const sigB = String(b.sigla || '');
-
-        if(sigA === 'SUP' && sigB !== 'SUP') return 1;
-        if(sigA !== 'SUP' && sigB === 'SUP') return -1;
-
-        return sigA.localeCompare(sigB, 'pt-BR');
-      });
-
-      items.forEach(c => {
-        const sigla = String(c.sigla || '').trim();
-        const nome = String(c.nome || sigla || 'Campeonato').trim();
-        const status = String(c.status || '').trim();
-        const periodo = `${formatDateOnly(c.inicio)} — ${formatDateOnly(c.fim)}`.replace(/^ — | — $/g, '');
-
-        const a = document.createElement('a');
-        a.href = `bolao.html#${encodeURIComponent(sigla)}`;
-        a.setAttribute('aria-label', `Entrar em ${nome}`);
-
-        a.innerHTML = `
-          <span>
-            <b>${ligaEmoji(sigla)} ${nome}</b><br>
-            <span class="meta">${periodo}${periodo && status ? ' • ' : ''}${status}</span>
-          </span>
-          <span class="pill">Entrar</span>
-        `;
-
-        listEl.appendChild(a);
-      });
+  function renderPublicos(list){
+    const grid=$('#publicosGrid');
+    if(!list.length){
+      grid.innerHTML='<div class="empty"><strong>Nenhum bolão público encontrado.</strong>Altere os filtros ou volte mais tarde.</div>';
+      return;
     }
-    // ---------- FIM FUNÇÃO: renderCatalog ----------
+    grid.innerHTML=list.map(b=>{
+      const ja=state.meusIds.has(b.id);
+      const nome=b.nome||b.titulo||'Bolão sem nome';
+      const camp=b.campeonato||b.camp||'CUP';
+      return `<article class="bolao-card">
+        <h3>${esc(nome)}</h3>
+        <div class="badges">
+          <span class="badge green">Público</span>
+          <span class="badge ${pesoModo(b)==='COM_PESO'?'yellow':'gray'}">${esc(pesoLabel(b))}</span>
+          <span class="badge gray">Ativo</span>
+          ${ja?'<span class="badge green">Você participa</span>':''}
+        </div>
+        <div class="meta-list">
+          <div class="meta-row"><span>Campeonato</span><strong>${esc(campLabel(camp))}</strong></div>
+          <div class="meta-row"><span>Criador</span><strong>${esc(b.criadorNome||'Portal SimonSports')}</strong></div>
+          <div class="meta-row"><span>Participantes</span><strong>${esc(participantesLabel(b))}</strong></div>
+          <div class="meta-row"><span>${String(b.modoBolao||b.formatoBolao||'CAMPEONATO').toUpperCase()==='CAMPEONATO'?'Próxima':'Tipo'}</span><strong>${esc(proximaLabel(b))}</strong></div>
+        </div>
+        <div class="card-actions">
+          <button class="btn light mini" data-detail="${esc(b.id)}">Detalhes</button>
+          <button class="btn primary mini" data-enter="${esc(b.id)}">${ja?'Abrir':'Entrar'}</button>
+        </div>
+      </article>`;
+    }).join('');
+    grid.querySelectorAll('[data-detail]').forEach(btn=>btn.onclick=()=>abrirDetalhes(btn.dataset.detail));
+    grid.querySelectorAll('[data-enter]').forEach(btn=>btn.onclick=()=>entrarOuAbrir(btn.dataset.enter));
+  }
 
-    // ---------- INÍCIO FUNÇÃO: loadCatalog ----------
-    async function loadCatalog(){
-      try{
-        const r = await fetch(`${API_BASE}?action=catalog`);
+  function abrirDetalhes(id){
+    const b=state.publicos.find(x=>x.id===id); if(!b) return;
+    state.detalhe=b;
+    $('#detTitulo').textContent=b.nome||b.titulo||'Detalhes do bolão';
+    $('#detBody').innerHTML=`<div class="meta-list">
+      <div class="meta-row"><span>Campeonato</span><strong>${esc(campLabel(b.campeonato||b.camp||'CUP'))}</strong></div>
+      <div class="meta-row"><span>Entrada</span><strong>Automática</strong></div>
+      <div class="meta-row"><span>Pontuação</span><strong>${esc(pesoLabel(b))}</strong></div>
+      <div class="meta-row"><span>Formato</span><strong>${esc(formatoLabel(b))}</strong></div>
+      <div class="meta-row"><span>Participantes</span><strong>${esc(participantesLabel(b))}</strong></div>
+      <div class="meta-row"><span>Criador</span><strong>${esc(b.criadorNome||'Portal SimonSports')}</strong></div>
+    </div>${b.descricao?`<p style="margin:14px 0 0;color:#475569;font-weight:750">${esc(b.descricao)}</p>`:''}`;
+    $('#detalheModal').classList.add('open');
+  }
+  function fecharDetalhes(){ $('#detalheModal').classList.remove('open'); }
 
-        if(!r.ok){
-          throw new Error(`HTTP ${r.status}`);
-        }
-
-        const j = await r.json().catch(() => ({}));
-        const arr = (j && j.data) ? j.data : (Array.isArray(j) ? j : []);
-
-        renderCatalog(arr);
-      }catch(e){
-        console.warn('Erro ao carregar catálogo', e);
-        renderCatalog([]);
-      }
+  async function entrarOuAbrir(id){
+    if(state.meusIds.has(id)){ location.href=`bolao.html?bolao=${encodeURIComponent(id)}`; return; }
+    if(state.uid==='GUEST'){
+      state.pendingEnter=id;
+      sessionStorage.setItem('PSS_PUBLICO_PENDING_BOLAO', id);
+      toast('Entre com Google para participar automaticamente.');
+      try{ if(/Mobi|Android/i.test(navigator.userAgent)) await auth.signInWithRedirect(provider); else await auth.signInWithPopup(provider); }
+      catch(e){ toast('Falha no login: '+e.message); }
+      return;
     }
-    // ---------- FIM FUNÇÃO: loadCatalog ----------
+    await entrarBolaoPublico(id);
+  }
 
-    // ---------- INÍCIO BOOT: carregar catálogo ao abrir ----------
-    (function boot(){
-      loadCatalog();
-    })();
-    // ---------- FIM BOOT ----------
-  </script>
-  <!-- =========================[ FIM: Catálogo Dinâmico ]========================= -->
+  async function entrarBolaoPublico(id){
+    const ref=db.collection('boloes').doc(id);
+    const snap=await ref.get();
+    if(!snap.exists){ toast('Bolão não encontrado.'); return; }
+    const b={id:snap.id,...snap.data()};
+    if(!(b.ativo===true && b.excluido!==true && (b.publico===true || b.tipo==='PUBLICO'))){ toast('Este bolão não está disponível para entrada automática.'); return; }
+    const part={uid:state.uid,nome:state.nome,email:state.email,foto:state.foto,papel:'PARTICIPANTE',status:'APROVADO',ativo:true,criadoEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()};
+    await ref.collection('participantes').doc(state.uid).set(part,{merge:true});
+    await db.collection('usuarios').doc(state.uid).collection('meusBoloes').doc(id).set({...b,minhaParticipacao:part,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    state.meusIds.add(id);
+    toast('Entrada aprovada automaticamente. Abrindo o bolão...');
+    setTimeout(()=>{ location.href=`bolao.html?bolao=${encodeURIComponent(id)}`; },700);
+  }
 
-  <!-- =========================================================
-  = = = FIM HOME = = =
-  ========================================================= -->
+  auth.onAuthStateChanged(async user=>{
+    if(user){
+      state.uid=user.uid; state.nome=user.displayName||user.email||'Usuário'; state.email=user.email||''; state.foto=user.photoURL||'';
+      $('#nick').textContent=state.nome; $('#authSub').textContent=state.email||'Logado'; $('#btnLogin').textContent='Sair';
+      try{ await ensureUser(user); }catch(e){ console.warn(e); toast('Login OK, mas falhou ao sincronizar cadastro: '+e.message); }
+      await carregarMeusIds();
+      await carregarPublicos();
+      const pending=state.pendingEnter || sessionStorage.getItem('PSS_PUBLICO_PENDING_BOLAO');
+      if(pending){ state.pendingEnter=null; sessionStorage.removeItem('PSS_PUBLICO_PENDING_BOLAO'); await entrarBolaoPublico(pending).catch(e=>toast('Erro ao entrar no bolão: '+e.message)); }
+    }else{
+      state.uid='GUEST'; state.nome='Visitante'; state.email=''; state.foto=''; state.meusIds=new Set();
+      $('#nick').textContent='Visitante'; $('#authSub').textContent='Entre com Google para participar automaticamente'; $('#btnLogin').textContent='Entrar com Google';
+      await carregarPublicos();
+    }
+  });
+
+  $('#btnLogin').onclick=async()=>{
+    if(state.uid==='GUEST'){
+      try{ if(/Mobi|Android/i.test(navigator.userAgent)) await auth.signInWithRedirect(provider); else await auth.signInWithPopup(provider); }
+      catch(e){ toast('Falha no login: '+e.message); }
+    }else{ await auth.signOut(); toast('Você saiu.'); }
+  };
+  $('#btnAtualizar').onclick=()=>carregarPublicos();
+  $('#btnLimpar').onclick=()=>{ $('#fBusca').value=''; $('#fCamp').value=''; $('#fPeso').value=''; aplicarFiltros(); };
+  ['#fBusca','#fCamp','#fPeso','#fStatus'].forEach(sel=>$(sel).addEventListener(sel==='#fBusca'?'input':'change', aplicarFiltros));
+  $('#detFechar').onclick=fecharDetalhes;
+  $('#detAbrir').onclick=()=>{ if(state.detalhe) location.href=`bolao.html?bolao=${encodeURIComponent(state.detalhe.id)}`; };
+  $('#detEntrar').onclick=()=>{ if(state.detalhe) entrarOuAbrir(state.detalhe.id); };
+  $('#detalheModal').addEventListener('click',e=>{ if(e.target.id==='detalheModal') fecharDetalhes(); });
+</script>
 </body>
 </html>
