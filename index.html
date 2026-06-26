@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<!-- V002_INDEX_SEO_SNIPPET_GOOGLE_PORTAL_SIMONSPORTS_2026-06-26 -->
+<!-- V003_INDEX_LINK_BOLOES_PUBLICOS_PORTAL_SIMONSPORTS_2026-06-26 -->
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Bolão Portal SimonSports | Palpites Esportivos, Ranking e Regulamento</title>
-  <meta name="description" content="Portal SimonSports: informações do bolão esportivo, regulamento, palpites, ranking automático, campeonatos disponíveis e atualização de resultados.">
+  <title>Bolão Portal SimonSports | Bolões Públicos, Palpites, Ranking e Regulamento</title>
+  <meta name="description" content="Portal SimonSports: bolões públicos disponíveis, palpites esportivos, ranking automático, regulamento, campeonatos disponíveis e atualização de resultados.">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#1f8a36">
   <link rel="canonical" href="https://bolao.portalsimonsports.com/">
@@ -14,20 +14,20 @@
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:site_name" content="Portal SimonSports">
-  <meta property="og:title" content="Bolão Portal SimonSports | Palpites Esportivos e Ranking">
-  <meta property="og:description" content="Portal SimonSports: regulamento, palpites esportivos, ranking automático, campeonatos disponíveis e atualização de resultados.">
+  <meta property="og:title" content="Bolão Portal SimonSports | Bolões Públicos, Palpites e Ranking">
+  <meta property="og:description" content="Portal SimonSports: bolões públicos disponíveis, regulamento, palpites esportivos, ranking automático, campeonatos e atualização de resultados.">
   <meta property="og:url" content="https://bolao.portalsimonsports.com/">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Bolão Portal SimonSports | Palpites Esportivos e Ranking">
-  <meta name="twitter:description" content="Portal SimonSports: regulamento, palpites esportivos, ranking automático, campeonatos disponíveis e atualização de resultados.">
+  <meta name="twitter:title" content="Bolão Portal SimonSports | Bolões Públicos, Palpites e Ranking">
+  <meta name="twitter:description" content="Portal SimonSports: bolões públicos disponíveis, regulamento, palpites esportivos, ranking automático, campeonatos e atualização de resultados.">
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Bolão Portal SimonSports",
-    "description": "Informações do bolão esportivo do Portal SimonSports, com regulamento, palpites, ranking automático e campeonatos disponíveis.",
+    "description": "Informações do bolão esportivo do Portal SimonSports, com bolões públicos disponíveis, regulamento, palpites, ranking automático e campeonatos disponíveis.",
     "url": "https://bolao.portalsimonsports.com/",
     "publisher": {
       "@type": "Organization",
@@ -58,6 +58,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "Sim, desde que o prazo para o jogo ainda esteja aberto no sistema."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Como entro em um bolão público?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Acesse a página de bolões públicos, escolha um bolão disponível, clique em entrar, faça login com Google e participe automaticamente quando o bolão estiver ativo e público."
         }
       },
       {
@@ -140,6 +148,18 @@
       border:2px solid var(--prim);
       color:var(--prim);
       background:#fff;
+    }
+
+    .btn-light{
+      background:#fff;
+      color:var(--prim2);
+      box-shadow:0 6px 18px rgba(255,255,255,.16);
+    }
+
+    .topbar-link-publicos{
+      padding:10px 12px;
+      font-size:14px;
+      line-height:1;
     }
 
     .tag{
@@ -340,6 +360,88 @@
       white-space:nowrap;
     }
 
+    /* Chamada para bolões públicos */
+    .sec-publicos{
+      background:linear-gradient(180deg,#fff 0%,#f2fbf5 100%);
+    }
+
+    .publicos-panel{
+      display:grid;
+      grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);
+      gap:18px;
+      align-items:stretch;
+      background:#fff;
+      border:1px solid rgba(31,138,54,.16);
+      border-radius:18px;
+      padding:22px;
+      box-shadow:0 12px 30px rgba(16,24,40,.08);
+    }
+
+    .publicos-panel h2{
+      margin:0 0 10px;
+    }
+
+    .publicos-panel p{
+      color:#4a5363;
+      margin:0 0 14px;
+    }
+
+    .publicos-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .publicos-card-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+
+    .publicos-preview-card{
+      border:1px solid #dcefe2;
+      border-radius:14px;
+      padding:14px;
+      background:#fafffb;
+    }
+
+    .publicos-preview-card b{
+      display:block;
+      margin-bottom:4px;
+      color:#122019;
+    }
+
+    .publicos-preview-card span{
+      color:#607066;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .publicos-badges{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin:12px 0 0;
+    }
+
+    .publicos-badges .mini-badge{
+      display:inline-flex;
+      align-items:center;
+      border-radius:999px;
+      padding:7px 10px;
+      background:#e8f6ed;
+      color:#1e7f33;
+      font-size:12px;
+      font-weight:900;
+    }
+
+    @media (max-width:860px){
+      .publicos-panel{
+        grid-template-columns:1fr;
+      }
+    }
+
     /* Lista dinâmica */
     .list{
       display:grid;
@@ -415,6 +517,7 @@
         </div>
 
         <div class="login-area">
+          <a class="btn btn-ghost topbar-link-publicos" href="publicos.html">Bolões públicos</a>
           <span id="userBox" class="user">Você não está logado</span>
           <button id="btnLogin" class="btn btn-primary" type="button">Entrar com Google</button>
           <button id="btnLogout" class="btn btn-ghost" type="button" style="display:none">Sair</button>
@@ -433,7 +536,8 @@
           <p>Consulte campeonatos disponíveis, regras de pontuação, prazo dos palpites e classificação atualizada pelo sistema.</p>
           <p class="hero-note">Página oficial do Bolão Portal SimonSports para consulta de regulamento, campeonatos, palpites e ranking.</p>
           <div class="cta">
-            <a class="btn btn-primary" href="bolao.html">Entrar no sistema</a>
+            <a class="btn btn-primary" href="publicos.html">Ver bolões públicos</a>
+            <a class="btn btn-light" href="bolao.html">Entrar no sistema</a>
             <a class="btn btn-ghost" href="#como-funciona">Ver funcionamento</a>
           </div>
         </div>
@@ -441,7 +545,48 @@
       <!-- ===========================[ FIM: HERO ]=========================== -->
 
 
-      <!-- =====================[ INÍCIO: SOBRE/REGRAS/COMO ]===================== -->
+      <!-- =====================[ INÍCIO: CHAMADA BOLOES PUBLICOS ]===================== -->
+      <section class="sec-publicos" id="boloes-publicos">
+        <div class="container">
+          <div class="publicos-panel">
+            <div>
+              <span class="tag">Bolões públicos • Entrada rápida</span>
+              <h2 class="sec-title">🏆 Bolões públicos disponíveis</h2>
+              <p>Encontre bolões abertos criados pela comunidade, entre com sua conta Google e participe automaticamente quando o bolão estiver ativo e público.</p>
+
+              <div class="publicos-badges" aria-label="Recursos da página de bolões públicos">
+                <span class="mini-badge">3 colunas no desktop</span>
+                <span class="mini-badge">Filtros por campeonato</span>
+                <span class="mini-badge">Entrada automática</span>
+              </div>
+
+              <div class="publicos-actions">
+                <a class="btn btn-primary" href="publicos.html">Explorar bolões públicos</a>
+                <a class="btn btn-ghost" href="bolao.html">Criar ou gerenciar bolão</a>
+              </div>
+            </div>
+
+            <div class="publicos-card-grid" aria-label="Prévia da página de bolões públicos">
+              <div class="publicos-preview-card">
+                <b>Bolão Copa 2026</b>
+                <span>Público • Copa do Mundo • Com peso • Ativo</span>
+              </div>
+              <div class="publicos-preview-card">
+                <b>Bolão Brasileirão</b>
+                <span>Público • Brasileirão • Sem peso • Ativo</span>
+              </div>
+              <div class="publicos-preview-card">
+                <b>Bolão Champions</b>
+                <span>Público • Champions • Com peso • Ativo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- =====================[ FIM: CHAMADA BOLOES PUBLICOS ]===================== -->
+
+
+            <!-- =====================[ INÍCIO: SOBRE/REGRAS/COMO ]===================== -->
       <section class="sec-light">
         <div class="container">
           <h2 class="sec-title">Como funciona o Bolão Portal SimonSports</h2>
@@ -468,7 +613,7 @@
               <h3>⚙️ Passo a passo</h3>
               <ol>
                 <li>Faça login com sua conta Google.</li>
-                <li>Escolha o campeonato ou bolão disponível.</li>
+                <li>Escolha um bolão público disponível ou acesse o sistema para criar/gerenciar seus bolões.</li>
                 <li>Registre seus palpites dentro do prazo.</li>
                 <li>Acompanhe resultados e ranking atualizado.</li>
               </ol>
@@ -489,8 +634,9 @@
             <div class="meta">Carregando campeonatos disponíveis...</div>
           </div>
 
-          <div style="text-align:center;margin-top:18px">
+          <div style="text-align:center;margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
             <a class="btn btn-primary" href="bolao.html">Consultar palpites</a>
+            <a class="btn btn-ghost" href="publicos.html">Ver bolões públicos</a>
           </div>
         </div>
       </section>
@@ -512,8 +658,8 @@
             </article>
 
             <article class="card">
-              <h3>👥 Organização por bolão</h3>
-              <p>Os bolões podem ser estruturados por campeonato, rodada ou grupo, conforme a configuração do sistema.</p>
+              <h3>👥 Bolões públicos e privados</h3>
+              <p>Bolões públicos podem receber participantes automaticamente; bolões privados mantêm controle por convite e aprovação.</p>
             </article>
           </div>
         </div>
@@ -543,6 +689,11 @@
             </details>
 
             <details>
+              <summary>Como entro em um bolão público?</summary>
+              <div class="a">Acesse <a href="publicos.html">publicos.html</a>, escolha um bolão disponível, clique em entrar e faça login com Google. Se o bolão estiver público e ativo, a entrada é automática.</div>
+            </details>
+
+            <details>
               <summary>Onde vejo o regulamento completo?</summary>
               <div class="a">O regulamento completo está disponível na página <a href="regulamento.html">regulamento.html</a>.</div>
             </details>
@@ -556,6 +707,7 @@
     <!-- ===========================[ INÍCIO: RODAPÉ ]=========================== -->
     <footer class="footer">
       © <span id="y"></span> Portal SimonSports •
+      <a href="publicos.html">Bolões públicos</a> •
       <a href="regulamento.html">Regulamento</a> •
       <a href="bolao.html">Sistema do bolão</a>
     </footer>
