@@ -363,8 +363,18 @@
 
 
   .score-clean{font-weight:1000;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;min-width:54px}
-  .palpite-jogo-oficial{display:grid;grid-template-columns:auto minmax(72px,1fr) auto auto auto minmax(72px,1fr) auto;align-items:center;gap:8px;min-width:0;width:100%;white-space:nowrap}
-  .palpite-jogo-oficial .team-logo{flex:0 0 auto}.palpite-jogo-oficial .team-title{font-weight:1000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.palpite-jogo-oficial .score-num,.palpite-jogo-oficial .score-x{font-weight:1000;font-size:15px;color:#0f172a;text-align:center}.palpite-jogo-oficial .score-x{opacity:.75}.palpite-participante{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .palpite-jogo-oficial{display:flex;align-items:center;justify-content:flex-start;gap:12px;min-width:0;width:100%;white-space:nowrap;flex-wrap:nowrap}
+  .palpite-jogo-oficial .team-logo{flex:0 0 auto}
+  .palpite-jogo-oficial .team-title{font-weight:1000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .palpite-jogo-oficial .score-num,.palpite-jogo-oficial .score-x{font-weight:1000;font-size:15px;color:#0f172a;text-align:center}
+  .palpite-jogo-oficial .score-x{opacity:.75}
+  .palpite-oficial-side{display:inline-flex;align-items:center;gap:8px;min-width:0;flex:0 1 auto}
+  .palpite-oficial-side.home{justify-content:flex-start}
+  .palpite-oficial-side.away{justify-content:flex-start}
+  .palpite-oficial-side.away .team-title{order:1}
+  .palpite-oficial-side.away .team-logo{order:2}
+  .palpite-oficial-score{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:0 0 auto;min-width:86px}
+  .palpite-participante{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -374,7 +384,7 @@
       <div>
         <span class="brand-kicker">🏆 Portal SimonSports • Bolões Esportivos</span>
         <h1>Seu painel de bolões</h1>
-        <p>Crie bolões públicos ou privados, acompanhe ranking, convites e palpites em uma tela clara, separada por seções e sem conteúdo espremido.</p>
+        <p>Crie bolões públicos ou privados, acompanhe ranking, convites e palpites.</p>
         <div class="hero-actions">
           <button class="btn primary" id="btnCriarTopo">+ Criar bolão</button>
           <button class="btn ghost" id="btnExplorarTopo">Explorar públicos</button>
@@ -403,8 +413,8 @@
 
   <section class="ticker-panel" id="tickerPanel">
     <div class="ticker-head">
-      <strong>Letreiro do campeonato</strong>
-      <span id="tickerSub">Selecione um bolão para ver próximos jogos e últimos resultados.</span>
+      <strong id="tickerTitle">Campeonato</strong>
+      <span id="tickerSub">Jogos e resultados.</span>
     </div>
     <div class="ticker-track" id="tickerTrack">
       <div class="ticker-empty">Abra um bolão para carregar o letreiro do campeonato.</div>
@@ -415,8 +425,8 @@
   <section class="opA-shell">
     <div class="opA-titlebar">
       <div>
-        <h2>Dashboard</h2>
-        <p>Escolha uma aba. A lista fica à esquerda e o detalhe do bolão aparece à direita, como na Opção A.</p>
+        <h2 id="painelHomeTitulo">Bolões</h2>
+        <p id="painelHomeSub"></p>
       </div>
       <button class="btn dark mini" id="btnAtualizar">Atualizar</button>
     </div>
@@ -2464,10 +2474,11 @@
   }
   function palpiteTeamOficialHTML(nome,lado){
     const label = escapeHtml(translateTeam(nome || '-'));
+    const cls = lado === 'away' ? 'away' : 'home';
     if(lado === 'away'){
-      return `<span class="team-title away-title">${label}</span>${teamLogoHTML(nome || '-')}`;
+      return `<span class="palpite-oficial-side ${cls}"><span class="team-title away-title">${label}</span>${teamLogoHTML(nome || '-')}</span>`;
     }
-    return `${teamLogoHTML(nome || '-')}<span class="team-title home-title">${label}</span>`;
+    return `<span class="palpite-oficial-side ${cls}">${teamLogoHTML(nome || '-')}<span class="team-title home-title">${label}</span></span>`;
   }
   function confrontoMiniHTML(home,away){
     return `${miniTeamHTML(home,'home')} <span style="opacity:.55">x</span> ${miniTeamHTML(away,'away')}`;
@@ -2680,12 +2691,31 @@
     const tag=tipo==='done'?'Resultado':'Próximo';
     return `<span class="ticker-item ${cls}"><span class="tag-mini">${tag}</span>${confrontoMiniComPlacarHTML(home,away,score)}<span>${escapeHtml(quando)}</span></span>`;
   }
+  function nomeCampeonatoLabel(camp){
+    const sel=$('#selCamp');
+    if(sel){
+      const opt=Array.from(sel.options||[]).find(o=>String(o.value||'')===String(camp||'')) || (sel.selectedOptions && sel.selectedOptions[0]);
+      const txt=String(opt?.textContent || opt?.label || '').trim();
+      if(txt) return txt;
+    }
+    return String(camp || 'Campeonato').trim() || 'Campeonato';
+  }
+  function atualizarTitulosCampeonato(camp){
+    const nome=nomeCampeonatoLabel(camp);
+    const tickerTitle=$('#tickerTitle');
+    const tickerSub=$('#tickerSub');
+    const painelHomeTitulo=$('#painelHomeTitulo');
+    const painelHomeSub=$('#painelHomeSub');
+    if(tickerTitle) tickerTitle.textContent = nome;
+    if(tickerSub) tickerSub.textContent = 'Jogos e resultados.';
+    if(painelHomeTitulo) painelHomeTitulo.textContent = nome;
+    if(painelHomeSub) painelHomeSub.textContent = '';
+  }
   async function atualizarLetreiroCampeonato(camp){
     const track=$('#tickerTrack');
-    const sub=$('#tickerSub');
     if(!track) return;
     if(!camp){ track.innerHTML='<div class="ticker-empty">Abra um bolão para carregar o letreiro do campeonato.</div>'; return; }
-    if(sub) sub.textContent = `Jogos e resultados do campeonato ${camp}`;
+    atualizarTitulosCampeonato(camp);
     track.innerHTML='<div class="ticker-empty">Carregando letreiro...</div>';
     const rodadas=getRodadasDisponiveis();
     const proximos=[];
@@ -2972,7 +3002,7 @@
       if(mandante || visitante){
         const gm = of ? of.gm : '--';
         const gv = of ? of.gv : '--';
-        return `<span class="palpite-jogo-oficial">${palpiteTeamOficialHTML(mandante || '-', 'home')}<span class="score-num">${escapeHtml(gm)}</span><span class="score-x">x</span><span class="score-num">${escapeHtml(gv)}</span>${palpiteTeamOficialHTML(visitante || '-', 'away')}</span>`;
+        return `<span class="palpite-jogo-oficial">${palpiteTeamOficialHTML(mandante || '-', 'home')}<span class="palpite-oficial-score"><span class="score-num">${escapeHtml(gm)}</span><span class="score-x">x</span><span class="score-num">${escapeHtml(gv)}</span></span>${palpiteTeamOficialHTML(visitante || '-', 'away')}</span>`;
       }
     }
     return traduzConfrontoTexto(id || '-');
@@ -3097,7 +3127,7 @@
       body.innerHTML = '<div class="info-empty">Nenhum palpite liberado para exibição. Jogos futuros continuam ocultos.</div>';
       return;
     }
-    body.innerHTML = `<table class="info-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th></tr></thead><tbody>${rows.map(({p,g})=>`<tr><td>${confrontoOficialPalpiteHTML(g,p.idJogo)}</td><td><span class="score-clean">${escapeHtml(p.gm)} x ${escapeHtml(p.gv)}</span></td><td><span class="palpite-participante">${escapeHtml(p.nome||p.uid||'Participante')} ${p.virtual?'<span class="badge virtual">Virtual</span>':''}</span></td></tr>`).join('')}</tbody></table>`;
+    body.innerHTML = `<table class="info-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th><th>Pontuação</th></tr></thead><tbody>${rows.map(({p,g})=>{ const pts=pontuarPalpite(p,g); return `<tr><td>${confrontoOficialPalpiteHTML(g,p.idJogo)}</td><td><span class="score-clean">${escapeHtml(p.gm)} x ${escapeHtml(p.gv)}</span></td><td><span class="palpite-participante">${escapeHtml(p.nome||p.uid||'Participante')} ${p.virtual?'<span class="badge virtual">Virtual</span>':''}</span></td><td><span class="info-pill">${escapeHtml(pts)} PTS</span></td></tr>`; }).join('')}</tbody></table>`;
   }
 
   async function atualizarPaineisAutomaticos(){
@@ -3157,14 +3187,16 @@
     rows = rows.filter(jogoJaIniciadoParaExibirPalpite);
     status.textContent = fmtClock(new Date());
     if(rows.length){
-      body.innerHTML = `<table class="info-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th></tr></thead><tbody>${rows.map((r)=>{
+      body.innerHTML = `<table class="info-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th><th>Pontuação</th></tr></thead><tbody>${rows.map((r)=>{
         const jogo=getVal(r,['jogo','idJogo','partida','confronto','id'],'-');
         const nome=getVal(r,['nome','name','participante','usuario','displayName','apelido'],'Participante');
         const gm=getVal(r,['gm','gols_mandante','palpite_mandante','mandante'],'');
         const gv=getVal(r,['gv','gols_visitante','palpite_visitante','visitante'],'');
         const gMap = jogoByIdMap();
         const gRef = gMap.get(String(getVal(r,['idJogo','jogo_id','id_jogo','jogo','partida','confronto','id'],''))) || r;
-        return `<tr><td>${confrontoOficialPalpiteHTML(gRef,jogo)}</td><td><span class="score-clean">${escapeHtml(gm)} x ${escapeHtml(gv)}</span></td><td><span class="palpite-participante">${escapeHtml(nome)}</span></td></tr>`;
+        const pts=pontuarPalpite({gm:Number(gm),gv:Number(gv)},gRef);
+        const virtual=getVal(r,['virtual'],false)===true;
+        return `<tr><td>${confrontoOficialPalpiteHTML(gRef,jogo)}</td><td><span class="score-clean">${escapeHtml(gm)} x ${escapeHtml(gv)}</span></td><td><span class="palpite-participante">${escapeHtml(nome)} ${virtual?'<span class="badge virtual">Virtual</span>':''}</span></td><td><span class="info-pill">${escapeHtml(pts)} PTS</span></td></tr>`;
       }).join('')}</tbody></table>`;
       return;
     }
