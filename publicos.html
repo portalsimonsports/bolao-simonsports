@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- V009_PUBLICOS_LOGOS_DATAS_PROGRESSO_STATUS_ORDEM -->
 <!-- V008_PUBLICOS_FILTROS_URL_CAMPEONATO_PESO_OFICIAIS -->
 <!-- V007_PUBLICOS_QUERY_PUBLICO_TIPO_PUBLICO_E_DETALHES -->
 <html lang="pt-BR">
@@ -73,6 +74,28 @@
   .bolao-card h3{margin:2px 0 8px;font-size:20px;font-weight:1000;letter-spacing:-.025em;color:#0f172a;line-height:1.14}
   .bolao-desc{margin:8px 0 13px;color:#64748b;font-size:13px;font-weight:800;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:1000;border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8}.badge.green{background:#ecfdf5;border-color:#bbf7d0;color:#047857}.badge.yellow{background:#fffbeb;border-color:#fde68a;color:#a16207}.badge.gray{background:#f1f5f9;border-color:#e2e8f0;color:#334155}.badge.purple{background:#f3e8ff;border-color:#ddd6fe;color:#6d28d9}
+  .badge.status-andamento{background:#dcfce7;border-color:#86efac;color:#166534}
+  .badge.status-iniciar{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+  .badge.status-finalizado{background:#e2e8f0;border-color:#cbd5e1;color:#334155}
+  .bolao-logo,.det-logo{position:relative}
+  .logo-fallback{width:100%;height:100%;display:grid;place-items:center;border-radius:inherit;font-size:17px;font-weight:1000;letter-spacing:-.03em;color:#fff;text-align:center;padding:4px;background:linear-gradient(135deg,#0f172a,#2563eb)}
+  .bolao-logo .logo-fallback{font-size:15px}
+  .det-logo .logo-fallback{font-size:20px}
+  .logo-fallback.camp-CUP{background:linear-gradient(135deg,#0f766e,#22c55e)}
+  .logo-fallback.camp-BRA{background:linear-gradient(135deg,#15803d,#fde047);color:#052e16}
+  .logo-fallback.camp-ENG{background:linear-gradient(135deg,#7f1d1d,#ef4444)}
+  .logo-fallback.camp-ESP{background:linear-gradient(135deg,#b91c1c,#facc15);color:#111827}
+  .logo-fallback.camp-ITA{background:linear-gradient(135deg,#166534,#ffffff,#dc2626);color:#111827;border:1px solid #dbe3ef}
+  .logo-fallback.camp-FRA{background:linear-gradient(135deg,#1d4ed8,#ffffff,#dc2626);color:#111827;border:1px solid #dbe3ef}
+  .logo-fallback.camp-SUP{background:linear-gradient(135deg,#4c1d95,#f59e0b)}
+  .date-line{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:10px 0 12px;padding:9px 10px;border:1px solid #e2e8f0;border-radius:14px;background:#fbfdff;color:#334155;font-size:12px;font-weight:900}
+  .date-line span{color:#64748b;text-transform:uppercase;letter-spacing:.04em;font-size:10px;font-weight:1000}
+  .progress-box{margin:10px 0 12px}
+  .progress-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px;color:#475569;font-size:12px;font-weight:950}
+  .progress-track{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden}
+  .progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#10b981,#2563eb);width:0%}
+  .progress-note{margin-top:6px;color:#64748b;font-size:11px;font-weight:850}
+
   .meta-list{display:grid;gap:9px;margin-top:2px;color:#334155;font-weight:800;font-size:14px}.meta-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px dashed #e2e8f0;padding-bottom:7px}.meta-row span:first-child{color:#64748b;font-weight:800}.meta-row strong{text-align:right}
   .card-actions{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:9px;padding-top:15px}.card-actions .btn{width:100%}
   .empty{border:1px dashed #cbd5e1;border-radius:22px;padding:28px;text-align:center;color:#64748b;background:#f8fafc;font-weight:800;grid-column:1/-1}.empty strong{display:block;color:#0f172a;font-size:18px;margin-bottom:5px}
@@ -93,7 +116,7 @@
       <div>
         <span class="kicker">🏆 Portal SimonSports • Bolões públicos</span>
         <h1>Bolões públicos disponíveis</h1>
-        <p>Entre em bolões abertos criados pela comunidade. Clique em entrar, faça login com Google e participe automaticamente.</p>
+        <p>Entre nos bolões oficiais públicos do Portal SimonSports. Escolha o campeonato, veja o andamento e participe automaticamente com login Google.</p>
         <div class="hero-actions">
           <a class="btn primary" href="bolao.html">Meu painel</a>
           <a class="btn ghost" href="index.html">Página inicial</a>
@@ -117,7 +140,7 @@
     <div class="titlebar">
       <div>
         <h2>Explorar bolões públicos</h2>
-        <p>Entrada automática para bolões públicos, filtros rápidos e visual adaptado para celular.</p>
+        <p>Entrada automática, logos dos campeonatos, datas, barra de evolução e ordem por andamento.</p>
       </div>
       <button class="btn dark" id="btnAtualizar">Atualizar</button>
     </div>
@@ -126,7 +149,12 @@
       <div class="field"><label>Buscar bolão</label><input id="fBusca" type="search" placeholder="Nome, criador ou campeonato..."></div>
       <div class="field"><label>Campeonato</label><select id="fCamp"><option value="">Todos</option></select></div>
       <div class="field"><label>Pontuação</label><select id="fPeso"><option value="">Com peso/Sem peso</option><option value="COM_PESO">Com peso</option><option value="SEM_PESO">Sem peso</option></select></div>
-      <div class="field"><label>Status</label><select id="fStatus"><option value="ATIVO">Ativos</option></select></div>
+      <div class="field"><label>Status</label><select id="fStatus">
+        <option value="">Todos</option>
+        <option value="EM_ANDAMENTO">Em andamento</option>
+        <option value="A_INICIAR">A iniciar</option>
+        <option value="FINALIZADO">Finalizado</option>
+      </select></div>
       <button class="btn light" id="btnLimpar">Limpar</button>
     </div>
 
@@ -177,8 +205,36 @@
   function esc(v){ return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
   function norm(v){ return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
   function safeId(v){ return String(v||'').trim().replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,80) || ('BOLAO_'+Date.now()); }
-  function campRaw(b){ return String(b?.campeonato || b?.campeonatoSigla || b?.camp || '').trim().toUpperCase(); }
-  function campLabel(c){ const m={CUP:'Copa do Mundo',BR:'Brasileirão',BRA:'Brasileirão',ENG:'Premier League',ESP:'Campeonato Espanhol',ITA:'Campeonato Italiano',FRA:'Campeonato Francês',SUP:'Super Bolão',LIB:'Libertadores',UCL:'Champions League'}; return m[String(c||'').toUpperCase()] || c || 'Campeonato'; }
+  const CAMP_INFO = {
+    CUP:{label:'Copa do Mundo',short:'CUP',logo:'assets/logos/campeonatos/copa-do-mundo.png',ordem:10},
+    BRA:{label:'Brasileirão',short:'BRA',logo:'assets/logos/campeonatos/brasileirao.png',ordem:20},
+    ENG:{label:'Premier League',short:'ENG',logo:'assets/logos/campeonatos/premier-league.png',ordem:30},
+    ESP:{label:'Campeonato Espanhol',short:'ESP',logo:'assets/logos/campeonatos/campeonato-espanhol.png',ordem:40},
+    ITA:{label:'Campeonato Italiano',short:'ITA',logo:'assets/logos/campeonatos/campeonato-italiano.png',ordem:50},
+    FRA:{label:'Campeonato Francês',short:'FRA',logo:'assets/logos/campeonatos/campeonato-frances.png',ordem:60},
+    SUP:{label:'Super Bolão',short:'SUP',logo:'assets/logos/campeonatos/super-bolao.png',ordem:70},
+    LIB:{label:'Libertadores',short:'LIB',logo:'assets/logos/campeonatos/libertadores.png',ordem:80},
+    UCL:{label:'Champions League',short:'UCL',logo:'assets/logos/campeonatos/champions-league.png',ordem:90}
+  };
+  function campCode(v){
+    const raw=String(v||'').trim();
+    const up=raw.toUpperCase();
+    if(CAMP_INFO[up]) return up;
+    const n=norm(raw);
+    if(n.includes('copa') || n.includes('mundo')) return 'CUP';
+    if(n.includes('brasile')) return 'BRA';
+    if(n.includes('premier') || n.includes('ingl')) return 'ENG';
+    if(n.includes('espan') || n.includes('liga')) return 'ESP';
+    if(n.includes('ital')) return 'ITA';
+    if(n.includes('franc') || n.includes('ligue')) return 'FRA';
+    if(n.includes('super')) return 'SUP';
+    if(n.includes('libert')) return 'LIB';
+    if(n.includes('champions') || n.includes('ucla')) return 'UCL';
+    if(up==='BR') return 'BRA';
+    return up || 'CUP';
+  }
+  function campRaw(b){ return campCode(b?.campeonatoSigla || b?.camp || b?.sigla || b?.campeonato || 'CUP'); }
+  function campLabel(c){ const code=campCode(c); return CAMP_INFO[code]?.label || c || 'Campeonato'; }
   function pesoModo(b){ return (b?.usaPesoRodada===true || b?.pontuacaoModo==='COM_PESO') ? 'COM_PESO' : 'SEM_PESO'; }
   function pesoLabel(b){ return pesoModo(b)==='COM_PESO' ? 'Com peso' : 'Sem peso'; }
   function formatoLabel(b){
@@ -190,18 +246,126 @@
   }
   function participantesLabel(b){ return b?.qtdParticipantes || b?.participantes || b?.totalParticipantes || '—'; }
   function proximaLabel(b){ return b?.proximaRodada ? `${b.proximaRodada}ª Rodada` : (b?.rodadaInicial ? `${b.rodadaInicial}ª Rodada` : formatoLabel(b)); }
-  function logoBolaoHtml(b, cls){
-    const src=String(b?.logoUrl || b?.imagemUrl || b?.logo || b?.imagem || '').trim();
-    if(src){ return `<div class="${cls}"><img src="${esc(src)}" alt="" loading="lazy" onerror="this.remove();this.parentNode.textContent='🏆';"></div>`; }
-    return `<div class="${cls}">🏆</div>`;
+  function pickFirst(b, keys){
+    for(const k of keys){
+      if(b && b[k] !== undefined && b[k] !== null && b[k] !== '') return b[k];
+    }
+    return '';
   }
+  function numCampo(b, keys){
+    const v=pickFirst(b,keys);
+    if(v === '' || v === null || v === undefined) return null;
+    const n=Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+  function logoCampeonatoSrc(b){
+    const camp=campRaw(b);
+    return String(
+      b?.logoCampeonato ||
+      b?.logoCampeonatoUrl ||
+      b?.logoUrl ||
+      b?.imagemUrl ||
+      b?.logo ||
+      b?.imagem ||
+      CAMP_INFO[camp]?.logo ||
+      ''
+    ).trim();
+  }
+  function logoBolaoHtml(b, cls){
+    const camp=campRaw(b);
+    const info=CAMP_INFO[camp] || {short:camp||'🏆'};
+    const src=logoCampeonatoSrc(b);
+    const fallback=`<span class="logo-fallback camp-${esc(camp)}">${esc(info.short || camp || '🏆')}</span>`;
+    if(src){
+      return `<div class="${cls}" title="${esc(campLabel(camp))}"><img src="${esc(src)}" alt="${esc(campLabel(camp))}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><span class="logo-fallback camp-${esc(camp)}" style="display:none">${esc(info.short || camp || '🏆')}</span></div>`;
+    }
+    return `<div class="${cls}" title="${esc(campLabel(camp))}">${fallback}</div>`;
+  }
+  function parseDateValue(v){
+    if(!v) return null;
+    if(v && typeof v.toDate==='function') return v.toDate();
+    if(v instanceof Date) return isNaN(v) ? null : v;
+    if(typeof v === 'number'){
+      if(v > 20000 && v < 80000) return new Date(Math.round((v - 25569) * 86400 * 1000));
+      const d=new Date(v);
+      return isNaN(d) ? null : d;
+    }
+    const s=String(v).trim();
+    let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+    if(m){
+      let y=Number(m[3]);
+      if(y<100) y += 2000;
+      return new Date(y, Number(m[2])-1, Number(m[1]));
+    }
+    m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(m) return new Date(Number(m[1]), Number(m[2])-1, Number(m[3]));
+    const d=new Date(s);
+    return isNaN(d) ? null : d;
+  }
+  function inicioBolao(b){ return parseDateValue(pickFirst(b,['dataInicio','inicio','dtInicio','data_inicio','temporadaInicio','inicioCampeonato'])); }
+  function fimBolao(b){ return parseDateValue(pickFirst(b,['dataFim','fim','dtFim','data_fim','temporadaFim','fimCampeonato'])); }
   function dataLabel(v){
-    if(!v) return '—';
-    let d=null;
-    if(v && typeof v.toDate==='function') d=v.toDate();
-    else d=new Date(v);
-    if(!d || isNaN(d)) return '—';
+    const d=parseDateValue(v);
+    if(!d) return '—';
     return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+  }
+  function periodoLabel(b){
+    const ini=inicioBolao(b);
+    const fim=fimBolao(b);
+    if(!ini && !fim) return 'Datas não informadas';
+    return `${ini?dataLabel(ini):'—'} até ${fim?dataLabel(fim):'—'}`;
+  }
+  function statusCompeticao(b){
+    const raw=norm(pickFirst(b,['statusCampeonato','statusCompeticao','statusCalendario','faseStatus','andamento']));
+    if(raw.includes('final')) return {key:'FINALIZADO',label:'Finalizado',classe:'status-finalizado',ordem:3};
+    if(raw.includes('iniciar') || raw.includes('a comecar') || raw.includes('a começar')) return {key:'A_INICIAR',label:'A iniciar',classe:'status-iniciar',ordem:2};
+    if(raw.includes('andamento') || raw.includes('ao vivo')) return {key:'EM_ANDAMENTO',label:'Em andamento',classe:'status-andamento',ordem:1};
+    const ini=inicioBolao(b), fim=fimBolao(b);
+    const hoje=new Date();
+    const hojeDia=new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate());
+    if(ini){
+      const iniDia=new Date(ini.getFullYear(),ini.getMonth(),ini.getDate());
+      if(hojeDia < iniDia) return {key:'A_INICIAR',label:'A iniciar',classe:'status-iniciar',ordem:2};
+    }
+    if(fim){
+      const fimDia=new Date(fim.getFullYear(),fim.getMonth(),fim.getDate());
+      if(hojeDia > fimDia) return {key:'FINALIZADO',label:'Finalizado',classe:'status-finalizado',ordem:3};
+    }
+    return {key:'EM_ANDAMENTO',label:'Em andamento',classe:'status-andamento',ordem:1};
+  }
+  function calcularProgresso(b){
+    const st=statusCompeticao(b);
+    const total=numCampo(b,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos']);
+    const feitos=numCampo(b,['jogosFinalizados','qtdFinalizados','qtd_jogos_finalizados','finalizados','jogosEncerrados','jogosRealizados']);
+    if(total && total>0 && feitos !== null){
+      const pct=Math.max(0,Math.min(100,Math.round((feitos/total)*100)));
+      return {pct, texto:`${feitos}/${total} jogos`, nota:'Progresso por jogos finalizados'};
+    }
+    const ini=inicioBolao(b), fim=fimBolao(b);
+    if(ini && fim && fim>ini){
+      const now=Date.now();
+      const pct=Math.max(0,Math.min(100,Math.round(((now-ini.getTime())/(fim.getTime()-ini.getTime()))*100)));
+      return {pct, texto:`${pct}%`, nota:'Progresso estimado por data'};
+    }
+    if(st.key==='FINALIZADO') return {pct:100,texto:'100%',nota:'Campeonato finalizado'};
+    if(st.key==='A_INICIAR') return {pct:0,texto:'0%',nota:'Campeonato ainda não iniciou'};
+    return {pct:0,texto:'—',nota:'Progresso indisponível'};
+  }
+  function progressoHtml(b){
+    const p=calcularProgresso(b);
+    return `<div class="progress-box"><div class="progress-top"><span>Progresso</span><strong>${esc(p.texto)}</strong></div><div class="progress-track"><div class="progress-fill" style="width:${p.pct}%"></div></div><div class="progress-note">${esc(p.nota)}</div></div>`;
+  }
+  function ordenaPeso(b){ return pesoModo(b)==='COM_PESO' ? 1 : 2; }
+  function ordenarPublicos(list){
+    return (list||[]).slice().sort((a,b)=>{
+      const sa=statusCompeticao(a), sb=statusCompeticao(b);
+      if(sa.ordem !== sb.ordem) return sa.ordem - sb.ordem;
+      const ca=campRaw(a), cb=campRaw(b);
+      const oa=CAMP_INFO[ca]?.ordem || 999, ob=CAMP_INFO[cb]?.ordem || 999;
+      if(oa !== ob) return oa - ob;
+      if(ordenaPeso(a) !== ordenaPeso(b)) return ordenaPeso(a) - ordenaPeso(b);
+      return String(a.nome||a.titulo||'').localeCompare(String(b.nome||b.titulo||''),'pt-BR');
+    });
   }
   function resumoParticipantes(b){ return Number(b?.qtdParticipantes || b?.participantes || b?.totalParticipantes || 0) || 0; }
   function shareUrl(id){ return location.origin + location.pathname.replace(/publicos\.html$/,'') + 'publicos.html?bolao=' + encodeURIComponent(id); }
@@ -269,8 +433,21 @@
   async function ensureUser(user){
     if(!user) return;
     const ref=db.collection('usuarios').doc(user.uid);
-    const payload={uid:user.uid,nome:user.displayName||user.email||'Usuário',email:user.email||'',foto:user.photoURL||'',ativo:true,status:'ATIVO',perfilGlobal:'USUARIO',ultimoLoginEm:firebase.firestore.FieldValue.serverTimestamp()};
     const snap=await ref.get();
+    const atual=snap.exists ? (snap.data() || {}) : {};
+    const perfilGlobalAtual=atual.perfilGlobal || 'USUARIO';
+    const perfilAtual=atual.perfil || perfilGlobalAtual || 'USUARIO';
+    const payload={
+      uid:user.uid,
+      nome:user.displayName||user.email||atual.nome||'Usuário',
+      email:user.email||atual.email||'',
+      foto:user.photoURL||atual.foto||'',
+      ativo:atual.ativo === false ? false : true,
+      status:atual.status || 'ATIVO',
+      perfil:perfilAtual,
+      perfilGlobal:perfilGlobalAtual,
+      ultimoLoginEm:firebase.firestore.FieldValue.serverTimestamp()
+    };
     if(!snap.exists) payload.criadoEm=firebase.firestore.FieldValue.serverTimestamp();
     await ref.set(payload,{merge:true});
   }
@@ -316,7 +493,7 @@
           .where('excluido','==',false)
       );
 
-      state.publicos = Array.from(mapa.values()).sort((a,b) => String(a.nome||a.titulo||'').localeCompare(String(b.nome||b.titulo||''),'pt-BR'));
+      state.publicos = ordenarPublicos(Array.from(mapa.values()));
     }catch(e){
       console.warn(e);
       $('#publicosGrid').innerHTML=`<div class="empty"><strong>Não foi possível carregar os bolões públicos.</strong>Verifique as regras públicas, o campo excluido:false e se o índice solicitado pelo Firestore foi criado quando aparecer link de índice.<br><br>${esc(e.message)}</div>`;
@@ -356,15 +533,17 @@
     const q=norm($('#fBusca').value);
     const camp=$('#fCamp').value;
     const peso=$('#fPeso').value;
+    const statusFiltro=$('#fStatus').value;
     let list=state.publicos.slice();
     if(q){
-      list=list.filter(b=>norm(`${b.nome||b.titulo||''} ${b.criadorNome||''} ${campLabel(campRaw(b))} ${b.descricao||''}`).includes(q));
+      list=list.filter(b=>norm(`${b.nome||b.titulo||''} ${b.criadorNome||''} ${campLabel(campRaw(b))} ${b.descricao||''} ${statusCompeticao(b).label}`).includes(q));
     }
     if(camp) list=list.filter(b=>String(campRaw(b))===camp);
     if(peso) list=list.filter(b=>pesoModo(b)===peso);
-    state.filtrados=list;
-    renderPublicos(list);
-    atualizarStats(list);
+    if(statusFiltro) list=list.filter(b=>statusCompeticao(b).key===statusFiltro);
+    state.filtrados=ordenarPublicos(list);
+    renderPublicos(state.filtrados);
+    atualizarStats(state.filtrados);
   }
 
   function renderPublicos(list){
@@ -377,13 +556,14 @@
       const ja=state.meusIds.has(b.id);
       const nome=b.nome||b.titulo||'Bolão sem nome';
       const camp=campRaw(b) || 'CUP';
-      const desc=String(b.descricao||'Bolão público com entrada automática, ranking e palpites.').trim();
+      const desc=String(b.descricao||'Bolão público oficial do Portal SimonSports com entrada automática, ranking e palpites.').trim();
+      const st=statusCompeticao(b);
       return `<article class="bolao-card">
         <div class="bolao-card-top">
           ${logoBolaoHtml(b,'bolao-logo')}
           <div>
             <div class="badges">
-              <span class="badge green">Ativo</span>
+              <span class="badge ${st.classe}">${esc(st.label)}</span>
               <span class="badge purple">Público</span>
               <span class="badge ${pesoModo(b)==='COM_PESO'?'yellow':'gray'}">${esc(pesoLabel(b))}</span>
               ${ja?'<span class="badge green">Você participa</span>':''}
@@ -392,6 +572,8 @@
           </div>
         </div>
         <div class="bolao-desc">${esc(desc)}</div>
+        <div class="date-line"><span>Período</span><strong>${esc(periodoLabel(b))}</strong></div>
+        ${progressoHtml(b)}
         <div class="meta-list">
           <div class="meta-row"><span>Campeonato</span><strong>${esc(campLabel(camp))}</strong></div>
           <div class="meta-row"><span>Criador</span><strong>${esc(b.criadorNome||'Portal SimonSports')}</strong></div>
@@ -413,6 +595,8 @@
     state.detalhe=b;
     const nome=b.nome||b.titulo||'Detalhes do bolão';
     const ja=state.meusIds.has(b.id);
+    const st=statusCompeticao(b);
+    const prog=calcularProgresso(b);
     $('#detTitulo').textContent=nome;
     $('#detEntrar').textContent=ja?'Abrir painel':'Participar deste bolão';
     $('#detBody').innerHTML=`
@@ -420,16 +604,19 @@
         ${logoBolaoHtml(b,'det-logo')}
         <div>
           <div class="badges">
-            <span class="badge green">Ativo</span>
+            <span class="badge ${st.classe}">${esc(st.label)}</span>
             <span class="badge purple">Público</span>
             <span class="badge ${pesoModo(b)==='COM_PESO'?'yellow':'gray'}">${esc(pesoLabel(b))}</span>
             <span class="badge gray">Entrada automática</span>
           </div>
-          <p class="det-desc">${esc(b.descricao || 'Bolão público com entrada automática, ranking e palpites no Portal SimonSports.')}</p>
+          <p class="det-desc">${esc(b.descricao || 'Bolão público oficial com entrada automática, ranking e palpites no Portal SimonSports.')}</p>
         </div>
       </div>
+      <div class="date-line"><span>Período</span><strong>${esc(periodoLabel(b))}</strong></div>
+      ${progressoHtml(b)}
       <div class="meta-list">
         <div class="meta-row"><span>Campeonato</span><strong>${esc(campLabel(campRaw(b) || 'CUP'))}</strong></div>
+        <div class="meta-row"><span>Status</span><strong>${esc(st.label)}</strong></div>
         <div class="meta-row"><span>Formato</span><strong>${esc(formatoLabel(b))}</strong></div>
         <div class="meta-row"><span>Próxima/Tipo</span><strong>${esc(proximaLabel(b))}</strong></div>
         <div class="meta-row"><span>Criador</span><strong>${esc(b.criadorNome||'Portal SimonSports')}</strong></div>
@@ -437,7 +624,7 @@
       <div class="det-summary-grid">
         <div class="det-metric"><strong>${esc(participantesLabel(b))}</strong><span>Participantes</span></div>
         <div class="det-metric"><strong>${esc(pesoLabel(b))}</strong><span>Pontuação</span></div>
-        <div class="det-metric"><strong>${esc(dataLabel(b.criadoEm))}</strong><span>Criado em</span></div>
+        <div class="det-metric"><strong>${esc(prog.texto)}</strong><span>Progresso</span></div>
       </div>
       <div class="det-box">
         <h4>Regras do bolão</h4>
