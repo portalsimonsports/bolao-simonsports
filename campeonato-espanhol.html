@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- V001_ESP_PAGINA_MAE_SEO_PORTAL_SIMONSPORTS_2026-06-27 -->
+<!-- V002_BOLOES_PUBLICOS_OFICIAIS_COM_SEM_PESO_ESP_PAGINA_MAE_SEO_PORTAL_SIMONSPORTS_2026-06-27 -->
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -147,6 +147,18 @@
     .footer-inner{width:min(1180px,calc(100% - 32px));margin:auto;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-weight:700}
     .footer a{color:#dbeafe;text-decoration:none;margin-left:10px}
     .loading{color:var(--muted);font-weight:800}
+
+    .official-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .official-card{position:relative;overflow:hidden;background:linear-gradient(180deg,#ffffff,#f8fafc);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+    .official-card:before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:linear-gradient(90deg,#16a34a,#0ea5e9)}
+    .official-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .official-head h3{margin:0;font-size:24px;line-height:1.15}
+    .official-sub{color:var(--muted);font-weight:750;margin:0 0 14px}
+    .rules-list{margin:0 0 16px;padding-left:18px;color:var(--muted);font-weight:750}
+    .rules-list li{margin:7px 0}
+    .score-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0 16px}
+    .score-strip span{background:#eef7f0;border:1px solid #d7eadc;border-radius:12px;padding:9px 8px;text-align:center;font-size:12px;font-weight:950;color:#14532d}
+    @media(max-width:920px){.official-grid{grid-template-columns:1fr}}
     @media(max-width:920px){.hero-inner,.two{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.info-box{grid-template-columns:1fr 1fr}.section-head{align-items:flex-start;flex-direction:column}}
     @media(max-width:640px){.topbar-inner{align-items:flex-start;flex-direction:column}.nav{width:100%;overflow:auto;flex-wrap:nowrap;padding-bottom:4px}.hero-inner{padding:42px 0}.grid,.info-box{grid-template-columns:1fr}.actions .btn{width:100%}.final-cta{align-items:flex-start;flex-direction:column}.edition-row{align-items:flex-start;flex-direction:column}}
   </style>
@@ -217,6 +229,54 @@
             <h3>Regulamento</h3>
             <p>Confira os critérios gerais de pontuação, prazo de palpites e funcionamento do ranking.</p>
             <a class="btn btn-soft" href="regulamento.html">Ver regulamento</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Bolões públicos oficiais</h2>
+            <p class="section-sub">Modalidades públicas criadas pelo administrador do Portal SimonSports para Campeonato Espanhol, com as mesmas regras de pontuação, ranking automático e entrada por login Google.</p>
+          </div>
+        </div>
+
+        <div class="official-grid">
+          <article class="official-card">
+            <div class="official-head">
+              <div>
+                <div class="badge-row"><span class="badge ok">Oficial</span><span class="badge ok">Público</span><span class="badge warn">Com peso</span></div>
+                <h3>Campeonato Espanhol • Com peso</h3>
+              </div>
+            </div>
+            <p class="official-sub">A pontuação base é multiplicada pelo peso da rodada. Ideal para valorizar fases ou rodadas mais avançadas.</p>
+            <div class="score-strip"><span>PE 25 × peso</span><span>GV 18 × peso</span><span>SG 15 × peso</span><span>GP 12 × peso</span><span>V 10 × peso</span><span>E 4 × peso</span></div>
+            <ul class="rules-list">
+              <li>Ranking automático do bolão.</li>
+              <li>Palpites bloqueados no horário de início de cada jogo.</li>
+              <li>Entrada automática para usuário logado.</li>
+            </ul>
+            <a class="btn btn-primary" id="btnOficialComPeso" href="publicos.html?campeonato=ESP&peso=COM_PESO">Ver bolão com peso</a>
+          </article>
+
+          <article class="official-card">
+            <div class="official-head">
+              <div>
+                <div class="badge-row"><span class="badge ok">Oficial</span><span class="badge ok">Público</span><span class="badge">Sem peso</span></div>
+                <h3>Campeonato Espanhol • Sem peso</h3>
+              </div>
+            </div>
+            <p class="official-sub">A pontuação usa apenas a tabela base do regulamento, sem multiplicador por rodada.</p>
+            <div class="score-strip"><span>PE 25 pts</span><span>GV 18 pts</span><span>SG 15 pts</span><span>GP 12 pts</span><span>V 10 pts</span><span>E 4 pts</span></div>
+            <ul class="rules-list">
+              <li>Ranking automático do bolão.</li>
+              <li>Palpites bloqueados no horário de início de cada jogo.</li>
+              <li>Entrada automática para usuário logado.</li>
+            </ul>
+            <a class="btn btn-dark" id="btnOficialSemPeso" href="publicos.html?campeonato=ESP&peso=SEM_PESO">Ver bolão sem peso</a>
           </article>
         </div>
       </div>
@@ -341,8 +401,12 @@
   }
   function updateLinks(season){
     const publicos = `publicos.html?campeonato=${encodeURIComponent(PAGE_SIGLA)}&temporada=${encodeURIComponent(season)}`;
+    const publicosComPeso = `${publicos}&peso=COM_PESO`;
+    const publicosSemPeso = `${publicos}&peso=SEM_PESO`;
     const criar = `bolao.html?criar=1&campeonato=${encodeURIComponent(PAGE_SIGLA)}&temporada=${encodeURIComponent(season)}`;
     ['btnPublicosHero','btnPublicosCard','btnTemporada','btnPublicosCta'].forEach(id => { const el = byId(id); if(el) el.href = publicos; });
+    ['btnOficialComPeso'].forEach(id => { const el = byId(id); if(el) el.href = publicosComPeso; });
+    ['btnOficialSemPeso'].forEach(id => { const el = byId(id); if(el) el.href = publicosSemPeso; });
     ['btnCriarHero','btnCriarCard','btnCriarCta'].forEach(id => { const el = byId(id); if(el) el.href = criar; });
   }
   async function loadCatalog(){
