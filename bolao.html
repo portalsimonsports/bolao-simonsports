@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V034_LOGIN_GOOGLE_MOBILE_POPUP_REDIRECT_FIX -->
+<!-- V035_BASES_CATALOGO_ADMIN_PUBLICO_PRIVADO_FIX_2026-06-27 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -541,7 +541,7 @@
 
       <section class="section" id="sec-criar">
         <div class="opA-list-card">
-          <div class="opA-card-head"><h3>Criar bolão</h3><span>você vira administrador</span></div>
+          <div class="opA-card-head"><h3>Criar bolão</h3><span id="criarPerfilHint">modo administrador</span></div>
           <div class="opA-card-body">
             <div class="opA-create-grid">
               <div><label>Nome do bolão</label><input id="novoNome" placeholder="Ex.: Bolão da Rua Norte"></div>
@@ -744,7 +744,7 @@
 
   const $ = s => document.querySelector(s);
   const $$ = s => Array.from(document.querySelectorAll(s));
-  const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', camp:'', bolao:null, meus:[], publicos:[], privados:[], pa:null, jogos:[], jogosExibidos:[], autoLoadToken:0, autoLoading:false };
+  const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', perfil:'USUARIO', perfilGlobal:'USUARIO', usuarioAdmin:false, camp:'', bolao:null, meus:[], publicos:[], privados:[], pa:null, jogos:[], jogosExibidos:[], autoLoadToken:0, autoLoading:false, catalogo:[] };
   const autosaveTimers = {};
   const DESAFIANTE_UID = 'DESAFIANTE_SIMON_IA';
   const DESAFIANTE_NOME = '🤖 Desafiante Simon IA';
@@ -801,22 +801,81 @@
   $('#btnHome').onclick=()=>location.href='index.html';
   $('#btnAtualizar').onclick=()=>refreshAll();
 
+  function normalizarTextoControle(v){
+    return String(v || '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .trim()
+      .toUpperCase();
+  }
+
+  function isPerfilAdminValor(v){
+    const p = normalizarTextoControle(v);
+    return ['ADMIN','ADMINISTRADOR','MASTER','SUPERADMIN','SUPER_ADMIN'].includes(p);
+  }
+
+  function isStatusAtivoUsuario(v){
+    const s = normalizarTextoControle(v);
+    return !s || ['ATIVO','APROVADO','LIBERADO','OK'].includes(s);
+  }
+
+  function isUsuarioAdminGlobal(){
+    return state.usuarioAdmin === true || isPerfilAdminValor(state.perfil) || isPerfilAdminValor(state.perfilGlobal);
+  }
+
+  function usuarioPodeCriarPublico(){
+    return isUsuarioAdminGlobal();
+  }
+
+  function aplicarPermissoesCriacao(){
+    const admin = usuarioPodeCriarPublico();
+    const tipoNovo = $('#novoTipo');
+    const tipoEdit = $('#editTipo');
+    [tipoNovo,tipoEdit].forEach(sel=>{
+      if(!sel) return;
+      Array.from(sel.options || []).forEach(opt=>{
+        if(opt.value === 'PUBLICO') opt.disabled = !admin;
+      });
+      if(!admin && sel.value === 'PUBLICO') sel.value = 'PRIVADO';
+    });
+    const hint = $('#criarPerfilHint');
+    if(hint) hint.textContent = admin ? 'modo administrador' : 'usuário comum: cria apenas privado';
+    const criarTopo = $('#btnCriarTopo');
+    if(criarTopo) criarTopo.textContent = admin ? '+ Criar bolão público/privado' : '+ Criar bolão privado';
+  }
+
   async function ensureUser(user){
     if(!user) return;
     const ref = db.collection('usuarios').doc(user.uid);
+    const snap = await ref.get();
+    const atual = snap.exists ? (snap.data() || {}) : {};
+
+    // Nunca rebaixa ADMIN para USUARIO no login.
+    // O código anterior gravava perfilGlobal:'USUARIO' em todo login e podia apagar a liberação do administrador.
+    const perfilPreservado = atual.perfil || atual.perfilGlobal || 'USUARIO';
+    const perfilGlobalPreservado = atual.perfilGlobal || atual.perfil || 'USUARIO';
+    const statusPreservado = atual.status || 'ATIVO';
+    const ativoPreservado = atual.ativo !== false;
+
     const payload = {
       uid:user.uid,
-      nome:user.displayName || user.email || 'Usuário',
-      email:user.email || '',
-      foto:user.photoURL || '',
-      ativo:true,
-      status:'ATIVO',
-      perfilGlobal:'USUARIO',
-      ultimoLoginEm:firebase.firestore.FieldValue.serverTimestamp()
+      nome:user.displayName || user.email || atual.nome || 'Usuário',
+      email:user.email || atual.email || '',
+      foto:user.photoURL || atual.foto || '',
+      ativo:ativoPreservado,
+      status:statusPreservado,
+      perfil:perfilPreservado,
+      perfilGlobal:perfilGlobalPreservado,
+      ultimoLoginEm:firebase.firestore.FieldValue.serverTimestamp(),
+      atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
     };
-    const snap = await ref.get();
-    if(snap.exists){ await ref.set(payload,{merge:true}); }
-    else{ payload.criadoEm = firebase.firestore.FieldValue.serverTimestamp(); await ref.set(payload,{merge:true}); }
+    if(!snap.exists) payload.criadoEm = firebase.firestore.FieldValue.serverTimestamp();
+    await ref.set(payload,{merge:true});
+
+    state.perfil = payload.perfil;
+    state.perfilGlobal = payload.perfilGlobal;
+    state.usuarioAdmin = ativoPreservado && isStatusAtivoUsuario(statusPreservado) && (isPerfilAdminValor(payload.perfil) || isPerfilAdminValor(payload.perfilGlobal));
+    aplicarPermissoesCriacao();
+
     try{ await apiGet(withDualAction('signup', `name=${encodeURIComponent(payload.nome)}`)); }catch(_e){}
   }
 
@@ -874,14 +933,15 @@
       state.uid=user.uid; state.nome=user.displayName||user.email||'Usuário'; state.email=user.email||''; state.foto=user.photoURL||'';
       $('#nick').textContent=state.nome; $('#authSub').textContent=state.email || 'Logado'; $('#btnLogin').textContent='Sair';
       localStorage.setItem('BOL_UID', state.uid); localStorage.setItem('BOL_NOME', state.nome);
-      try{ await ensureUser(user); }catch(e){ console.warn(e); toast('Login OK, mas houve falha ao sincronizar cadastro: '+e.message); }
+      try{ await ensureUser(user); }catch(e){ console.warn(e); toast('Login OK, mas houve falha ao sincronizar cadastro: '+e.message); aplicarPermissoesCriacao(); }
+      aplicarPermissoesCriacao();
       await refreshAll();
       const linkBolao = new URLSearchParams(location.search).get('bolao');
       if(linkBolao) await entrarOuSelecionarPorLink(linkBolao);
     }else{
-      state.uid='GUEST'; state.nome='Visitante'; state.email=''; state.bolao=null; state.meus=[]; state.privados=[];
+      state.uid='GUEST'; state.nome='Visitante'; state.email=''; state.perfil='USUARIO'; state.perfilGlobal='USUARIO'; state.usuarioAdmin=false; state.bolao=null; state.meus=[]; state.privados=[];
       $('#nick').textContent='Visitante'; $('#authSub').textContent='Entre com Google para criar ou participar'; $('#btnLogin').textContent='Entrar com Google';
-      localStorage.removeItem('BOL_UID'); localStorage.removeItem('BOL_NOME'); renderBoloes(); renderSelected();
+      localStorage.removeItem('BOL_UID'); localStorage.removeItem('BOL_NOME'); aplicarPermissoesCriacao(); renderBoloes(); renderSelected();
       await loadPublicos();
     }
   });
@@ -895,23 +955,110 @@
     }
   };
 
-  async function loadCatalog(){
-    try{
-      const items = await apiGet(withDualAction('catalogo'));
-      const arr = (items||[]).sort((a,b)=>((a.sigla==='SUP')-(b.sigla==='SUP'))||String(a.sigla).localeCompare(String(b.sigla)));
-      $('#selCamp').innerHTML=''; $('#novoCamp').innerHTML='';
-      arr.forEach(it=>{
-        const o=document.createElement('option'); o.value=it.sigla; o.textContent=it.nome||it.sigla; $('#selCamp').appendChild(o);
-        const o2=o.cloneNode(true); $('#novoCamp').appendChild(o2);
-      });
-      const hash=(location.hash||'').replace('#','').trim().toUpperCase(); if(hash && [...$('#selCamp').options].some(o=>o.value===hash)) $('#selCamp').value=hash;
-      await loadRodadas($('#selCamp').value);
-    }catch(e){
-      const base={CUP:'Copa do Mundo',BRA:'Brasileirão',ENG:'Premier League',ESP:'LaLiga',FRA:'Ligue 1',ITA:'Serie A',SUP:'Super Bolão'};
-      $('#selCamp').innerHTML=''; $('#novoCamp').innerHTML='';
-      Object.keys(base).forEach(sig=>{ const o=document.createElement('option'); o.value=sig; o.textContent=base[sig]; $('#selCamp').appendChild(o); $('#novoCamp').appendChild(o.cloneNode(true)); });
-      await loadRodadas($('#selCamp').value);
+  const CATALOG_BASE_FALLBACK = [
+    {sigla:'CUP', nome:'Copa do Mundo', fonte:'JOGOS_CUP', ordem:10, ativo:true, publicado:true},
+    {sigla:'BRA', nome:'Brasileirão', fonte:'Jogos_BRA', ordem:20, ativo:true, publicado:true},
+    {sigla:'ENG', nome:'Premier League', fonte:'Jogos_ENG', ordem:30, ativo:true, publicado:true},
+    {sigla:'ESP', nome:'Campeonato Espanhol', fonte:'Jogos_ESP', ordem:40, ativo:true, publicado:true},
+    {sigla:'FRA', nome:'Campeonato Francês', fonte:'Jogos_FRA', ordem:50, ativo:true, publicado:true},
+    {sigla:'ITA', nome:'Campeonato Italiano', fonte:'Jogos_ITA', ordem:60, ativo:true, publicado:true},
+    {sigla:'SUP', nome:'Super Bolão', fonte:'Jogos_SUP', ordem:70, ativo:true, publicado:true}
+  ];
+
+  function flagAtivoCatalogo(v){
+    const t = normalizarTextoControle(v);
+    if(v === true) return true;
+    if(v === false) return false;
+    if(!t) return true;
+    return ['SIM','S','TRUE','1','ATIVO','PUBLICADO','OK'].includes(t);
+  }
+
+  function normalizarItemCatalogo(raw){
+    if(!raw || typeof raw !== 'object') return null;
+    const sigla = String(raw.sigla || raw.Sigla || raw.SIGLA || raw.id || raw.ID || raw.codigo || raw.camp || raw.campeonato || '').trim().toUpperCase();
+    if(!sigla) return null;
+    const nome = String(raw.nome || raw.Nome || raw.NOME || raw.descricao || raw.Descricao || raw.DESCRICAO || raw.titulo || raw.title || sigla).trim();
+    const ativo = flagAtivoCatalogo(raw.ativo ?? raw.Ativo ?? raw.ATIVO ?? raw.status ?? raw.Status ?? raw.STATUS);
+    const publicado = flagAtivoCatalogo(raw.publicado ?? raw.Publicado ?? raw.PUBLICADO ?? raw.ativo ?? raw.Ativo ?? raw.ATIVO);
+    return {
+      ...raw,
+      sigla,
+      nome,
+      ativo,
+      publicado,
+      fonte: raw.fonte || raw.Fonte || raw.FONTE || raw.aba || raw.Aba || raw.ABA || '',
+      qtd_jogos: raw.qtd_jogos || raw.qtdJogos || raw.QTD_JOGOS || raw.jogos || raw.JOGOS || '',
+      ordem: Number(raw.ordem || raw.Ordem || raw.ORDEM || 999)
+    };
+  }
+
+  function extrairArrayCatalogo(payload){
+    if(Array.isArray(payload)) return payload;
+    if(!payload || typeof payload !== 'object') return [];
+    const chaves = ['data','catalogo','campeonatos','items','rows','result','resultados'];
+    for(const k of chaves){
+      if(Array.isArray(payload[k])) return payload[k];
     }
+    return [];
+  }
+
+  function ordenarCatalogo(a,b){
+    const ordemPadrao = {CUP:10,BRA:20,ENG:30,ESP:40,FRA:50,ITA:60,SUP:70};
+    const oa = ordemPadrao[a.sigla] || Number(a.ordem || 999);
+    const ob = ordemPadrao[b.sigla] || Number(b.ordem || 999);
+    return oa - ob || String(a.nome).localeCompare(String(b.nome),'pt-BR');
+  }
+
+  function preencherSelectCampeonatos(arr){
+    const lista = (arr && arr.length ? arr : CATALOG_BASE_FALLBACK)
+      .map(normalizarItemCatalogo)
+      .filter(Boolean)
+      .filter(x => x.ativo !== false && x.publicado !== false);
+
+    const map = new Map();
+    // Garante as 7 bases operacionais mesmo se a API responder apenas CUP por cache/ação antiga.
+    CATALOG_BASE_FALLBACK.map(normalizarItemCatalogo).forEach(it => map.set(it.sigla, it));
+    lista.forEach(it => map.set(it.sigla, {...(map.get(it.sigla) || {}), ...it}));
+
+    const final = Array.from(map.values()).sort(ordenarCatalogo);
+    state.catalogo = final;
+
+    const selects = ['#selCamp','#novoCamp','#editCamp'].map(id=>$(id)).filter(Boolean);
+    selects.forEach(sel=>{
+      const anterior = sel.value;
+      sel.innerHTML = '';
+      final.forEach(it=>{
+        const opt = document.createElement('option');
+        opt.value = it.sigla;
+        opt.textContent = it.nome || it.sigla;
+        opt.dataset.fonte = it.fonte || '';
+        opt.dataset.qtdJogos = it.qtd_jogos || '';
+        sel.appendChild(opt);
+      });
+      if(anterior && Array.from(sel.options).some(o=>o.value === anterior)) sel.value = anterior;
+    });
+  }
+
+  async function loadCatalog(){
+    let melhor = [];
+    const tentativas = ['catalog','catalogo','campeonatos'];
+    for(const action of tentativas){
+      try{
+        const payload = await apiGet(withDualAction(action));
+        const arr = extrairArrayCatalogo(payload).map(normalizarItemCatalogo).filter(Boolean);
+        if(arr.length > melhor.length) melhor = arr;
+        if(arr.length >= 7) break;
+      }catch(e){
+        console.warn('Catálogo indisponível em action='+action+':', e.message || e);
+      }
+    }
+
+    preencherSelectCampeonatos(melhor);
+
+    const hash=(location.hash||'').replace('#','').trim().toUpperCase();
+    if(hash && [...$('#selCamp').options].some(o=>o.value===hash)) $('#selCamp').value=hash;
+    await loadRodadas($('#selCamp').value || 'CUP');
+    aplicarPermissoesCriacao();
   }
   async function loadRodadas(sigla){
     try{
@@ -935,7 +1082,8 @@
   function readBolaoForm(prefix){
     const nome=readStr('#'+prefix+'Nome');
     const camp=readStr('#'+prefix+'Camp') || 'CUP';
-    const tipo=readStr('#'+prefix+'Tipo') || 'PRIVADO';
+    let tipo=readStr('#'+prefix+'Tipo') || 'PRIVADO';
+    if(tipo === 'PUBLICO' && !usuarioPodeCriarPublico()) tipo = 'PRIVADO';
     const status=readStr('#'+prefix+'Status') || 'ATIVO';
     const pontuacaoModo=readStr('#'+prefix+'PontuacaoModo') || 'SEM_PESO';
     const modoBolao=readStr('#'+prefix+'ModoBolao') || 'CAMPEONATO';
@@ -945,7 +1093,7 @@
     const dataFim=readStr('#'+prefix+'DataFim');
     const descricao=readStr('#'+prefix+'Desc');
     return {
-      nome, titulo:nome, campeonato:camp, camp, tipo, publico:tipo==='PUBLICO',
+      nome, titulo:nome, campeonato:camp, camp, tipo, publico:tipo==='PUBLICO', privado:tipo!=='PUBLICO',
       ativo:status !== 'INATIVO', statusBolao:status !== 'INATIVO' ? 'ATIVO' : 'INATIVO',
       pontuacaoModo, usaPesoRodada:pontuacaoModo==='COM_PESO', pesoInicial:10,
       modoBolao, formatoBolao:modoBolao, rodadaInicial, rodadaFinal, dataInicio, dataFim, descricao
@@ -1035,7 +1183,16 @@
       camp:bolao.camp || bolao.campeonato || 'CUP',
       tipo:bolao.tipo || (bolao.publico ? 'PUBLICO' : 'PRIVADO'),
       publico:bolao.publico === true,
+      privado:bolao.publico !== true,
       ativo:bolao.ativo !== false,
+      pontuacaoModo:bolao.pontuacaoModo || 'SEM_PESO',
+      usaPesoRodada:bolao.usaPesoRodada === true,
+      modoBolao:bolao.modoBolao || bolao.formatoBolao || 'CAMPEONATO',
+      formatoBolao:bolao.formatoBolao || bolao.modoBolao || 'CAMPEONATO',
+      rodadaInicial:bolao.rodadaInicial || null,
+      rodadaFinal:bolao.rodadaFinal || null,
+      dataInicio:bolao.dataInicio || '',
+      dataFim:bolao.dataFim || '',
       criadorUid:bolao.criadorUid || '',
       codigoConvite:bolao.codigoConvite || bolaoId,
       minhaParticipacao:participacao || {papel:'PARTICIPANTE',status:'APROVADO',ativo:true},
@@ -1044,7 +1201,14 @@
     await db.collection('usuarios').doc(state.uid).collection('meusBoloes').doc(bolaoId).set(payload,{merge:true});
   }
   async function loadPublicos(){
-    try{ const q=await db.collection('boloes').where('ativo','==',true).where('publico','==',true).limit(30).get(); state.publicos=q.docs.map(d=>({id:d.id,...d.data()})).filter(b=>b.excluido!==true); }
+    try{
+      const q=await db.collection('boloes').where('ativo','==',true).where('publico','==',true).limit(50).get();
+      state.publicos=q.docs
+        .map(d=>({id:d.id,...d.data()}))
+        .filter(b=>b.excluido!==true)
+        .filter(b=>b.publico === true || b.tipo === 'PUBLICO')
+        .sort((a,b)=>String(a.nome||a.titulo||'').localeCompare(String(b.nome||b.titulo||''),'pt-BR'));
+    }
     catch(e){ console.warn(e); state.publicos=[]; }
   }
   function isAdminBolao(b){ const papel=b?.minhaParticipacao?.papel||''; return papel==='CRIADOR'||papel==='ADMIN'||b?.criadorUid===state.uid; }
@@ -1124,25 +1288,51 @@
 
   async function criarBolao(){
     if(state.uid==='GUEST'){ toast('Entre com Google antes de criar um bolão.'); return; }
+    aplicarPermissoesCriacao();
     const form=readBolaoForm('novo');
     if(!form.nome){ toast('Informe o nome do bolão.'); return; }
+
+    const adminGlobal = usuarioPodeCriarPublico();
+    if(form.publico && !adminGlobal){
+      form.tipo = 'PRIVADO';
+      form.publico = false;
+      form.privado = true;
+    }
+
     const id=safeId(codeBolao());
+    const criadoPorPerfil = adminGlobal ? 'ADMIN' : 'USUARIO';
     const payload={
       id, ...form,
-      criadorUid:state.uid, criadorNome:state.nome, codigoConvite:id, excluido:false,
+      criadorUid:state.uid,
+      criadorNome:state.nome,
+      criadorEmail:state.email || '',
+      criadoPorPerfil,
+      publicoOficial:form.publico === true && adminGlobal,
+      origemBolao:form.publico === true && adminGlobal ? 'ADMIN_PUBLICO_GLOBAL' : 'USUARIO_PRIVADO',
+      codigoConvite:id,
+      excluido:false,
       criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
       atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
     };
+
+    // Documento principal/global. É daqui que publicos.html e a aba Públicos devem listar os bolões públicos.
     await db.collection('boloes').doc(id).set(payload);
-    const minhaParticipacao = { uid:state.uid, nome:state.nome, email:state.email, foto:state.foto, papel:'CRIADOR', status:'APROVADO', ativo:true, criadoEm:firebase.firestore.FieldValue.serverTimestamp(), atualizadoEm:firebase.firestore.FieldValue.serverTimestamp() };
+
+    const minhaParticipacao = {
+      uid:state.uid, nome:state.nome, email:state.email, foto:state.foto,
+      papel:'CRIADOR', status:'APROVADO', ativo:true,
+      criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
+      atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    };
     await db.collection('boloes').doc(id).collection('participantes').doc(state.uid).set(minhaParticipacao);
     await upsertMeuBolaoIndex(id, payload, minhaParticipacao);
     await ensureDesafianteBolao(id);
+
     $('#novoNome').value=''; $('#novoDesc').value='';
     await refreshAll();
     selectBolao({id,...payload,minhaParticipacao:{papel:'CRIADOR',status:'APROVADO',ativo:true}});
     setTab('meus');
-    toast('Bolão criado com configuração completa. Você é o administrador deste bolão e o Desafiante Simon IA já foi incluído.');
+    toast(form.publico ? 'Bolão público criado na coleção global e disponível para participantes.' : 'Bolão privado criado. Compartilhe o convite com quem vai participar.');
   }
   $('#btnCriarBolao').onclick=()=>criarBolao().catch(e=>toast('Erro ao criar bolão: '+e.message));
 
@@ -1158,8 +1348,9 @@
   async function atualizarBolaoAdmin(patch, msgOk){
     if(!state.bolao){ toast('Selecione um bolão.'); return; }
     if(!isAdminBolao(state.bolao)){ toast('Apenas o administrador deste bolão pode alterar essas configurações.'); return; }
+    if((patch.publico === true || patch.tipo === 'PUBLICO') && !usuarioPodeCriarPublico()){ toast('Usuário comum não pode transformar bolão em público. Somente ADMIN publica na vitrine.'); return; }
     const id=state.bolao.id;
-    const payload={...patch, atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()};
+    const payload={...patch, privado:patch.publico === true ? false : (patch.publico === false ? true : patch.privado), publicoOficial:patch.publico === true && usuarioPodeCriarPublico(), atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()};
     await db.collection('boloes').doc(id).set(payload,{merge:true});
     await db.collection('usuarios').doc(state.uid).collection('meusBoloes').doc(id).set(payload,{merge:true}).catch(()=>{});
     updateBolaoInMemory(id, patch);
