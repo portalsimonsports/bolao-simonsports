@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V001_ADMIN_CRIAR_BOLOES_OFICIAIS_PUBLICOS -->
+<!-- V002_ADMIN_OFICIAIS_LOGOS_DATAS_DESAFIANTE_IA -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -46,6 +46,10 @@
   .table-wrap{overflow:auto}.badge{display:inline-flex;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:1000;background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe;text-transform:uppercase;letter-spacing:.03em}.badge.green{background:#dcfce7;color:#166534;border-color:#bbf7d0}.badge.blue{background:#e0f2fe;color:#075985;border-color:#bae6fd}
   .log{white-space:pre-wrap;background:#071126;color:#e5e7eb;border-radius:16px;padding:14px;font-size:12px;line-height:1.5;max-height:420px;overflow:auto}
   .note{font-size:13px;color:#64748b;font-weight:800;line-height:1.45}.hidden{display:none!important}
+
+  .camp-mini{display:inline-flex;align-items:center;gap:8px}
+  .camp-logo-mini{width:26px;height:26px;border-radius:9px;display:inline-grid;place-items:center;background:#eef2ff;color:#1e3a8a;font-size:10px;font-weight:1000;border:1px solid #dbe3ef;overflow:hidden}
+  .camp-logo-mini img{width:100%;height:100%;object-fit:cover;display:block}
   @media(min-width:880px){.grid{grid-template-columns:1fr 1fr}.span2{grid-column:1/-1}}
 </style>
 </head>
@@ -54,7 +58,7 @@
   <section class="hero">
     <span class="kicker">🏆 Portal SimonSports • Administração</span>
     <h1>Criar bolões oficiais públicos</h1>
-    <p>Use esta página uma única vez com uma conta marcada como admin global no Firestore. Ela cria os bolões públicos oficiais de cada campeonato nas modalidades com peso e sem peso, com as mesmas regras de pontuação e ranking do sistema.</p>
+    <p>Use esta página uma única vez com uma conta marcada como admin global no Firestore. Ela cria ou atualiza os bolões públicos oficiais de cada campeonato nas modalidades com peso e sem peso, com logos, datas, total de jogos, Desafiante IA e as mesmas regras de pontuação/ranking do sistema.</p>
     <div class="actions">
       <button class="btn blue" id="btnLogin">Entrar com Google</button>
       <button class="btn primary" id="btnCriar" disabled>Criar / atualizar bolões oficiais</button>
@@ -73,9 +77,9 @@
     </div>
 
     <div class="panel">
-      <div class="panel-head"><h2>O que será criado</h2><span>14 bolões oficiais</span></div>
+      <div class="panel-head"><h2>O que será criado</h2><span>14 bolões oficiais + Desafiante IA</span></div>
       <div class="panel-body">
-        <div class="status warn">Para cada campeonato: um bolão <strong>com peso</strong> e um bolão <strong>sem peso</strong>. Todos públicos, ativos e gratuitos.</div>
+        <div class="status warn">Para cada campeonato: um bolão <strong>com peso</strong> e um bolão <strong>sem peso</strong>. Todos públicos, ativos, gratuitos, com datas de início/fim, total de jogos, logo do campeonato e Desafiante Simon IA garantido.</div>
       </div>
     </div>
 
@@ -83,7 +87,7 @@
       <div class="panel-head"><h2>Lista dos bolões oficiais</h2><span>Firestore / boloes</span></div>
       <div class="panel-body table-wrap">
         <table>
-          <thead><tr><th>ID</th><th>Nome</th><th>Campeonato</th><th>Pontuação</th><th>Status</th></tr></thead>
+          <thead><tr><th>ID</th><th>Nome</th><th>Campeonato</th><th>Período</th><th>Jogos</th><th>Pontuação</th><th>Status</th><th>IA</th></tr></thead>
           <tbody id="tbodyBoloes"></tbody>
         </table>
       </div>
@@ -120,13 +124,104 @@
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.warn);
 
   const CAMPEONATOS = [
-    {sigla:'CUP', nome:'Copa do Mundo', temporada:'2026', fonte:'Jogos_CUP', url:'copa-do-mundo.html'},
-    {sigla:'BRA', nome:'Brasileirão', temporada:'2026', fonte:'Jogos_BRA', url:'brasileirao.html'},
-    {sigla:'ENG', nome:'Premier League', temporada:'2025/2026', fonte:'Jogos_ENG', url:'premier-league.html'},
-    {sigla:'ESP', nome:'Campeonato Espanhol', temporada:'2025/2026', fonte:'Jogos_ESP', url:'campeonato-espanhol.html'},
-    {sigla:'ITA', nome:'Campeonato Italiano', temporada:'2026', fonte:'Jogos_ITA', url:'campeonato-italiano.html'},
-    {sigla:'FRA', nome:'Campeonato Francês', temporada:'2025/2026', fonte:'Jogos_FRA', url:'campeonato-frances.html'},
-    {sigla:'SUP', nome:'Super Bolão', temporada:'2025/2026', fonte:'Jogos_SUP', url:'super-bolao.html'}
+    {
+      sigla:'CUP',
+      nome:'Copa do Mundo',
+      temporada:'2026',
+      fonte:'Jogos_CUP',
+      url:'copa-do-mundo.html',
+      inicio:'2026-06-11',
+      fim:'2026-06-27',
+      qtdJogos:72,
+      statusCampeonato:'A iniciar',
+      logoCampeonato:'assets/logos/campeonatos/copa-do-mundo.png',
+      logoFallback:'CUP',
+      cor:'#16a34a'
+    },
+    {
+      sigla:'BRA',
+      nome:'Brasileirão',
+      temporada:'2026',
+      fonte:'Jogos_BRA',
+      url:'brasileirao.html',
+      inicio:'2026-01-28',
+      fim:'2026-12-01',
+      qtdJogos:380,
+      statusCampeonato:'Em andamento',
+      logoCampeonato:'assets/logos/campeonatos/brasileirao.png',
+      logoFallback:'BRA',
+      cor:'#10b981'
+    },
+    {
+      sigla:'ENG',
+      nome:'Premier League',
+      temporada:'2025/2026',
+      fonte:'Jogos_ENG',
+      url:'premier-league.html',
+      inicio:'2025-08-15',
+      fim:'2026-05-24',
+      qtdJogos:380,
+      statusCampeonato:'Finalizado',
+      logoCampeonato:'assets/logos/campeonatos/premier-league.png',
+      logoFallback:'ENG',
+      cor:'#7c3aed'
+    },
+    {
+      sigla:'ESP',
+      nome:'Campeonato Espanhol',
+      temporada:'2025/2026',
+      fonte:'Jogos_ESP',
+      url:'campeonato-espanhol.html',
+      inicio:'2025-08-15',
+      fim:'2026-05-24',
+      qtdJogos:380,
+      statusCampeonato:'Finalizado',
+      logoCampeonato:'assets/logos/campeonatos/campeonato-espanhol.png',
+      logoFallback:'ESP',
+      cor:'#ef4444'
+    },
+    {
+      sigla:'ITA',
+      nome:'Campeonato Italiano',
+      temporada:'2026',
+      fonte:'Jogos_ITA',
+      url:'campeonato-italiano.html',
+      inicio:'2026-08-22',
+      fim:'2027-05-29',
+      qtdJogos:380,
+      statusCampeonato:'A iniciar',
+      logoCampeonato:'assets/logos/campeonatos/campeonato-italiano.png',
+      logoFallback:'ITA',
+      cor:'#0ea5e9'
+    },
+    {
+      sigla:'FRA',
+      nome:'Campeonato Francês',
+      temporada:'2025/2026',
+      fonte:'Jogos_FRA',
+      url:'campeonato-frances.html',
+      inicio:'2025-08-15',
+      fim:'2026-05-17',
+      qtdJogos:306,
+      statusCampeonato:'Finalizado',
+      logoCampeonato:'assets/logos/campeonatos/campeonato-frances.png',
+      logoFallback:'FRA',
+      cor:'#2563eb'
+    },
+    {
+      sigla:'SUP',
+      nome:'Super Bolão',
+      temporada:'2025/2026',
+      fonte:'Jogos_SUP',
+      url:'super-bolao.html',
+      inicio:'2025-08-15',
+      fim:'2027-05-29',
+      qtdJogos:1826,
+      statusCampeonato:'Em andamento',
+      logoCampeonato:'assets/logos/campeonatos/super-bolao.png',
+      logoFallback:'SUP',
+      cor:'#f59e0b'
+    }
   ];
 
   const BASE_PONTUACAO = [
@@ -146,6 +241,16 @@
   function nomeModo(modo){return modo==='COM_PESO'?'Com peso':'Sem peso'}
   function idOficial(sigla,modo){return `OFICIAL_${sigla}_${modo}`}
   function nomeBolao(camp,modo){return `Bolão oficial ${camp.nome} — ${nomeModo(modo)}`}
+  function dataBR(iso){
+    if(!iso) return '-';
+    const p=String(iso).split('-');
+    if(p.length!==3) return iso;
+    return `${p[2]}/${p[1]}/${p[0]}`;
+  }
+  function periodoCamp(camp){ return `${dataBR(camp.inicio)} até ${dataBR(camp.fim)}`; }
+  function logoMini(camp){
+    return `<span class="camp-mini"><span class="camp-logo-mini"><img src="${camp.logoCampeonato}" alt="" loading="lazy" onerror="this.remove();this.parentNode.textContent='${camp.logoFallback || camp.sigla}'"></span><span>${camp.nome}</span></span>`;
+  }
 
   function oficiais(){
     const out=[];
@@ -163,7 +268,7 @@
   }
 
   function renderTabela(){
-    $('#tbodyBoloes').innerHTML = oficiais().map(o=>`<tr><td><strong>${o.id}</strong></td><td>${o.nome}</td><td>${o.camp.nome}</td><td><span class="badge ${o.modo==='COM_PESO'?'blue':'green'}">${nomeModo(o.modo)}</span></td><td><span class="badge green">Público</span></td></tr>`).join('');
+    $('#tbodyBoloes').innerHTML = oficiais().map(o=>`<tr><td><strong>${o.id}</strong></td><td>${o.nome}</td><td>${logoMini(o.camp)}</td><td>${periodoCamp(o.camp)}</td><td>${o.camp.qtdJogos}</td><td><span class="badge ${o.modo==='COM_PESO'?'blue':'green'}">${nomeModo(o.modo)}</span></td><td><span class="badge green">Público</span></td><td><span class="badge blue">Desafiante IA</span></td></tr>`).join('');
   }
 
   async function isAdminGlobal(uid){
@@ -173,14 +278,18 @@
   }
 
   async function criarUsuarioBase(user){
-    await db.collection('usuarios').doc(user.uid).set({
+    const ref=db.collection('usuarios').doc(user.uid);
+    const snap=await ref.get();
+    const atual=snap.exists ? (snap.data() || {}) : {};
+    await ref.set({
       uid:user.uid,
-      nome:user.displayName || user.email || 'Administrador',
-      email:user.email || '',
-      foto:user.photoURL || '',
-      ativo:true,
-      status:'ATIVO',
-      perfilGlobal:'USUARIO',
+      nome:user.displayName || user.email || atual.nome || 'Administrador',
+      email:user.email || atual.email || '',
+      foto:user.photoURL || atual.foto || '',
+      ativo:atual.ativo === false ? false : true,
+      status:atual.status || 'ATIVO',
+      perfil:atual.perfil || 'ADMIN',
+      perfilGlobal:atual.perfilGlobal || 'ADMIN',
       ultimoLoginEm:firebase.firestore.FieldValue.serverTimestamp()
     },{merge:true});
   }
@@ -199,6 +308,24 @@
       temporada:o.camp.temporada,
       fonteJogos:o.camp.fonte,
       paginaCampeonato:o.camp.url,
+
+      // Metadados usados na vitrine publicos.html
+      dataInicio:o.camp.inicio,
+      dataFim:o.camp.fim,
+      inicio:o.camp.inicio,
+      fim:o.camp.fim,
+      temporadaInicio:o.camp.inicio,
+      temporadaFim:o.camp.fim,
+      qtdJogos:o.camp.qtdJogos,
+      totalJogos:o.camp.qtdJogos,
+      statusCampeonato:o.camp.statusCampeonato,
+      statusCompeticao:o.camp.statusCampeonato,
+      logoCampeonato:o.camp.logoCampeonato,
+      logoCampeonatoUrl:o.camp.logoCampeonato,
+      logoUrl:o.camp.logoCampeonato,
+      logoFallback:o.camp.logoFallback,
+      corCampeonato:o.camp.cor,
+
       tipo:'PUBLICO',
       publico:true,
       ativo:true,
@@ -220,6 +347,10 @@
       criadorNome:user.displayName || user.email || 'Administrador',
       criadorEmail:user.email || '',
       qtdParticipantes:1,
+      qtdParticipantesVirtuais:1,
+      totalParticipantesComVirtuais:2,
+      desafianteIaAtivo:true,
+      desafianteIaUid:'DESAFIANTE_SIMON_IA',
       regraPontuacao:{
         pontosBase:BASE_PONTUACAO,
         usaPesoRodada:usaPeso,
@@ -258,6 +389,16 @@
       campeonatoSigla:b.campeonatoSigla,
       campeonatoNome:b.campeonatoNome,
       temporada:b.temporada,
+      dataInicio:b.dataInicio,
+      dataFim:b.dataFim,
+      inicio:b.inicio,
+      fim:b.fim,
+      qtdJogos:b.qtdJogos,
+      totalJogos:b.totalJogos,
+      statusCampeonato:b.statusCampeonato,
+      logoCampeonato:b.logoCampeonato,
+      logoCampeonatoUrl:b.logoCampeonatoUrl,
+      logoUrl:b.logoUrl,
       tipo:b.tipo,
       publico:true,
       ativo:true,
@@ -267,6 +408,7 @@
       codigoConvite:o.id,
       pontuacaoModo:b.pontuacaoModo,
       usaPesoRodada:b.usaPesoRodada,
+      desafianteIaAtivo:true,
       minhaParticipacao:{papel:'CRIADOR',status:'APROVADO',ativo:true,uid:user.uid},
       atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
     };
@@ -309,7 +451,7 @@
         await ref.set(payloadBolao(o,user),{merge:true});
         await ref.collection('participantes').doc(user.uid).set(payloadParticipanteAdmin(user),{merge:true});
         await db.collection('usuarios').doc(user.uid).collection('meusBoloes').doc(o.id).set(payloadIndice(o,user),{merge:true});
-        await criarDesafiante(o.id).catch(e=>log(`Aviso: Desafiante não criado em ${o.id}: ${e.message}`));
+        await criarDesafiante(o.id).then(()=>log(`Desafiante IA garantido: ${o.id}`)).catch(e=>log(`Aviso: Desafiante não criado em ${o.id}: ${e.message}`));
         if(existe){atualizados++; log(`Atualizado: ${o.id}`)} else {criados++; log(`Criado: ${o.id}`)}
       }catch(e){
         erros++;
