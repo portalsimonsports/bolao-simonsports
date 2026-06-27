@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<!-- V001_ADMIN_CRIAR_BOLOES_OFICIAIS_PUBLICOS -->
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Admin | Criar Bolões Oficiais Públicos</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Página administrativa do Portal SimonSports para criar bolões oficiais públicos com e sem peso.">
+<style>
+  :root{
+    --bg:#f4f7fb;
+    --panel:#fff;
+    --ink:#0f172a;
+    --muted:#64748b;
+    --line:#dbe3ef;
+    --dark:#071126;
+    --green:#16a34a;
+    --blue:#0ea5e9;
+    --yellow:#facc15;
+    --red:#ef4444;
+    --shadow:0 14px 36px rgba(15,23,42,.08);
+    --radius:22px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+  .app{width:min(1120px,94vw);margin:0 auto;padding:22px}
+  .hero{background:linear-gradient(135deg,#071126 0%,#0b152b 62%,#062216 100%);color:#fff;border-radius:28px;padding:24px;box-shadow:0 18px 44px rgba(15,23,42,.18)}
+  .kicker{display:inline-flex;gap:8px;align-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:7px 12px;color:#dff7ef;font-size:12px;font-weight:1000;text-transform:uppercase;letter-spacing:.04em}
+  h1{margin:14px 0 8px;font-size:clamp(30px,5vw,46px);line-height:1.03;letter-spacing:-.04em}
+  p{margin:0;color:#cbd5e1;font-weight:750;line-height:1.45;max-width:880px}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .btn{border:0;border-radius:14px;min-height:44px;padding:11px 15px;font-weight:950;background:#e8eef6;color:#0f172a;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer;white-space:nowrap}
+  .btn.primary{background:var(--green);color:#fff}.btn.dark{background:#071126;color:#e5e7eb}.btn.blue{background:#0ea5e9;color:#052033}.btn.yellow{background:var(--yellow);color:#111827}.btn.danger{background:var(--red);color:#fff}.btn:disabled{opacity:.55;cursor:not-allowed}
+  .grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .panel-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .panel-head h2{margin:0;font-size:22px;letter-spacing:-.025em}.panel-head span{color:var(--muted);font-size:13px;font-weight:900}
+  .panel-body{padding:18px 20px;display:grid;gap:12px}
+  .status{border:1px dashed #cbd5e1;background:#f8fafc;border-radius:16px;padding:14px;color:#475569;font-weight:850;line-height:1.45}
+  .ok{background:#dcfce7;border-color:#86efac;color:#166534}.err{background:#fee2e2;border-color:#fecaca;color:#991b1b}.warn{background:#fef3c7;border-color:#fde68a;color:#92400e}
+  table{width:100%;border-collapse:separate;border-spacing:0 8px;min-width:760px}
+  th{font-size:11px;text-align:left;color:#64748b;text-transform:uppercase;letter-spacing:.05em;padding:0 8px 4px;font-weight:1000}
+  td{background:#f8fafc;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:10px 8px;font-size:13px;font-weight:850;color:#0f172a}
+  td:first-child{border-left:1px solid #e2e8f0;border-radius:12px 0 0 12px}td:last-child{border-right:1px solid #e2e8f0;border-radius:0 12px 12px 0}
+  .table-wrap{overflow:auto}.badge{display:inline-flex;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:1000;background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe;text-transform:uppercase;letter-spacing:.03em}.badge.green{background:#dcfce7;color:#166534;border-color:#bbf7d0}.badge.blue{background:#e0f2fe;color:#075985;border-color:#bae6fd}
+  .log{white-space:pre-wrap;background:#071126;color:#e5e7eb;border-radius:16px;padding:14px;font-size:12px;line-height:1.5;max-height:420px;overflow:auto}
+  .note{font-size:13px;color:#64748b;font-weight:800;line-height:1.45}.hidden{display:none!important}
+  @media(min-width:880px){.grid{grid-template-columns:1fr 1fr}.span2{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="hero">
+    <span class="kicker">🏆 Portal SimonSports • Administração</span>
+    <h1>Criar bolões oficiais públicos</h1>
+    <p>Use esta página uma única vez com uma conta marcada como admin global no Firestore. Ela cria os bolões públicos oficiais de cada campeonato nas modalidades com peso e sem peso, com as mesmas regras de pontuação e ranking do sistema.</p>
+    <div class="actions">
+      <button class="btn blue" id="btnLogin">Entrar com Google</button>
+      <button class="btn primary" id="btnCriar" disabled>Criar / atualizar bolões oficiais</button>
+      <a class="btn" href="publicos.html">Abrir bolões públicos</a>
+      <a class="btn" href="bolao.html">Voltar ao painel</a>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <div class="panel-head"><h2>Status</h2><span id="emailStatus">Visitante</span></div>
+      <div class="panel-body">
+        <div class="status" id="statusBox">Entre com Google para verificar permissão de administrador global.</div>
+        <div class="note">Esta página não entra no sitemap e usa <strong>noindex</strong>. Mesmo que alguém acesse, as regras do Firestore bloqueiam escrita sem admin global.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>O que será criado</h2><span>14 bolões oficiais</span></div>
+      <div class="panel-body">
+        <div class="status warn">Para cada campeonato: um bolão <strong>com peso</strong> e um bolão <strong>sem peso</strong>. Todos públicos, ativos e gratuitos.</div>
+      </div>
+    </div>
+
+    <div class="panel span2">
+      <div class="panel-head"><h2>Lista dos bolões oficiais</h2><span>Firestore / boloes</span></div>
+      <div class="panel-body table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Nome</th><th>Campeonato</th><th>Pontuação</th><th>Status</th></tr></thead>
+          <tbody id="tbodyBoloes"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel span2">
+      <div class="panel-head"><h2>Registro de execução</h2><span id="logStatus">aguardando</span></div>
+      <div class="panel-body">
+        <div class="log" id="logBox">Aguardando login...</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyA8tO_E2s6R9bYnEW6_5skqCUrBSVLLKkw",
+    authDomain: "pss-bolao-esportivo.firebaseapp.com",
+    projectId: "pss-bolao-esportivo",
+    storageBucket: "pss-bolao-esportivo.firebasestorage.app",
+    messagingSenderId: "575209475526",
+    appId: "1:575209475526:web:7d2d1efa2d9fd8b600f6c7"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({prompt:'select_account'});
+  auth.useDeviceLanguage();
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.warn);
+
+  const CAMPEONATOS = [
+    {sigla:'CUP', nome:'Copa do Mundo', temporada:'2026', fonte:'Jogos_CUP', url:'copa-do-mundo.html'},
+    {sigla:'BRA', nome:'Brasileirão', temporada:'2026', fonte:'Jogos_BRA', url:'brasileirao.html'},
+    {sigla:'ENG', nome:'Premier League', temporada:'2025/2026', fonte:'Jogos_ENG', url:'premier-league.html'},
+    {sigla:'ESP', nome:'Campeonato Espanhol', temporada:'2025/2026', fonte:'Jogos_ESP', url:'campeonato-espanhol.html'},
+    {sigla:'ITA', nome:'Campeonato Italiano', temporada:'2026', fonte:'Jogos_ITA', url:'campeonato-italiano.html'},
+    {sigla:'FRA', nome:'Campeonato Francês', temporada:'2025/2026', fonte:'Jogos_FRA', url:'campeonato-frances.html'},
+    {sigla:'SUP', nome:'Super Bolão', temporada:'2025/2026', fonte:'Jogos_SUP', url:'super-bolao.html'}
+  ];
+
+  const BASE_PONTUACAO = [
+    {tipo:'PLACAR_EXATO', pontos:25, descricao:'Placar exato'},
+    {tipo:'GOL_VENCEDOR', pontos:18, descricao:'Gol do vencedor'},
+    {tipo:'SALDO', pontos:15, descricao:'Saldo de gols'},
+    {tipo:'GOL_PERDEDOR', pontos:12, descricao:'Gol do perdedor'},
+    {tipo:'VENCEDOR', pontos:10, descricao:'Vencedor'},
+    {tipo:'EMPATE_GARANTIDO', pontos:4, descricao:'Empate garantido'}
+  ];
+
+  function $(s){return document.querySelector(s)}
+  function p2(n){return String(n).padStart(2,'0')}
+  function agoraBR(){const d=new Date(); return `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}`}
+  function log(msg){$('#logBox').textContent += `\n[${agoraBR()}] ${msg}`; $('#logBox').scrollTop = $('#logBox').scrollHeight}
+  function setStatus(msg,cls){const box=$('#statusBox'); box.className='status '+(cls||''); box.innerHTML=msg}
+  function nomeModo(modo){return modo==='COM_PESO'?'Com peso':'Sem peso'}
+  function idOficial(sigla,modo){return `OFICIAL_${sigla}_${modo}`}
+  function nomeBolao(camp,modo){return `Bolão oficial ${camp.nome} — ${nomeModo(modo)}`}
+
+  function oficiais(){
+    const out=[];
+    CAMPEONATOS.forEach(c=>{
+      ['COM_PESO','SEM_PESO'].forEach(modo=>{
+        out.push({
+          id:idOficial(c.sigla,modo),
+          camp:c,
+          modo,
+          nome:nomeBolao(c,modo)
+        });
+      });
+    });
+    return out;
+  }
+
+  function renderTabela(){
+    $('#tbodyBoloes').innerHTML = oficiais().map(o=>`<tr><td><strong>${o.id}</strong></td><td>${o.nome}</td><td>${o.camp.nome}</td><td><span class="badge ${o.modo==='COM_PESO'?'blue':'green'}">${nomeModo(o.modo)}</span></td><td><span class="badge green">Público</span></td></tr>`).join('');
+  }
+
+  async function isAdminGlobal(uid){
+    if(!uid) return false;
+    const doc = await db.collection('adminsGlobais').doc(uid).get();
+    return doc.exists && doc.data().ativo === true;
+  }
+
+  async function criarUsuarioBase(user){
+    await db.collection('usuarios').doc(user.uid).set({
+      uid:user.uid,
+      nome:user.displayName || user.email || 'Administrador',
+      email:user.email || '',
+      foto:user.photoURL || '',
+      ativo:true,
+      status:'ATIVO',
+      perfilGlobal:'USUARIO',
+      ultimoLoginEm:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+  }
+
+  function payloadBolao(o,user){
+    const usaPeso = o.modo === 'COM_PESO';
+    return {
+      id:o.id,
+      nome:o.nome,
+      titulo:o.nome,
+      descricao:`Bolão público oficial do Portal SimonSports para ${o.camp.nome}, modalidade ${nomeModo(o.modo).toLowerCase()}.`,
+      campeonato:o.camp.sigla,
+      camp:o.camp.sigla,
+      campeonatoSigla:o.camp.sigla,
+      campeonatoNome:o.camp.nome,
+      temporada:o.camp.temporada,
+      fonteJogos:o.camp.fonte,
+      paginaCampeonato:o.camp.url,
+      tipo:'PUBLICO',
+      publico:true,
+      ativo:true,
+      excluido:false,
+      oficial:true,
+      bolaoOficial:true,
+      criadoPeloAdministrador:true,
+      criadoPeloSistema:true,
+      gratuito:true,
+      valorInformativoAtivo:false,
+      pontuacaoModo:o.modo,
+      usaPesoRodada:usaPeso,
+      pesoInicial:10,
+      modoBolao:'CAMPEONATO',
+      formatoBolao:'CAMPEONATO',
+      statusBolao:'ATIVO',
+      codigoConvite:o.id,
+      criadorUid:user.uid,
+      criadorNome:user.displayName || user.email || 'Administrador',
+      criadorEmail:user.email || '',
+      qtdParticipantes:1,
+      regraPontuacao:{
+        pontosBase:BASE_PONTUACAO,
+        usaPesoRodada:usaPeso,
+        pesoInicial:10,
+        formula:usaPeso ? 'Pontuação do jogo = pontos base × peso da rodada' : 'Pontuação do jogo = pontos base',
+        observacao:'Ranking automático conforme palpites liberados e jogos iniciados ou encerrados.'
+      },
+      atualizadoEm:firebase.firestore.FieldValue.serverTimestamp(),
+      criadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    };
+  }
+
+  function payloadParticipanteAdmin(user){
+    return {
+      uid:user.uid,
+      nome:user.displayName || user.email || 'Administrador',
+      email:user.email || '',
+      foto:user.photoURL || '',
+      papel:'CRIADOR',
+      status:'APROVADO',
+      ativo:true,
+      criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
+      atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    };
+  }
+
+  function payloadIndice(o,user){
+    const b=payloadBolao(o,user);
+    return {
+      id:o.id,
+      nome:b.nome,
+      titulo:b.titulo,
+      descricao:b.descricao,
+      campeonato:b.campeonato,
+      camp:b.camp,
+      campeonatoSigla:b.campeonatoSigla,
+      campeonatoNome:b.campeonatoNome,
+      temporada:b.temporada,
+      tipo:b.tipo,
+      publico:true,
+      ativo:true,
+      oficial:true,
+      bolaoOficial:true,
+      criadorUid:user.uid,
+      codigoConvite:o.id,
+      pontuacaoModo:b.pontuacaoModo,
+      usaPesoRodada:b.usaPesoRodada,
+      minhaParticipacao:{papel:'CRIADOR',status:'APROVADO',ativo:true,uid:user.uid},
+      atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    };
+  }
+
+  async function criarDesafiante(bolaoId){
+    await db.collection('boloes').doc(bolaoId).collection('participantes').doc('DESAFIANTE_SIMON_IA').set({
+      uid:'DESAFIANTE_SIMON_IA',
+      nome:'🤖 Desafiante Simon IA',
+      email:'virtual@portalsimonsports.local',
+      foto:'',
+      papel:'DESAFIANTE',
+      status:'APROVADO',
+      ativo:true,
+      virtual:true,
+      observacao:'Concorrente virtual estatístico. Não representa participante real e não tem participação financeira.',
+      criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
+      atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+  }
+
+  async function criarOficiais(){
+    const user=auth.currentUser;
+    if(!user){setStatus('Entre com Google antes de criar os bolões oficiais.','err'); return}
+    const admin=await isAdminGlobal(user.uid);
+    if(!admin){setStatus('Esta conta não está ativa em adminsGlobais. Operação bloqueada.','err'); return}
+
+    $('#btnCriar').disabled=true;
+    $('#logBox').textContent=`[${agoraBR()}] Iniciando criação/atualização dos bolões oficiais...`;
+    $('#logStatus').textContent='executando';
+
+    await criarUsuarioBase(user);
+    let criados=0, atualizados=0, erros=0;
+
+    for(const o of oficiais()){
+      try{
+        const ref=db.collection('boloes').doc(o.id);
+        const snap=await ref.get();
+        const existe=snap.exists;
+        await ref.set(payloadBolao(o,user),{merge:true});
+        await ref.collection('participantes').doc(user.uid).set(payloadParticipanteAdmin(user),{merge:true});
+        await db.collection('usuarios').doc(user.uid).collection('meusBoloes').doc(o.id).set(payloadIndice(o,user),{merge:true});
+        await criarDesafiante(o.id).catch(e=>log(`Aviso: Desafiante não criado em ${o.id}: ${e.message}`));
+        if(existe){atualizados++; log(`Atualizado: ${o.id}`)} else {criados++; log(`Criado: ${o.id}`)}
+      }catch(e){
+        erros++;
+        log(`ERRO em ${o.id}: ${e.message}`);
+      }
+    }
+
+    if(erros){
+      setStatus(`Concluído com ${erros} erro(s). Criados: ${criados}. Atualizados: ${atualizados}. Veja o registro abaixo.`, 'err');
+      $('#logStatus').textContent='concluído com erro';
+    }else{
+      setStatus(`Bolões oficiais prontos. Criados: ${criados}. Atualizados: ${atualizados}. Agora abra publicos.html.`, 'ok');
+      $('#logStatus').textContent='concluído';
+    }
+    $('#btnCriar').disabled=false;
+  }
+
+  $('#btnLogin').onclick=async()=>{
+    if(auth.currentUser){ await auth.signOut(); return; }
+    try{ await auth.signInWithPopup(provider); }
+    catch(e){
+      if(!String(e.code||'').includes('popup-closed')) await auth.signInWithRedirect(provider);
+    }
+  };
+
+  $('#btnCriar').onclick=()=>criarOficiais().catch(e=>{
+    setStatus('Erro geral: '+e.message,'err');
+    log('ERRO GERAL: '+e.message);
+    $('#btnCriar').disabled=false;
+  });
+
+  auth.getRedirectResult().catch(console.warn);
+  auth.onAuthStateChanged(async user=>{
+    renderTabela();
+    if(!user){
+      $('#emailStatus').textContent='Visitante';
+      $('#btnLogin').textContent='Entrar com Google';
+      $('#btnCriar').disabled=true;
+      setStatus('Entre com Google para verificar permissão de administrador global.','');
+      $('#logBox').textContent='Aguardando login...';
+      return;
+    }
+    $('#emailStatus').textContent=user.email || user.uid;
+    $('#btnLogin').textContent='Sair';
+    $('#logBox').textContent=`[${agoraBR()}] Logado como ${user.email || user.uid}. Verificando admin global...`;
+    try{
+      const admin=await isAdminGlobal(user.uid);
+      if(admin){
+        $('#btnCriar').disabled=false;
+        setStatus('Conta autorizada como admin global. Pode criar/atualizar os bolões oficiais públicos.','ok');
+        log('Admin global confirmado.');
+      }else{
+        $('#btnCriar').disabled=true;
+        setStatus('Conta logada, mas não encontrada como admin global ativo em adminsGlobais/{uid}.','err');
+        log('Admin global não confirmado.');
+      }
+    }catch(e){
+      $('#btnCriar').disabled=true;
+      setStatus('Não foi possível verificar adminsGlobais: '+e.message,'err');
+      log('Erro ao verificar admin: '+e.message);
+    }
+  });
+</script>
+</body>
+</html>
