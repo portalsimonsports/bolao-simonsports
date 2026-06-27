@@ -3,44 +3,79 @@
 
   <url>
     <loc>https://bolao.portalsimonsports.com/</loc>
-    <lastmod>2026-06-26</lastmod>
+    <lastmod>2026-06-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://bolao.portalsimonsports.com/index.html</loc>
-    <lastmod>2026-06-26</lastmod>
+    <loc>https://bolao.portalsimonsports.com/publicos.html</loc>
+    <lastmod>2026-06-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://bolao.portalsimonsports.com/bolao.html</loc>
-    <lastmod>2026-06-26</lastmod>
+    <loc>https://bolao.portalsimonsports.com/copa-do-mundo.html</loc>
+    <lastmod>2026-06-27</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://bolao.portalsimonsports.com/publicos.html</loc>
-    <lastmod>2026-06-26</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://bolao.portalsimonsports.com/login.html</loc>
-    <lastmod>2026-06-26</lastmod>
+    <loc>https://bolao.portalsimonsports.com/brasileirao.html</loc>
+    <lastmod>2026-06-27</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://bolao.portalsimonsports.com/premier-league.html</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://bolao.portalsimonsports.com/campeonato-espanhol.html</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://bolao.portalsimonsports.com/campeonato-italiano.html</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://bolao.portalsimonsports.com/campeonato-frances.html</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://bolao.portalsimonsports.com/super-bolao.html</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://bolao.portalsimonsports.com/regulamento.html</loc>
-    <lastmod>2026-06-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://bolao.portalsimonsports.com/bolao.html</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
   </url>
 
 </urlset>
