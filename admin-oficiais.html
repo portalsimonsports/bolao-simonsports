@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V002_ADMIN_OFICIAIS_LOGOS_DATAS_DESAFIANTE_IA -->
+<!-- V004_ADMIN_OFICIAIS_DATAS_LOGOS_DESAFIANTE_IA_NOME_CURTO -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -79,7 +79,7 @@
     <div class="panel">
       <div class="panel-head"><h2>O que será criado</h2><span>14 bolões oficiais + Desafiante IA</span></div>
       <div class="panel-body">
-        <div class="status warn">Para cada campeonato: um bolão <strong>com peso</strong> e um bolão <strong>sem peso</strong>. Todos públicos, ativos, gratuitos, com datas de início/fim, total de jogos, logo do campeonato e Desafiante Simon IA garantido.</div>
+        <div class="status warn">Para cada campeonato: um bolão <strong>com peso</strong> e um bolão <strong>sem peso</strong>. Todos públicos, ativos, gratuitos, com datas de início/fim, total de jogos, logo do campeonato e Desafiante IA garantido.</div>
       </div>
     </div>
 
@@ -144,7 +144,7 @@
       temporada:'2026',
       fonte:'Jogos_BRA',
       url:'brasileirao.html',
-      inicio:'2026-01-28',
+      inicio:'2026-02-01',
       fim:'2026-12-01',
       qtdJogos:380,
       statusCampeonato:'Em andamento',
@@ -417,14 +417,14 @@
   async function criarDesafiante(bolaoId){
     await db.collection('boloes').doc(bolaoId).collection('participantes').doc('DESAFIANTE_SIMON_IA').set({
       uid:'DESAFIANTE_SIMON_IA',
-      nome:'🤖 Desafiante Simon IA',
+      nome:'🤖 Desafiante IA',
       email:'virtual@portalsimonsports.local',
       foto:'',
       papel:'DESAFIANTE',
       status:'APROVADO',
       ativo:true,
       virtual:true,
-      observacao:'Concorrente virtual estatístico. Não representa participante real e não tem participação financeira.',
+      observacao:'Participante virtual estatístico gerado automaticamente pelo sistema. Não representa participante real e não tem participação financeira.',
       criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
       atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
     },{merge:true});
