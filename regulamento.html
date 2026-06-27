@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+<!-- V002_REGULAMENTO_HIERARQUIA_PONTUACAO_PORTAL_SIMONSPORTS_2026-06-27 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Regulamento - Bolão Portal SimonSports</title>
-<meta name="description" content="Regulamento - Bolão Portal SimonSports - Bolão Portal SimonSports.">
+<title>Regulamento – Bolão Portal SimonSports</title>
+<meta name="description" content="Regulamento oficial do Bolão Portal SimonSports: prazo de palpites, placar automático, hierarquia de pontuação, peso por rodada e disposições finais.">
 </head>
 <body>
 <!-- ========== REGULAMENTO — Modalidade com Placar Automático e Peso por Rodada ========== -->
@@ -34,6 +35,21 @@
   .muted{color:var(--muted)}
   .foot{margin-top:22px;color:#a9b8d9;font-size:14px;text-align:center}
   .anchor{scroll-margin-top:80px}
+
+  /* Tabela de hierarquia */
+  .hier-table{width:100%;border-collapse:collapse;margin:12px 0}
+  .hier-table th,.hier-table td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);font-size:14px}
+  .hier-table th{color:var(--muted);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+  .hier-table tr:last-child td{border-bottom:none}
+  .hier-table .pts{font-weight:900;color:#7dd8a0;white-space:nowrap}
+  .hier-table .pri{font-weight:700;color:var(--ink)}
+
+  /* CTA de retorno */
+  .back-cta{display:flex;gap:10px;flex-wrap:wrap;margin:28px 0 12px;justify-content:center}
+  .btn{display:inline-block;padding:12px 18px;border-radius:10px;font-weight:700;text-decoration:none;cursor:pointer;border:0;font:inherit;transition:opacity .12s}
+  .btn:hover{opacity:.88}
+  .btn-primary{background:var(--pri);color:#fff}
+  .btn-ghost{border:2px solid #2a7a42;color:#7dd8a0;background:transparent}
 </style>
 
 <div class="reg-wrap">
@@ -43,7 +59,7 @@
     <div class="hero">
       <span class="pill">Regras oficiais</span>
       <h1>Regulamento – Modalidade com Placar Automático e Peso por Rodada</h1>
-      <div class="meta">Versão <b id="regVersion">v1.0</b> • Atualizado em <b id="regDate">16/08/2025</b></div>
+      <div class="meta">Versão <b id="regVersion">v1.1</b> • Atualizado em <b id="regDate">27/06/2026</b></div>
     </div>
 
     <!-- SUMÁRIO -->
@@ -55,6 +71,7 @@
         <a href="#s2">2) Prazo para palpitar</a>
         <a href="#s3">3) Placar Automático (cadastro e auditoria)</a>
         <a href="#s4">4) Requisitos de preenchimento</a>
+        <a href="#s5">5) Hierarquia de pontuação</a>
         <a href="#s6">6) Peso por rodada e fórmula de pontuação</a>
         <a href="#s7">7) Tabela de pontuação (pontos base)</a>
         <a href="#s8">8) Observações de definição</a>
@@ -101,8 +118,8 @@
 
       <div class="h3">Exemplo prático</div>
       <div class="box">
-        <p>• Placar automático cadastrado em <b>12/08 às 20h00</b>. Entre essa data/hora e a próxima alteração, se o participante esquecer de palpitar, o sistema completa com esse placar.</p>
-        <p>• Em <b>12/09 às 19h00</b> o participante altera o placar automático. <b>Todos os palpites automáticos</b> gerados antes de 12/09 19h00 são <b>cancelados</b> e os <b>pontos</b> por eles obtidos são <b>anulados</b>.</p>
+        <p>• Placar automático cadastrado no <b>Dia 1 às 20h00</b>. Entre essa data/hora e a próxima alteração, se o participante esquecer de palpitar, o sistema completa com esse placar.</p>
+        <p>• No <b>Dia 30 às 19h00</b> o participante altera o placar automático. <b>Todos os palpites automáticos</b> gerados antes do Dia 30 às 19h00 são <b>cancelados</b> e os <b>pontos</b> por eles obtidos são <b>anulados</b>.</p>
       </div>
     </div>
 
@@ -115,6 +132,35 @@
       </ul>
     </div>
 
+    <!-- 5) NOVA SEÇÃO: Hierarquia de pontuação -->
+    <div id="s5" class="card anchor">
+      <div class="h2">5) Hierarquia de pontuação</div>
+      <p class="muted">Para cada jogo, o sistema aplica <b>apenas a maior categoria alcançada</b> — as categorias não se acumulam. A ordem de verificação, da mais alta para a mais baixa, é a seguinte:</p>
+
+      <table class="hier-table">
+        <thead>
+          <tr>
+            <th>Prioridade</th>
+            <th>Categoria</th>
+            <th>Pts base</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="pri">1ª</td><td>Acerto de Placar (placar exato)</td><td class="pts">25 pts</td></tr>
+          <tr><td class="pri">2ª</td><td>Acerto do Gol do Vencedor</td><td class="pts">18 pts</td></tr>
+          <tr><td class="pri">3ª</td><td>Acerto do Saldo de Gols</td><td class="pts">15 pts</td></tr>
+          <tr><td class="pri">4ª</td><td>Acerto do Gol do Perdedor</td><td class="pts">12 pts</td></tr>
+          <tr><td class="pri">5ª</td><td>Acerto do Vencedor</td><td class="pts">10 pts</td></tr>
+          <tr><td class="pri">6ª</td><td>Empate Garantido</td><td class="pts">4 pts</td></tr>
+          <tr><td class="pri">—</td><td>Nenhum acerto</td><td class="pts">0 pts</td></tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        <b>Exemplo:</b> Oficial 2×0 • Apostado 2×1 → acerta o Gol do Vencedor (18 pts) e também o Vencedor (10 pts), mas o sistema atribui apenas <b>18 pts</b> (a categoria de maior valor).
+      </div>
+    </div>
+
     <!-- 6) -->
     <div id="s6" class="card anchor">
       <div class="h2">6) Peso por rodada e fórmula de pontuação</div>
@@ -123,17 +169,19 @@
         <li>A pontuação final do jogo é calculada por:
           <div class="box"><b>Pontuação do jogo = (Pontos base) × (Peso da rodada)</b></div>
         </li>
+        <li>Todos os pontos base da tabela da Seção 7 — incluindo o <b>Empate Garantido (4 pts)</b> — são multiplicados pelo peso da rodada.</li>
       </ul>
       <div class="h3">Exemplo</div>
       <div class="box">
-        Rodada 1 (peso 10) + placar exato (25 pontos base) → <b>25 × 10 = 250 pontos</b>.
+        Rodada 1 (peso 10) + placar exato (25 pontos base) → <b>25 × 10 = 250 pontos</b>.<br>
+        Rodada 1 (peso 10) + empate garantido (4 pontos base) → <b>4 × 10 = 40 pontos</b>.
       </div>
     </div>
 
     <!-- 7) -->
     <div id="s7" class="card anchor">
       <div class="h2">7) Tabela de pontuação (pontos base)</div>
-      <p class="muted">A seguir, os pontos base (antes da multiplicação pelo peso da rodada):</p>
+      <p class="muted">A seguir, os pontos base (antes da multiplicação pelo peso da rodada). O sistema aplica sempre a <b>maior categoria alcançada</b> — ver Seção 5:</p>
       <ul>
         <li><b>Acerto de Placar (placar exato) – 25 pts</b><br>
           Acerta exatamente o placar oficial.<br>
@@ -156,11 +204,11 @@
           <span class="muted">Ex.: Oficial 2×0 • Apostado 4×1 (ou 5×1)</span>
         </li>
         <li><b>Empate Garantido – 4 pts</b><br>
-          Acerta que o jogo terminou empatado (sem exigir placar exato).<br>
+          Acerta que o jogo terminou empatado (sem exigir placar exato). Também multiplicado pelo peso da rodada.<br>
           <span class="muted">Ex.: Oficial 2×2 • Apostado 1×1 (ou 0×0, 3×3 etc.)</span>
         </li>
       </ul>
-      <div class="note">A pontuação final de cada jogo é sempre multiplicada pelo <b>peso da rodada</b> (veja a Seção 6).</div>
+      <div class="note">A pontuação final de cada jogo é sempre multiplicada pelo <b>peso da rodada</b> (veja a Seção 6). O sistema aplica apenas a <b>maior categoria alcançada</b> por jogo (veja a Seção 5).</div>
     </div>
 
     <!-- 8) -->
@@ -189,28 +237,34 @@
       <div class="h2">10) Disposições finais</div>
       <ul>
         <li>Situações não previstas serão avaliadas pela organização do bolão, buscando preservar a <b>integridade</b> da competição e a <b>igualdade</b> entre participantes.</li>
+        <li>Alterações neste regulamento serão comunicadas pelo canal oficial do bolão.</li>
         <li>O uso do sistema implica na <b>aceitação integral</b> deste regulamento.</li>
       </ul>
       <div class="h3">Resumo da fórmula</div>
       <div class="box">
         <div><b>Pontuação de um jogo = (pontos base do acerto) × (peso da rodada)</b></div>
         <div><b>Peso da rodada:</b> 10, 11, 12, … (cresce +1 por rodada).</div>
+        <div><b>Regra geral:</b> aplica-se sempre a maior categoria de acerto por jogo.</div>
       </div>
     </div>
 
+    <!-- CTA de retorno -->
+    <div class="back-cta">
+      <a class="btn btn-primary" href="bolao.html">Acessar o sistema</a>
+      <a class="btn btn-ghost" href="publicos.html">Ver bolões públicos</a>
+      <a class="btn btn-ghost" href="index.html">← Início</a>
+    </div>
+
     <div class="foot">
-      © <span id="yr"></span> Plataforma de Bolões Esportivos • Este documento pode ser atualizado sem aviso prévio.
+      © <span id="yr"></span> Portal SimonSports • Bolão Portal SimonSports
     </div>
   </div>
 </div>
 
 <script>
-  // Atualiza ano do rodapé automaticamente
   document.getElementById('yr').textContent = new Date().getFullYear();
-  // (Opcional) Preencher versão/data dinamicamente via planilha depois
-  // document.getElementById('regVersion').textContent = 'v1.1';
-  // document.getElementById('regDate').textContent = '20/08/2025';
 </script>
 <!-- ========== /REGULAMENTO ========== -->
 </body>
 </html>
+
