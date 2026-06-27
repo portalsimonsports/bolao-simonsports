@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- V008_PUBLICOS_FILTROS_URL_CAMPEONATO_PESO_OFICIAIS -->
 <!-- V007_PUBLICOS_QUERY_PUBLICO_TIPO_PUBLICO_E_DETALHES -->
 <html lang="pt-BR">
 <head>
@@ -168,13 +169,16 @@
   const db = firebase.firestore();
 
   const $ = s => document.querySelector(s);
-  const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', publicos:[], filtrados:[], meusIds:new Set(), detalhe:null, pendingEnter:null };
+  const URL_PARAMS = new URLSearchParams(location.search);
+  const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', publicos:[], filtrados:[], meusIds:new Set(), detalhe:null, pendingEnter:null, urlFiltersApplied:false };
+  function normalizeCampParam(v){ const s=String(v||'').trim().toUpperCase(); if(s==='BR') return 'BRA'; return s; }
 
   function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),3600); }
   function esc(v){ return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
   function norm(v){ return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
   function safeId(v){ return String(v||'').trim().replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,80) || ('BOLAO_'+Date.now()); }
-  function campLabel(c){ const m={CUP:'Copa do Mundo',BR:'Brasileirão',BRA:'Brasileirão',LIB:'Libertadores',UCL:'Champions League'}; return m[String(c||'').toUpperCase()] || c || 'Campeonato'; }
+  function campRaw(b){ return String(b?.campeonato || b?.campeonatoSigla || b?.camp || '').trim().toUpperCase(); }
+  function campLabel(c){ const m={CUP:'Copa do Mundo',BR:'Brasileirão',BRA:'Brasileirão',ENG:'Premier League',ESP:'Campeonato Espanhol',ITA:'Campeonato Italiano',FRA:'Campeonato Francês',SUP:'Super Bolão',LIB:'Libertadores',UCL:'Champions League'}; return m[String(c||'').toUpperCase()] || c || 'Campeonato'; }
   function pesoModo(b){ return (b?.usaPesoRodada===true || b?.pontuacaoModo==='COM_PESO') ? 'COM_PESO' : 'SEM_PESO'; }
   function pesoLabel(b){ return pesoModo(b)==='COM_PESO' ? 'Com peso' : 'Sem peso'; }
   function formatoLabel(b){
@@ -327,9 +331,18 @@
   function montarFiltroCampeonatos(){
     const sel=$('#fCamp');
     const atual=sel.value;
-    const camps=[...new Set(state.publicos.map(b=>String(b.campeonato||b.camp||'CUP')).filter(Boolean))].sort((a,b)=>campLabel(a).localeCompare(campLabel(b),'pt-BR'));
+    const camps=[...new Set(state.publicos.map(b=>campRaw(b) || 'CUP').filter(Boolean))].sort((a,b)=>campLabel(a).localeCompare(campLabel(b),'pt-BR'));
     sel.innerHTML='<option value="">Todos</option>'+camps.map(c=>`<option value="${esc(c)}">${esc(campLabel(c))}</option>`).join('');
     sel.value=atual;
+    if(!state.urlFiltersApplied){
+      const campUrl = normalizeCampParam(URL_PARAMS.get('campeonato') || URL_PARAMS.get('camp'));
+      const pesoUrl = String(URL_PARAMS.get('peso') || '').trim().toUpperCase();
+      const buscaUrl = String(URL_PARAMS.get('busca') || '').trim();
+      if(campUrl && [...sel.options].some(o=>o.value===campUrl)) sel.value = campUrl;
+      if(pesoUrl && ['COM_PESO','SEM_PESO'].includes(pesoUrl)) $('#fPeso').value = pesoUrl;
+      if(buscaUrl) $('#fBusca').value = buscaUrl;
+      state.urlFiltersApplied = true;
+    }
   }
 
   function atualizarStats(list){
@@ -345,9 +358,9 @@
     const peso=$('#fPeso').value;
     let list=state.publicos.slice();
     if(q){
-      list=list.filter(b=>norm(`${b.nome||b.titulo||''} ${b.criadorNome||''} ${campLabel(b.campeonato||b.camp||'')} ${b.descricao||''}`).includes(q));
+      list=list.filter(b=>norm(`${b.nome||b.titulo||''} ${b.criadorNome||''} ${campLabel(campRaw(b))} ${b.descricao||''}`).includes(q));
     }
-    if(camp) list=list.filter(b=>String(b.campeonato||b.camp||'')===camp);
+    if(camp) list=list.filter(b=>String(campRaw(b))===camp);
     if(peso) list=list.filter(b=>pesoModo(b)===peso);
     state.filtrados=list;
     renderPublicos(list);
@@ -363,7 +376,7 @@
     grid.innerHTML=list.map(b=>{
       const ja=state.meusIds.has(b.id);
       const nome=b.nome||b.titulo||'Bolão sem nome';
-      const camp=b.campeonato||b.camp||'CUP';
+      const camp=campRaw(b) || 'CUP';
       const desc=String(b.descricao||'Bolão público com entrada automática, ranking e palpites.').trim();
       return `<article class="bolao-card">
         <div class="bolao-card-top">
@@ -416,7 +429,7 @@
         </div>
       </div>
       <div class="meta-list">
-        <div class="meta-row"><span>Campeonato</span><strong>${esc(campLabel(b.campeonato||b.camp||'CUP'))}</strong></div>
+        <div class="meta-row"><span>Campeonato</span><strong>${esc(campLabel(campRaw(b) || 'CUP'))}</strong></div>
         <div class="meta-row"><span>Formato</span><strong>${esc(formatoLabel(b))}</strong></div>
         <div class="meta-row"><span>Próxima/Tipo</span><strong>${esc(proximaLabel(b))}</strong></div>
         <div class="meta-row"><span>Criador</span><strong>${esc(b.criadorNome||'Portal SimonSports')}</strong></div>
