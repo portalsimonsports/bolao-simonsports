@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- V009_PUBLICOS_LOGOS_DATAS_PROGRESSO_STATUS_ORDEM -->
+<!-- V010_PUBLICOS_DATAS_FALLBACK_PLANILHA_FIRESTORE_ORDEM_STATUS -->
 <!-- V008_PUBLICOS_FILTROS_URL_CAMPEONATO_PESO_OFICIAIS -->
 <!-- V007_PUBLICOS_QUERY_PUBLICO_TIPO_PUBLICO_E_DETALHES -->
 <html lang="pt-BR">
@@ -206,15 +206,15 @@
   function norm(v){ return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
   function safeId(v){ return String(v||'').trim().replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,80) || ('BOLAO_'+Date.now()); }
   const CAMP_INFO = {
-    CUP:{label:'Copa do Mundo',short:'CUP',logo:'assets/logos/campeonatos/copa-do-mundo.png',ordem:10},
-    BRA:{label:'Brasileirão',short:'BRA',logo:'assets/logos/campeonatos/brasileirao.png',ordem:20},
-    ENG:{label:'Premier League',short:'ENG',logo:'assets/logos/campeonatos/premier-league.png',ordem:30},
-    ESP:{label:'Campeonato Espanhol',short:'ESP',logo:'assets/logos/campeonatos/campeonato-espanhol.png',ordem:40},
-    ITA:{label:'Campeonato Italiano',short:'ITA',logo:'assets/logos/campeonatos/campeonato-italiano.png',ordem:50},
-    FRA:{label:'Campeonato Francês',short:'FRA',logo:'assets/logos/campeonatos/campeonato-frances.png',ordem:60},
-    SUP:{label:'Super Bolão',short:'SUP',logo:'assets/logos/campeonatos/super-bolao.png',ordem:70},
-    LIB:{label:'Libertadores',short:'LIB',logo:'assets/logos/campeonatos/libertadores.png',ordem:80},
-    UCL:{label:'Champions League',short:'UCL',logo:'assets/logos/campeonatos/champions-league.png',ordem:90}
+    CUP:{label:'Copa do Mundo',short:'CUP',logo:'assets/logos/campeonatos/copa-do-mundo.png',ordem:10,inicio:'2026-06-11',fim:'2026-06-27',qtdJogos:72,status:'A iniciar'},
+    BRA:{label:'Brasileirão',short:'BRA',logo:'assets/logos/campeonatos/brasileirao.png',ordem:20,inicio:'2026-02-01',fim:'2026-12-01',qtdJogos:380,status:'Em andamento'},
+    ENG:{label:'Premier League',short:'ENG',logo:'assets/logos/campeonatos/premier-league.png',ordem:30,inicio:'2025-08-15',fim:'2026-05-24',qtdJogos:380,status:'Finalizado'},
+    ESP:{label:'Campeonato Espanhol',short:'ESP',logo:'assets/logos/campeonatos/campeonato-espanhol.png',ordem:40,inicio:'2025-08-15',fim:'2026-05-24',qtdJogos:380,status:'Finalizado'},
+    ITA:{label:'Campeonato Italiano',short:'ITA',logo:'assets/logos/campeonatos/campeonato-italiano.png',ordem:50,inicio:'2026-08-22',fim:'2027-05-29',qtdJogos:380,status:'A iniciar'},
+    FRA:{label:'Campeonato Francês',short:'FRA',logo:'assets/logos/campeonatos/campeonato-frances.png',ordem:60,inicio:'2025-08-15',fim:'2026-05-17',qtdJogos:306,status:'Finalizado'},
+    SUP:{label:'Super Bolão',short:'SUP',logo:'assets/logos/campeonatos/super-bolao.png',ordem:70,inicio:'2025-08-15',fim:'2027-05-29',qtdJogos:1826,status:'Em andamento'},
+    LIB:{label:'Libertadores',short:'LIB',logo:'assets/logos/campeonatos/libertadores.png',ordem:80,inicio:'',fim:'',qtdJogos:0,status:''},
+    UCL:{label:'Champions League',short:'UCL',logo:'assets/logos/campeonatos/champions-league.png',ordem:90,inicio:'',fim:'',qtdJogos:0,status:''}
   };
   function campCode(v){
     const raw=String(v||'').trim();
@@ -302,8 +302,18 @@
     const d=new Date(s);
     return isNaN(d) ? null : d;
   }
-  function inicioBolao(b){ return parseDateValue(pickFirst(b,['dataInicio','inicio','dtInicio','data_inicio','temporadaInicio','inicioCampeonato'])); }
-  function fimBolao(b){ return parseDateValue(pickFirst(b,['dataFim','fim','dtFim','data_fim','temporadaFim','fimCampeonato'])); }
+  function inicioBolao(b){
+    const direto=parseDateValue(pickFirst(b,['dataInicio','inicio','dtInicio','data_inicio','temporadaInicio','inicioCampeonato']));
+    if(direto) return direto;
+    const info=CAMP_INFO[campRaw(b)] || {};
+    return parseDateValue(info.inicio);
+  }
+  function fimBolao(b){
+    const direto=parseDateValue(pickFirst(b,['dataFim','fim','dtFim','data_fim','temporadaFim','fimCampeonato']));
+    if(direto) return direto;
+    const info=CAMP_INFO[campRaw(b)] || {};
+    return parseDateValue(info.fim);
+  }
   function dataLabel(v){
     const d=parseDateValue(v);
     if(!d) return '—';
@@ -316,7 +326,7 @@
     return `${ini?dataLabel(ini):'—'} até ${fim?dataLabel(fim):'—'}`;
   }
   function statusCompeticao(b){
-    const raw=norm(pickFirst(b,['statusCampeonato','statusCompeticao','statusCalendario','faseStatus','andamento']));
+    const raw=norm(pickFirst(b,['statusCampeonato','statusCompeticao','statusCalendario','faseStatus','andamento']) || (CAMP_INFO[campRaw(b)]?.status || ''));
     if(raw.includes('final')) return {key:'FINALIZADO',label:'Finalizado',classe:'status-finalizado',ordem:3};
     if(raw.includes('iniciar') || raw.includes('a comecar') || raw.includes('a começar')) return {key:'A_INICIAR',label:'A iniciar',classe:'status-iniciar',ordem:2};
     if(raw.includes('andamento') || raw.includes('ao vivo')) return {key:'EM_ANDAMENTO',label:'Em andamento',classe:'status-andamento',ordem:1};
@@ -335,7 +345,7 @@
   }
   function calcularProgresso(b){
     const st=statusCompeticao(b);
-    const total=numCampo(b,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos']);
+    const total=numCampo(b,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos']) || (CAMP_INFO[campRaw(b)]?.qtdJogos || 0);
     const feitos=numCampo(b,['jogosFinalizados','qtdFinalizados','qtd_jogos_finalizados','finalizados','jogosEncerrados','jogosRealizados']);
     if(total && total>0 && feitos !== null){
       const pct=Math.max(0,Math.min(100,Math.round((feitos/total)*100)));
@@ -349,7 +359,7 @@
     }
     if(st.key==='FINALIZADO') return {pct:100,texto:'100%',nota:'Campeonato finalizado'};
     if(st.key==='A_INICIAR') return {pct:0,texto:'0%',nota:'Campeonato ainda não iniciou'};
-    return {pct:0,texto:'—',nota:'Progresso indisponível'};
+    return {pct:0,texto:'—',nota:'Total de jogos cadastrado; aguardando finalizados'};
   }
   function progressoHtml(b){
     const p=calcularProgresso(b);
