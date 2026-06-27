@@ -747,7 +747,23 @@
   const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', perfil:'USUARIO', perfilGlobal:'USUARIO', usuarioAdmin:false, camp:'', bolao:null, meus:[], publicos:[], privados:[], pa:null, jogos:[], jogosExibidos:[], autoLoadToken:0, autoLoading:false, catalogo:[] };
   const autosaveTimers = {};
   const DESAFIANTE_UID = 'DESAFIANTE_SIMON_IA';
-  const DESAFIANTE_NOME = '🤖 Desafiante Simon IA';
+  const DESAFIANTE_NOME = '🤖 Desafiante IA';
+
+  function isDesafianteObj(p){
+    if(!p) return false;
+    const papel=String(p.papel||'').toUpperCase();
+    const nome=String(p.nome||'');
+    return p.uid === DESAFIANTE_UID
+      || p.id === DESAFIANTE_UID
+      || (p.virtual === true && papel === 'DESAFIANTE')
+      || nome.includes('Desafiante IA')
+      || nome.includes('Desafiante IA');
+  }
+
+  function nomeExibicaoParticipante(p, fallback='Participante'){
+    if(isDesafianteObj(p)) return DESAFIANTE_NOME;
+    return p?.nome || p?.email || p?.uid || fallback;
+  }
 
   function p2(n){ return String(n).padStart(2,'0'); }
   function fmtClock(d){ return `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}`; }
@@ -1437,7 +1453,7 @@
         status:'APROVADO',
         ativo:true,
         virtual:true,
-        observacao:'Concorrente virtual estatístico. Não representa participante real e não tem participação financeira.',
+        observacao:'Participante virtual estatístico gerado automaticamente pelo sistema. Não representa participante real e não tem participação financeira.',
         criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
         atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
       },{merge:true});
@@ -1469,7 +1485,7 @@
     try{
       const qs=await db.collection('boloes').doc(b.id).collection('participantes').get();
       if(qs.empty){ lista.innerHTML='<div class="empty">Nenhum participante.</div>'; return; }
-      lista.innerHTML=''; qs.docs.forEach(d=>{ const p=d.data(); const card=document.createElement('div'); card.className='bolao-card'; card.innerHTML=`<div><strong>${p.nome||p.email||p.uid}</strong><div class="bolao-meta"><span class="badge ${p.status==='PENDENTE'?'pendente':'publico'}">${p.status}</span><span class="badge ${p.virtual?'virtual':''}">${p.papel}</span>${p.virtual?'<span class="badge virtual">Virtual</span>':''}</div></div>${isAdminBolao(b)&&p.status==='PENDENTE'?'<div class="bolao-actions"><button class="btn primary mini" data-aprovar="'+p.uid+'">Aprovar</button><button class="btn danger mini" data-recusar="'+p.uid+'">Recusar</button></div>':''}`; lista.appendChild(card); });
+      lista.innerHTML=''; qs.docs.forEach(d=>{ const p=d.data(); const card=document.createElement('div'); card.className='bolao-card'; card.innerHTML=`<div><strong>${escapeHtml(nomeExibicaoParticipante(p))}</strong><div class="bolao-meta"><span class="badge ${p.status==='PENDENTE'?'pendente':'publico'}">${p.status}</span><span class="badge ${p.virtual?'virtual':''}">${p.papel}</span>${p.virtual?'<span class="badge virtual">Virtual</span>':''}</div></div>${isAdminBolao(b)&&p.status==='PENDENTE'?'<div class="bolao-actions"><button class="btn primary mini" data-aprovar="'+p.uid+'">Aprovar</button><button class="btn danger mini" data-recusar="'+p.uid+'">Recusar</button></div>':''}`; lista.appendChild(card); });
       lista.querySelectorAll('[data-aprovar]').forEach(btn=>btn.onclick=()=>aprovarParticipante(btn.dataset.aprovar,true));
       lista.querySelectorAll('[data-recusar]').forEach(btn=>btn.onclick=()=>aprovarParticipante(btn.dataset.recusar,false));
     }catch(e){ lista.innerHTML='<div class="empty">Erro: '+e.message+'</div>'; }
@@ -2902,7 +2918,7 @@
       const id=String(p.idJogo||''); const g=map.get(id);
       if(!g || !validos.has(id)) return;
       const uidp=p.uid||p.nome||'participante';
-      const atual=agg.get(uidp)||{nome:p.nome||uidp,pontos:0,jogos:0,exatos:0,virtual:p.virtual===true};
+      const atual=agg.get(uidp)||{nome:nomeExibicaoParticipante(p,uidp),pontos:0,jogos:0,exatos:0,virtual:isDesafianteObj(p)||p.virtual===true};
       const pts=pontuarPalpite(p,g);
       atual.pontos+=pts; atual.jogos+=1; if(palpiteExato(p,g)) atual.exatos+=1; if(p.virtual) atual.virtual=true;
       agg.set(uidp,atual);
@@ -3182,7 +3198,7 @@
       batch.set(ref,{uid:DESAFIANTE_UID,nome:DESAFIANTE_NOME,idJogo:id,camp,rodada:String(rodada),gm:palpite.gm,gv:palpite.gv,origem:'DESAFIANTE_SIMON_IA',perfil:'FAVORITOS_ESTATISTICO',virtual:true,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
       total++;
     });
-    if(total){ await batch.commit(); console.log(`Desafiante Simon IA atualizado: ${total} palpites futuros.`); }
+    if(total){ await batch.commit(); console.log(`Desafiante IA atualizado: ${total} palpites futuros.`); }
   }
 
   function escapeHtml(v){
@@ -3286,7 +3302,7 @@
   function origemPalpiteTexto(p){
     const raw = String((p && (p.origem || p.perfil || p.tipo || p.status)) || 'manual');
     const n = raw.toUpperCase();
-    if(n.includes('DESAFIANTE')) return 'Desafiante Simon IA';
+    if(n.includes('DESAFIANTE')) return 'Desafiante IA';
     if(n.includes('PA_FAVORITOS')) return 'P.A. Favoritos';
     if(n.includes('FAVORITOS')) return 'Favoritos';
     if(n.includes('EQUILIBRADO')) return 'Equilibrado';
@@ -3398,7 +3414,7 @@
       const g=jogosMap.get(id);
       if(!g || !jogosValidos.has(id)) return;
       const uidp=p.uid||p.nome||'participante';
-      const atual=agg.get(uidp)||{nome:p.nome||uidp,pontos:0,jogos:0,exatos:0,virtual:p.virtual===true};
+      const atual=agg.get(uidp)||{nome:nomeExibicaoParticipante(p,uidp),pontos:0,jogos:0,exatos:0,virtual:isDesafianteObj(p)||p.virtual===true};
       const pts=pontuarPalpite(p,g);
       atual.pontos+=pts;
       atual.jogos+=1;
@@ -3424,7 +3440,7 @@
       body.innerHTML = '<div class="info-empty">Nenhum palpite liberado para exibição. Jogos futuros continuam ocultos.</div>';
       return;
     }
-    body.innerHTML = `${legendaAcertosHTML()}<table class="info-table palpites-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th><th>Pontuação</th></tr></thead><tbody>${rows.map(({p,g})=>`<tr><td>${confrontoOficialPalpiteHTML(g,p.idJogo)}</td><td><span class="score-clean">${escapeHtml(p.gm)} x ${escapeHtml(p.gv)}</span></td><td><span class="palpite-participante">${escapeHtml(p.nome||p.uid||'Participante')} ${p.virtual?'<span class="badge virtual">Virtual</span>':''}</span></td><td>${pontuacaoAcertoHTML(p,g)}</td></tr>`).join('')}</tbody></table>`;
+    body.innerHTML = `${legendaAcertosHTML()}<table class="info-table palpites-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th><th>Pontuação</th></tr></thead><tbody>${rows.map(({p,g})=>`<tr><td>${confrontoOficialPalpiteHTML(g,p.idJogo)}</td><td><span class="score-clean">${escapeHtml(p.gm)} x ${escapeHtml(p.gv)}</span></td><td><span class="palpite-participante">${escapeHtml(nomeExibicaoParticipante(p))} ${(isDesafianteObj(p)||p.virtual)?'<span class="badge virtual">Virtual</span>':''}</span></td><td>${pontuacaoAcertoHTML(p,g)}</td></tr>`).join('')}</tbody></table>`;
   }
 
   async function atualizarPaineisAutomaticos(){
