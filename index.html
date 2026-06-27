@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<!-- V004_INDEX_FIXES_PORTAL_SIMONSPORTS_2026-06-27 -->
+<!-- V007_INDEX_TIMEOUT_CATALOG_FAQ_LINKS_2026-06-27 -->
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Bolão Portal SimonSports | Bolões Públicos, Palpites, Ranking e Regulamento</title>
-  <meta name="description" content="Portal SimonSports: bolões públicos disponíveis, palpites esportivos, ranking automático, regulamento, campeonatos disponíveis e atualização de resultados.">
+  <meta name="description" content="Portal SimonSports: bolões públicos disponíveis, estatísticas gerais, palpites esportivos, ranking automático, regulamento, campeonatos disponíveis e atualização de resultados.">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#1f8a36">
   <link rel="canonical" href="https://bolao.portalsimonsports.com/">
@@ -37,6 +37,7 @@
     "inLanguage": "pt-BR"
   }
   </script>
+
 
   <script type="application/ld+json">
   {
@@ -79,8 +80,10 @@
   }
   </script>
 
+
   <!-- =========================================================
   = = = HOME – Bolão Portal SimonSports = = =
+  Estrutura com separadores por bloco/função para facilitar manutenção.
   ========================================================= -->
 
   <!-- =========================[ INÍCIO: CSS GLOBAL ]========================= -->
@@ -97,6 +100,7 @@
     }
 
     *{box-sizing:border-box}
+
     html{scroll-behavior:smooth}
 
     body{
@@ -108,6 +112,7 @@
     }
 
     a{color:var(--prim2)}
+
     .home-wrap{min-height:100vh}
 
     .container{
@@ -193,8 +198,14 @@
       line-height:1.2;
     }
 
-    .brand b{font-size:16px}
-    .brand span{font-size:12px;color:var(--muted)}
+    .brand b{
+      font-size:16px;
+    }
+
+    .brand span{
+      font-size:12px;
+      color:var(--muted);
+    }
 
     .login-area{
       display:flex;
@@ -204,18 +215,25 @@
       flex-wrap:wrap;
     }
 
-    .user{font-size:14px;color:#445}
+    .user{
+      font-size:14px;
+      color:#445;
+    }
 
     @media (max-width:640px){
       .topbar .row{
         align-items:flex-start;
         flex-direction:column;
       }
+
       .login-area{
         width:100%;
         justify-content:space-between;
       }
-      .login-area .btn{padding:10px 12px}
+
+      .login-area .btn{
+        padding:10px 12px;
+      }
     }
 
     /* HERO */
@@ -262,14 +280,27 @@
       line-height:1.2;
     }
 
-    .sec-sub{color:var(--muted);margin:-6px 0 22px}
+    .sec-sub{
+      color:var(--muted);
+      margin:-6px 0 22px;
+    }
 
-    .grid{display:grid;gap:18px}
+    .grid{
+      display:grid;
+      gap:18px;
+    }
 
-    .g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .g-3{
+      grid-template-columns:repeat(3,minmax(0,1fr));
+    }
 
-    @media (max-width:900px){.g-3{grid-template-columns:repeat(2,1fr)}}
-    @media (max-width:640px){.g-3{grid-template-columns:1fr}}
+    @media (max-width:900px){
+      .g-3{grid-template-columns:repeat(2,1fr)}
+    }
+
+    @media (max-width:640px){
+      .g-3{grid-template-columns:1fr}
+    }
 
     .card{
       background:var(--card);
@@ -279,11 +310,26 @@
       border:1px solid rgba(230,233,239,.72);
     }
 
-    .card h3{margin:6px 0 10px;font-size:18px;line-height:1.25}
-    .card p,.card li{color:#4a5363}
-    .card ul,.card ol{margin:0 0 4px 18px;padding:0}
+    .card h3{
+      margin:6px 0 10px;
+      font-size:18px;
+      line-height:1.25;
+    }
 
-    .sec-light{background:var(--claro)}
+    .card p,
+    .card li{
+      color:#4a5363;
+    }
+
+    .card ul,
+    .card ol{
+      margin:0 0 4px 18px;
+      padding:0;
+    }
+
+    .sec-light{
+      background:var(--claro);
+    }
 
     .sec-dark{
       background:var(--escuro);
@@ -297,7 +343,10 @@
       box-shadow:none;
     }
 
-    .sec-dark .card p,.sec-dark .card li{color:#b7c2de}
+    .sec-dark .card p,
+    .sec-dark .card li{
+      color:#b7c2de;
+    }
 
     .pill{
       display:inline-flex;
@@ -312,7 +361,9 @@
     }
 
     /* Chamada para bolões públicos */
-    .sec-publicos{background:linear-gradient(180deg,#fff 0%,#f2fbf5 100%)}
+    .sec-publicos{
+      background:linear-gradient(180deg,#fff 0%,#f2fbf5 100%);
+    }
 
     .publicos-panel{
       display:grid;
@@ -326,8 +377,14 @@
       box-shadow:0 12px 30px rgba(16,24,40,.08);
     }
 
-    .publicos-panel h2{margin:0 0 10px}
-    .publicos-panel p{color:#4a5363;margin:0 0 14px}
+    .publicos-panel h2{
+      margin:0 0 10px;
+    }
+
+    .publicos-panel p{
+      color:#4a5363;
+      margin:0 0 14px;
+    }
 
     .publicos-actions{
       display:flex;
@@ -349,8 +406,17 @@
       background:#fafffb;
     }
 
-    .publicos-preview-card b{display:block;margin-bottom:4px;color:#122019}
-    .publicos-preview-card span{color:#607066;font-size:13px;font-weight:700}
+    .publicos-preview-card b{
+      display:block;
+      margin-bottom:4px;
+      color:#122019;
+    }
+
+    .publicos-preview-card span{
+      color:#607066;
+      font-size:13px;
+      font-weight:700;
+    }
 
     .publicos-badges{
       display:flex;
@@ -370,10 +436,137 @@
       font-weight:900;
     }
 
-    @media (max-width:860px){.publicos-panel{grid-template-columns:1fr}}
+    @media (max-width:860px){
+      .publicos-panel{
+        grid-template-columns:1fr;
+      }
+    }
+
+    /* Estatísticas públicas sem nomes */
+    .sec-estatisticas{
+      background:#fff;
+    }
+
+    .stats-publicas-panel{
+      border:1px solid rgba(230,233,239,.95);
+      border-radius:18px;
+      background:#fff;
+      padding:22px;
+      box-shadow:0 10px 26px rgba(16,24,40,.06);
+    }
+
+    .stats-publicas-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:16px;
+    }
+
+    .stats-publicas-head h2{
+      margin:0 0 6px;
+    }
+
+    .stats-publicas-head p{
+      margin:0;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .stats-publicas-atualizacao{
+      color:#6b7484;
+      font-size:12px;
+      font-weight:800;
+      text-align:right;
+      white-space:nowrap;
+    }
+
+    .stats-publicas-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .stats-publicas-card{
+      min-height:104px;
+      border:1px solid #e6e9ef;
+      border-radius:16px;
+      background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:16px 12px;
+    }
+
+    .stats-publicas-card strong{
+      display:block;
+      font-size:clamp(28px,4.2vw,40px);
+      line-height:1;
+      color:#0f172a;
+      letter-spacing:-.04em;
+      margin-bottom:8px;
+    }
+
+    .stats-publicas-card span{
+      display:block;
+      color:#5b6475;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    @media (max-width:900px){
+      .stats-publicas-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:520px){
+      .stats-publicas-head{
+        align-items:flex-start;
+        flex-direction:column;
+      }
+
+      .stats-publicas-atualizacao{
+        text-align:left;
+        white-space:normal;
+      }
+
+      .stats-publicas-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:10px;
+      }
+
+      .stats-publicas-card{
+        min-height:96px;
+        padding:14px 8px;
+      }
+
+      .stats-publicas-card span{
+        font-size:11px;
+      }
+    }
+
+    /* Mensagem de erro/fallback do catálogo */
+    .catalog-msg{
+      padding:16px;
+      border-radius:12px;
+      background:#fff8e1;
+      border:1px solid #ffe082;
+      color:#5c4a00;
+      font-size:14px;
+    }
+
+    .catalog-msg a{color:#1f8a36;font-weight:700}
 
     /* Lista dinâmica */
-    .list{display:grid;gap:12px}
+    .list{
+      display:grid;
+      gap:12px;
+    }
 
     .list a{
       display:flex;
@@ -393,19 +586,10 @@
       box-shadow:0 8px 18px rgba(32,120,55,.08);
     }
 
-    .meta{font-size:12px;color:var(--muted)}
-
-    /* Mensagem de erro/fallback do catálogo */
-    .catalog-msg{
-      padding:16px;
-      border-radius:12px;
-      background:#fff8e1;
-      border:1px solid #ffe082;
-      color:#5c4a00;
-      font-size:14px;
+    .meta{
+      font-size:12px;
+      color:var(--muted);
     }
-
-    .catalog-msg a{color:#1f8a36;font-weight:700}
 
     .footer{
       padding:28px 16px;
@@ -414,7 +598,9 @@
       font-size:14px;
     }
 
-    .footer a{margin:0 6px}
+    .footer a{
+      margin:0 6px;
+    }
 
     /* FAQ */
     details{
@@ -431,7 +617,10 @@
       cursor:pointer;
     }
 
-    details .a{padding:0 0 14px;color:#4a5363}
+    details .a{
+      padding:0 0 14px;
+      color:#4a5363;
+    }
   </style>
   <!-- =========================[ FIM: CSS GLOBAL ]========================= -->
 </head>
@@ -516,7 +705,47 @@
       <!-- =====================[ FIM: CHAMADA BOLOES PUBLICOS ]===================== -->
 
 
-      <!-- =====================[ INÍCIO: SOBRE/REGRAS/COMO ]===================== -->
+      <!-- =====================[ INÍCIO: ESTATÍSTICAS PÚBLICAS ]===================== -->
+      <section class="sec-estatisticas" id="estatisticas">
+        <div class="container">
+          <div class="stats-publicas-panel">
+            <div class="stats-publicas-head">
+              <div>
+                <span class="tag">Números gerais • Sem nomes de usuários</span>
+                <h2 class="sec-title">📊 Estatísticas em tempo real</h2>
+                <p>Apenas dados gerais do portal, sem exibir participantes individualmente.</p>
+              </div>
+              <div id="statsAtualizacao" class="stats-publicas-atualizacao">Carregando...</div>
+            </div>
+
+            <div class="stats-publicas-grid" aria-label="Estatísticas públicas do Portal SimonSports">
+              <article class="stats-publicas-card">
+                <strong id="statBoloesAtivos">0</strong>
+                <span>Bolões ativos</span>
+              </article>
+
+              <article class="stats-publicas-card">
+                <strong id="statParticipantes">0</strong>
+                <span>Participantes</span>
+              </article>
+
+              <article class="stats-publicas-card">
+                <strong id="statPalpites">0</strong>
+                <span>Palpites registrados</span>
+              </article>
+
+              <article class="stats-publicas-card">
+                <strong id="statJogosAvaliados">0</strong>
+                <span>Jogos avaliados</span>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- =====================[ FIM: ESTATÍSTICAS PÚBLICAS ]===================== -->
+
+
+            <!-- =====================[ INÍCIO: SOBRE/REGRAS/COMO ]===================== -->
       <section class="sec-light">
         <div class="container">
           <h2 class="sec-title">Como funciona o Bolão Portal SimonSports</h2>
@@ -532,10 +761,9 @@
               <h3>📋 Regulamento resumido</h3>
               <ul>
                 <li>Palpites permitidos até o horário de início do jogo.</li>
-                <li>Placar exato: <b>25 pts base</b> × peso da rodada.</li>
-                <li>Acerto do vencedor: <b>10 pts base</b> × peso da rodada.</li>
-                <li>Empate garantido: <b>4 pts base</b> × peso da rodada.</li>
+                <li>Placar exato: <b>25 pts</b>, conforme regra de pontuação vigente.</li>
                 <li>Ranking atualizado automaticamente.</li>
+                <li>Empate garantido: 4 pts, aplicado conforme o peso da rodada.</li>
               </ul>
               <p class="meta">Leia também: <a href="regulamento.html">regulamento completo</a></p>
             </article>
@@ -616,7 +844,7 @@
 
             <details>
               <summary>Como é calculada a pontuação?</summary>
-              <div class="a">A pontuação segue o regulamento publicado. Para cada jogo, o sistema aplica a maior categoria de acerto (placar exato, gol do vencedor, saldo, etc.) e multiplica pelo peso da rodada. Veja o <a href="regulamento.html">regulamento completo</a>.</div>
+              <div class="a">A pontuação segue o regulamento publicado, incluindo critérios como placar exato, resultado e peso da rodada.</div>
             </details>
 
             <details>
@@ -689,6 +917,11 @@
     const btnLogin = document.getElementById('btnLogin');
     const btnLogout= document.getElementById('btnLogout');
     const listEl   = document.getElementById('catalogList');
+    const statBoloesAtivos = document.getElementById('statBoloesAtivos');
+    const statParticipantes = document.getElementById('statParticipantes');
+    const statPalpites = document.getElementById('statPalpites');
+    const statJogosAvaliados = document.getElementById('statJogosAvaliados');
+    const statsAtualizacao = document.getElementById('statsAtualizacao');
     // ---------- FIM BLOCO: Referências DOM ----------
 
     // ---------- INÍCIO FUNÇÃO: handleLogin ----------
@@ -749,6 +982,86 @@
       }
     });
     // ---------- FIM OBSERVADOR: onAuthStateChanged ----------
+
+    // ---------- INÍCIO FUNÇÃO: formatarNumeroPublico ----------
+    function formatarNumeroPublico(valor){
+      const n = Number(valor || 0);
+      if(!isFinite(n)) return '0';
+      return Math.max(0, Math.round(n)).toLocaleString('pt-BR');
+    }
+    // ---------- FIM FUNÇÃO: formatarNumeroPublico ----------
+
+    // ---------- INÍCIO FUNÇÃO: formatarDataHoraPublica ----------
+    function formatarDataHoraPublica(valor){
+      try{
+        let d = null;
+
+        if(valor && typeof valor.toDate === 'function'){
+          d = valor.toDate();
+        }else if(valor){
+          d = new Date(valor);
+        }
+
+        if(!d || isNaN(d.getTime())) return '';
+
+        return d.toLocaleString('pt-BR', {
+          day:'2-digit',
+          month:'2-digit',
+          year:'numeric',
+          hour:'2-digit',
+          minute:'2-digit'
+        });
+      }catch(e){
+        return '';
+      }
+    }
+    // ---------- FIM FUNÇÃO: formatarDataHoraPublica ----------
+
+    // ---------- INÍCIO FUNÇÃO: setEstatisticasPublicas ----------
+    function setEstatisticasPublicas(dados){
+      const boloesAtivos = dados.boloesAtivos ?? dados.boloes_ativos ?? dados.publicosAtivos ?? 0;
+      const participantes = dados.participantes ?? dados.participantesTotal ?? dados.totalParticipantes ?? 0;
+      const palpites = dados.palpitesRegistrados ?? dados.palpites ?? dados.totalPalpites ?? 0;
+      const jogosAvaliados = dados.jogosAvaliados ?? dados.jogos_avaliados ?? dados.totalJogosAvaliados ?? 0;
+
+      statBoloesAtivos.textContent = formatarNumeroPublico(boloesAtivos);
+      statParticipantes.textContent = formatarNumeroPublico(participantes);
+      statPalpites.textContent = formatarNumeroPublico(palpites);
+      statJogosAvaliados.textContent = formatarNumeroPublico(jogosAvaliados);
+
+      const atualizado = formatarDataHoraPublica(dados.atualizadoEm || dados.atualizado_em || dados.ultimaAtualizacao);
+      statsAtualizacao.textContent = atualizado ? `Atualizado em ${atualizado}` : 'Estatísticas públicas';
+    }
+    // ---------- FIM FUNÇÃO: setEstatisticasPublicas ----------
+
+    // ---------- INÍCIO FUNÇÃO: loadEstatisticasPublicas ----------
+    function loadEstatisticasPublicas(){
+      try{
+        db.collection('configuracoes').doc('estatisticasPublicas')
+          .onSnapshot((snap) => {
+            if(!snap.exists){
+              setEstatisticasPublicas({});
+              statsAtualizacao.textContent = 'Aguardando atualização';
+              return;
+            }
+
+            setEstatisticasPublicas(snap.data() || {});
+          }, (erro) => {
+            console.warn('Falha ao carregar estatísticas públicas:', erro);
+            setEstatisticasPublicas({});
+            statsAtualizacao.textContent = 'Estatísticas indisponíveis';
+          });
+      }catch(e){
+        console.warn('Falha ao iniciar estatísticas públicas:', e);
+        setEstatisticasPublicas({});
+        statsAtualizacao.textContent = 'Estatísticas indisponíveis';
+      }
+    }
+    // ---------- FIM FUNÇÃO: loadEstatisticasPublicas ----------
+
+    // ---------- INÍCIO BOOT: estatísticas públicas ----------
+    loadEstatisticasPublicas();
+    // ---------- FIM BOOT: estatísticas públicas ----------
   </script>
   <!-- =========================[ FIM: Firebase (compat) ]========================= -->
 
@@ -758,8 +1071,11 @@
     // ---------- INÍCIO FUNÇÃO: formatDateOnly ----------
     function formatDateOnly(isoOrGs){
       if(!isoOrGs) return '';
+
       const d = new Date(isoOrGs);
+
       if(isNaN(d)) return '';
+
       return String(d.getDate()).padStart(2,'0') + '/' +
              String(d.getMonth()+1).padStart(2,'0') + '/' +
              d.getFullYear();
@@ -776,19 +1092,10 @@
         FRA:'🇫🇷',
         SUP:'🌍'
       };
+
       return map[sig] || '🏟️';
     }
     // ---------- FIM FUNÇÃO: ligaEmoji ----------
-
-    // ---------- INÍCIO FUNÇÃO: showCatalogError ----------
-    function showCatalogError(){
-      listEl.innerHTML = '';
-      const msg = document.createElement('div');
-      msg.className = 'catalog-msg';
-      msg.innerHTML = 'Não foi possível carregar os campeonatos agora. <a href="bolao.html">Acesse o sistema</a> ou tente novamente em instantes.';
-      listEl.appendChild(msg);
-    }
-    // ---------- FIM FUNÇÃO: showCatalogError ----------
 
     // ---------- INÍCIO FUNÇÃO: renderCatalog ----------
     function renderCatalog(items){
@@ -806,8 +1113,10 @@
       items.sort((a,b) => {
         const sigA = String(a.sigla || '');
         const sigB = String(b.sigla || '');
+
         if(sigA === 'SUP' && sigB !== 'SUP') return 1;
         if(sigA !== 'SUP' && sigB === 'SUP') return -1;
+
         return sigA.localeCompare(sigB, 'pt-BR');
       });
 
@@ -833,6 +1142,16 @@
       });
     }
     // ---------- FIM FUNÇÃO: renderCatalog ----------
+
+    // ---------- INÍCIO FUNÇÃO: showCatalogError ----------
+    function showCatalogError(){
+      listEl.innerHTML = '';
+      const msg = document.createElement('div');
+      msg.className = 'catalog-msg';
+      msg.innerHTML = 'Não foi possível carregar os campeonatos agora. <a href="bolao.html">Acesse o sistema</a> ou tente novamente em instantes.';
+      listEl.appendChild(msg);
+    }
+    // ---------- FIM FUNÇÃO: showCatalogError ----------
 
     // ---------- INÍCIO FUNÇÃO: loadCatalog ----------
     async function loadCatalog(){
