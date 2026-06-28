@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V009_INDEX_HOME_STATS_REAIS_PUBLICOS_JOGOS_2026-06-27 -->
+<!-- V010_INDEX_HOME_COPA_PROGRESSO_REAL_PUBLICOS_2026-06-28 -->
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -623,6 +623,25 @@
   let statsConfiguracaoValida = false;
   let statsFonteAtual = '';
 
+  const CATALOG_BASE_FALLBACK = [
+    {sigla:'CUP',nome:'Copa do Mundo 2026',inicio:'2026-06-11',fim:'2026-07-19',totalJogos:104,qtdJogos:104,ordem:10,ativo:true,publicado:true,boloesPublicos:1,logo:''},
+    {sigla:'BRA',nome:'Brasileirão',inicio:'2026-02-01',fim:'2026-12-01',totalJogos:380,qtdJogos:380,ordem:20,ativo:true,publicado:true,logo:''},
+    {sigla:'ENG',nome:'Premier League',inicio:'2025-08-15',fim:'2026-05-24',totalJogos:380,qtdJogos:380,ordem:30,ativo:true,publicado:true,logo:''},
+    {sigla:'ESP',nome:'Campeonato Espanhol',inicio:'2025-08-15',fim:'2026-05-24',totalJogos:380,qtdJogos:380,ordem:40,ativo:true,publicado:true,logo:''},
+    {sigla:'FRA',nome:'Campeonato Francês',inicio:'2025-08-15',fim:'2026-05-17',totalJogos:306,qtdJogos:306,ordem:50,ativo:true,publicado:true,logo:''},
+    {sigla:'ITA',nome:'Campeonato Italiano',inicio:'2026-08-22',fim:'2027-05-29',totalJogos:380,qtdJogos:380,ordem:60,ativo:true,publicado:true,logo:''},
+    {sigla:'SUP',nome:'Super Bolão',inicio:'2025-08-15',fim:'2027-05-29',totalJogos:1826,qtdJogos:1826,ordem:70,ativo:true,publicado:true,logo:''}
+  ];
+
+  const SIGLAS_EQUIVALENTES = {
+    COPA:'CUP',COPA2026:'CUP',COPA_2026:'CUP',WORLD_CUP:'CUP',FIFA:'CUP',
+    BRASILEIRAO:'BRA',BRASILEIRÃO:'BRA',BRASIL:'BRA',BR:'BRA',
+    PREMIER:'ENG',PREMIER_LEAGUE:'ENG',INGLES:'ENG',INGLÊS:'ENG',ENGLAND:'ENG',
+    LA_LIGA:'ESP',LALIGA:'ESP',ESPANHOL:'ESP',ESPANHA:'ESP',
+    FRANCES:'FRA',FRANCÊS:'FRA',FRANCA:'FRA',FRANÇA:'FRA',
+    ITALIANO:'ITA',ITALIA:'ITA',ITÁLIA:'ITA',SUPER:'SUP'
+  };
+
   function toast(msg){
     toastEl.textContent = msg;
     toastEl.classList.add('show');
@@ -633,6 +652,13 @@
   function formatNum(v){ const n=Number(v||0); return isFinite(n) ? Math.max(0,Math.round(n)).toLocaleString('pt-BR') : '0'; }
   function normalizaTexto(v){ return String(v ?? '').trim(); }
   function txtUpper(v){ return normalizaTexto(v).toUpperCase(); }
+  function normalizaChave(v){ return txtUpper(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]+/g,'_').replace(/^_+|_+$/g,''); }
+  function siglaCampeonato(v){
+    const raw = normalizaTexto(v);
+    const chave = normalizaChave(raw);
+    if(!chave) return '';
+    return SIGLAS_EQUIVALENTES[chave] || chave;
+  }
   function ehNumeroValido(v){ const n=Number(v); return isFinite(n) && !isNaN(n); }
   function toNumber(v){
     if(typeof v === 'number') return isFinite(v) ? v : 0;
@@ -691,8 +717,9 @@
     }catch(e){ return ''; }
   }
   function ligaEmoji(sig){
+    const key = siglaCampeonato(sig);
     const map={BRA:'🇧🇷',BR:'🇧🇷',ESP:'🇪🇸',ENG:'🏴',ITA:'🇮🇹',FRA:'🇫🇷',SUP:'🌍',CUP:'🏆',UCL:'🏆',LIB:'🏆'};
-    return map[String(sig||'').toUpperCase()] || '🏟️';
+    return map[key] || '🏟️';
   }
   function ligaLogoHtml(c){
     const logo = pickValue(c, ['logo','logoUrl','logo_url','imagem','icone','escudo','urlLogo']);
@@ -922,34 +949,82 @@
   }
   function isAtivo(d){
     const status = normalizaStatusItem(d);
-    return d?.ativo !== false && d?.excluido !== true && d?.deletado !== true && d?.arquivado !== true &&
-      (!status || ['ATIVO','ABERTO','PUBLICADO','EM ANDAMENTO','ANDAMENTO','INICIADO','A INICIAR','AGENDADO','APROVADO'].includes(status));
+    const inativo = d?.ativo === false || d?.excluido === true || d?.deletado === true || d?.arquivado === true;
+    if(inativo) return false;
+    return !status || ['ATIVO','ABERTO','PUBLICADO','EM ANDAMENTO','ANDAMENTO','INICIADO','A INICIAR','AGENDADO','APROVADO','FINALIZADO','ENCERRADO'].includes(status);
   }
   function isPublico(d){
-    const vis = txtUpper(pickValue(d, ['visibilidade','tipo','tipoBolao','privacidade','acesso']) || '');
-    return d?.publico === true || d?.publicado === true || vis === 'PUBLICO' || vis === 'PÚBLICO' || vis === 'OFICIAL';
+    const vis = txtUpper(pickValue(d, ['visibilidade','tipo','tipoBolao','privacidade','acesso','categoria']) || '');
+    return d?.publico === true || d?.publicado === true || d?.oficial === true || vis === 'PUBLICO' || vis === 'PÚBLICO' || vis === 'OFICIAL';
+  }
+  function valorPlacarValido(v){
+    if(v === 0 || v === '0') return true;
+    if(v === undefined || v === null) return false;
+    const s = String(v).trim().toUpperCase();
+    if(!s || ['VS','V.S','VERSUS','X','-','–','—','A DEFINIR','ADIADO',''].includes(s)) return false;
+    const n = Number(s.replace(',', '.').replace(/[^0-9.-]/g,''));
+    return Number.isFinite(n) && n >= 0;
+  }
+  function extrairPlacarJogo(j){
+    const pm = pickValue(j, ['placarMandante','placar_mandante','golsMandante','gols_mandante','mandante_gols','homeScore','home_score','scoreHome','resultadoMandante','gols_mandante_oficial','gm']);
+    const pv = pickValue(j, ['placarVisitante','placar_visitante','golsVisitante','gols_visitante','visitante_gols','awayScore','away_score','scoreAway','resultadoVisitante','gols_visitante_oficial','gv']);
+    if(valorPlacarValido(pm) && valorPlacarValido(pv)) return {gm:Number(String(pm).replace(',', '.').replace(/[^0-9.-]/g,'')), gv:Number(String(pv).replace(',', '.').replace(/[^0-9.-]/g,''))};
+
+    const texto = pickValue(j, ['placar','resultado','score','resultadoFinal','placarFinal','resultado_oficial','resultadoTexto','resultado_texto']);
+    const s = String(texto ?? '').trim();
+    if(!s || /^VS$/i.test(s)) return null;
+    const m = s.match(/(\d+)\s*(?:x|X|×|-|–|—|:)\s*(\d+)/);
+    if(m) return {gm:Number(m[1]), gv:Number(m[2])};
+    return null;
   }
   function jogoFinalizado(j){
     const st = normalizaStatusItem(j);
-    const pm = pickValue(j, ['placarMandante','golsMandante','mandante_gols','homeScore','scoreHome','resultadoMandante']);
-    const pv = pickValue(j, ['placarVisitante','golsVisitante','visitante_gols','awayScore','scoreAway','resultadoVisitante']);
-    const temPlacar = pm !== undefined && pm !== null && pm !== '' && pv !== undefined && pv !== null && pv !== '';
-    return j?.finalizado === true || j?.encerrado === true || ['FINALIZADO','ENCERRADO','FECHADO','FIM','FT'].includes(st) || temPlacar;
+    const placar = extrairPlacarJogo(j);
+    const resultadoTexto = String(pickValue(j, ['placar','resultado','score','resultadoFinal','placarFinal','resultado_oficial'], '')).trim().toUpperCase();
+    const textoDiferenteDeVs = !!resultadoTexto && resultadoTexto !== 'VS' && resultadoTexto !== 'V.S' && !['-','–','—','X'].includes(resultadoTexto);
+    return j?.finalizado === true || j?.encerrado === true || ['FINALIZADO','ENCERRADO','FECHADO','FIM','FT','AO VIVO','AOVIVO','EM ANDAMENTO','INICIADO'].includes(st) || !!placar || textoDiferenteDeVs;
+  }
+  function normalizarCatalogItem(raw){
+    if(!raw || typeof raw !== 'object') return null;
+    const sigla = siglaCampeonato(pickValue(raw, ['sigla','Sigla','SIGLA','id','codigo','camp','campeonato','liga','competicao']) || '');
+    if(!sigla) return null;
+    const fallback = CATALOG_BASE_FALLBACK.find(x => x.sigla === sigla) || {};
+    return {
+      ...fallback,
+      ...raw,
+      sigla,
+      nome: pickValue(raw, ['nome','Nome','NOME','titulo','title','descricao']) || fallback.nome || sigla,
+      inicio: pickValue(raw, ['inicio','dataInicio','data_inicio','inicioEm','dtInicio']) || fallback.inicio || '',
+      fim: pickValue(raw, ['fim','termino','dataFim','data_fim','terminoEm','dtFim']) || fallback.fim || '',
+      totalJogos: pickValue(raw, ['totalJogos','jogosTotal','qtdJogos','quantidadeJogos','total_jogos','jogos_total']) || fallback.totalJogos || fallback.qtdJogos || 0,
+      qtdJogos: pickValue(raw, ['qtdJogos','totalJogos','jogosTotal','quantidadeJogos','total_jogos','jogos_total']) || fallback.qtdJogos || fallback.totalJogos || 0,
+      ordem: toNumber(pickValue(raw, ['ordem','Ordem','posicao','peso']) ?? fallback.ordem ?? 999)
+    };
+  }
+  function mergeCatalog(items){
+    const mapa = new Map();
+    CATALOG_BASE_FALLBACK.map(normalizarCatalogItem).filter(Boolean).forEach(c => mapa.set(c.sigla, c));
+    (items || []).map(normalizarCatalogItem).filter(Boolean).forEach(c => mapa.set(c.sigla, {...(mapa.get(c.sigla) || {}), ...c}));
+    return Array.from(mapa.values()).filter(c => c.ativo !== false && c.publicado !== false);
   }
   function progressoCampeonato(c){
-    let total = pickNumber(c, ['totalJogos','jogosTotal','qtdJogos','quantidadeJogos','total_jogos','jogos_total']);
-    let finalizados = pickNumber(c, ['jogosFinalizados','finalizados','jogosAvaliados','jogosEncerrados','qtdJogosFinalizados','totalJogosFinalizados','jogos_finalizados','jogos_avaliados']);
+    const normalizado = normalizarCatalogItem(c) || c || {};
+    let total = pickNumber(normalizado, ['totalJogos','jogosTotal','qtdJogos','quantidadeJogos','total_jogos','jogos_total']);
+    let finalizados = pickNumber(normalizado, ['jogosRealizados','realizados','jogosFinalizados','finalizados','jogosAvaliados','jogosEncerrados','qtdJogosFinalizados','totalJogosFinalizados','jogos_finalizados','jogos_avaliados','qtdFinalizados']);
 
-    const jogos = pickValue(c, ['jogos','partidas','matches']);
+    const jogos = pickValue(normalizado, ['jogos','partidas','matches','listaJogos','jogosLista']);
     if(Array.isArray(jogos)){
       total = total || jogos.length;
-      finalizados = finalizados || jogos.filter(jogoFinalizado).length;
+      const contados = jogos.filter(jogoFinalizado).length;
+      if(contados > 0 || finalizados === 0) finalizados = contados;
     }
 
+    const pctInformado = pickNumber(normalizado, ['progresso','percentual','pct','percentualConcluido','percentual_concluido']);
     total = Math.max(0, Math.round(total || 0));
     finalizados = Math.max(0, Math.round(finalizados || 0));
+    if(total > 0 && finalizados === 0 && pctInformado > 0) finalizados = Math.round(total * Math.min(100, pctInformado) / 100);
     if(total > 0 && finalizados > total) finalizados = total;
-    const pct = total > 0 ? Math.round((finalizados / total) * 100) : 0;
+    const pct = total > 0 ? Math.round((finalizados / total) * 100) : Math.max(0, Math.min(100, Math.round(pctInformado || 0)));
     return {total, finalizados, pct};
   }
   function statusCampeonatoReal(c){
@@ -1151,7 +1226,8 @@
   }
   function statsFromCatalog(items){
     const stats = {boloesAtivos:0,participantes:0,palpitesRegistrados:0,jogosFinalizados:0,totalJogos:0,fonteStats:'Catálogo de campeonatos'};
-    for(const c of (items || [])){
+    const lista = mergeCatalog(items || []);
+    for(const c of lista){
       const p = progressoCampeonato(c);
       stats.jogosFinalizados += p.finalizados;
       stats.totalJogos += p.total;
@@ -1171,19 +1247,22 @@
   }
   function renderCatalog(items){
     catalogGrid.innerHTML = '';
-    if(!items || !items.length){
+    const lista = mergeCatalog(items || []);
+    if(!lista.length){
       catalogGrid.innerHTML = '<div class="empty">Nenhum campeonato disponível no momento.</div>';
       return;
     }
-    items.sort((a,b) => {
+    lista.sort((a,b) => {
       const os = ordemStatus(a) - ordemStatus(b);
       if(os !== 0) return os;
+      const oa = Number(a.ordem || 999), ob = Number(b.ordem || 999);
+      if(oa !== ob) return oa - ob;
       const nomeA = String(a.nome || a.sigla || '');
       const nomeB = String(b.nome || b.sigla || '');
       return nomeA.localeCompare(nomeB,'pt-BR');
     });
-    catalogGrid.innerHTML = items.slice(0,9).map(c => {
-      const sigla = String(c.sigla || '').trim();
+    catalogGrid.innerHTML = lista.slice(0,12).map(c => {
+      const sigla = siglaCampeonato(c.sigla || c.campeonato || c.id || '').trim();
       const nome = String(c.nome || sigla || 'Campeonato').trim();
       const statusReal = statusCampeonatoReal(c);
       const p = resumoProgresso(c);
@@ -1191,7 +1270,7 @@
       const fim = formatDateOnly(pickValue(c, ['fim','termino','dataFim','data_fim','terminoEm','dtFim']));
       const periodo = `${inicio} — ${fim}`.replace(/^ — | — $/g,'');
       const boloesPublicos = pickNumber(c, ['boloesPublicos','publicosAtivos','boloesAtivos','qtdBoloesPublicos','qtdBoloes']);
-      const boloesTexto = boloesPublicos > 0 ? `${formatNum(boloesPublicos)} ${boloesPublicos === 1 ? 'bolão público' : 'bolões públicos'}` : 'Bolões conforme publicação';
+      const boloesTexto = boloesPublicos > 0 ? `${formatNum(boloesPublicos)} ${boloesPublicos === 1 ? 'bolão público' : 'bolões públicos'}` : (sigla === 'CUP' ? 'Bolão da Copa disponível' : 'Bolões conforme publicação');
       const linkPublicos = sigla ? `publicos.html?campeonato=${encodeURIComponent(sigla)}` : 'publicos.html';
       return `<article class="catalog-card">
         <div class="catalog-top">
@@ -1215,25 +1294,27 @@
     }).join('');
   }
   async function loadCatalog(){
-    try{
-      const r = await fetch(`${API_BASE}?action=catalog&_=${Date.now()}`);
-      if(!r.ok) throw new Error(`HTTP ${r.status}`);
-      const j = await r.json().catch(() => ({}));
-      const arr = extrairArrayResposta(j);
-      renderCatalog(arr);
-      catalogStatsCache = statsFromCatalog(arr);
-      if(!statsConfiguracaoValida && statsTemValor(catalogStatsCache)){
-        statsFonteAtual = catalogStatsCache.fonteStats;
-        setStats(catalogStatsCache);
+    const actions = ['catalog','catalogo','campeonatos'];
+    let arr = [];
+    for(const action of actions){
+      try{
+        const j = await fetchAction(action);
+        const atual = extrairArrayResposta(j);
+        if(atual && atual.length) arr = arr.concat(atual);
+        if(arr.length >= 7) break;
+      }catch(e){
+        console.warn('Erro ao carregar catálogo via '+action+':', e);
       }
-      loadPublicosStatsApi();
-      loadStatsFirestoreFallback();
-    }catch(e){
-      console.warn('Erro ao carregar catálogo:', e);
-      renderCatalog([]);
-      loadPublicosStatsApi();
-      loadStatsFirestoreFallback();
     }
+    const final = mergeCatalog(arr);
+    renderCatalog(final);
+    catalogStatsCache = statsFromCatalog(final);
+    if(!statsConfiguracaoValida && statsTemValor(catalogStatsCache)){
+      statsFonteAtual = catalogStatsCache.fonteStats;
+      setStats(catalogStatsCache);
+    }
+    loadPublicosStatsApi();
+    loadStatsFirestoreFallback();
   }
 
   loadStats();
