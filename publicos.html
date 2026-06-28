@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- V011_PUBLICOS_PROGRESSO_REAL_JOGOS_FINALIZADOS_HOME_SYNC -->
 <!-- V010_PUBLICOS_DATAS_FALLBACK_PLANILHA_FIRESTORE_ORDEM_STATUS -->
 <!-- V008_PUBLICOS_FILTROS_URL_CAMPEONATO_PESO_OFICIAIS -->
 <!-- V007_PUBLICOS_QUERY_PUBLICO_TIPO_PUBLICO_E_DETALHES -->
@@ -70,7 +71,7 @@
   .bolao-card:before{content:"";position:absolute;left:0;top:0;right:0;height:5px;background:linear-gradient(90deg,#10b981,#2563eb)}
   .bolao-card-top{display:grid;grid-template-columns:68px 1fr;gap:13px;align-items:start;margin-top:3px}
   .bolao-logo{width:68px;height:68px;border-radius:18px;border:1px solid #e2e8f0;background:linear-gradient(135deg,#ecfdf5,#eff6ff);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:30px;flex:0 0 auto}
-  .bolao-logo img{width:100%;height:100%;object-fit:cover;display:block}
+  .bolao-logo img{width:100%;height:100%;object-fit:contain;display:block;padding:8px;background:#fff}
   .bolao-card h3{margin:2px 0 8px;font-size:20px;font-weight:1000;letter-spacing:-.025em;color:#0f172a;line-height:1.14}
   .bolao-desc{margin:8px 0 13px;color:#64748b;font-size:13px;font-weight:800;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:1000;border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8}.badge.green{background:#ecfdf5;border-color:#bbf7d0;color:#047857}.badge.yellow{background:#fffbeb;border-color:#fde68a;color:#a16207}.badge.gray{background:#f1f5f9;border-color:#e2e8f0;color:#334155}.badge.purple{background:#f3e8ff;border-color:#ddd6fe;color:#6d28d9}
@@ -92,6 +93,7 @@
   .date-line span{color:#64748b;text-transform:uppercase;letter-spacing:.04em;font-size:10px;font-weight:1000}
   .progress-box{margin:10px 0 12px}
   .progress-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px;color:#475569;font-size:12px;font-weight:950}
+  .progress-top strong{text-align:right;line-height:1.25}
   .progress-track{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden}
   .progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#10b981,#2563eb);width:0%}
   .progress-note{margin-top:6px;color:#64748b;font-size:11px;font-weight:850}
@@ -102,11 +104,11 @@
   .loading{grid-column:1/-1;text-align:center;padding:30px;color:#64748b;font-weight:900}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0f172a;color:#fff;border-radius:16px;padding:12px 16px;box-shadow:var(--shadow);z-index:30;display:none;font-weight:850;max-width:min(92vw,680px);text-align:center}.toast.show{display:block}
 
   .modal{position:fixed;inset:0;background:rgba(15,23,42,.58);display:none;place-items:center;z-index:40;padding:18px}.modal.open{display:grid}.modal-card{background:#fff;border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.32);width:min(760px,94vw);overflow:hidden;max-height:92vh;display:flex;flex-direction:column}.modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.modal-head h3{margin:0;font-size:22px;font-weight:1000}.modal-body{padding:18px 20px;overflow:auto}.modal-actions{display:flex;gap:10px;justify-content:flex-end;padding:16px 20px;border-top:1px solid var(--line);flex-wrap:wrap}.x{background:#f1f5f9;color:#0f172a;border:0;border-radius:12px;padding:8px 11px;font-weight:1000;cursor:pointer}
-  .det-hero{display:grid;grid-template-columns:92px 1fr;gap:16px;align-items:center;margin-bottom:16px}.det-logo{width:92px;height:92px;border-radius:24px;border:1px solid #e2e8f0;background:linear-gradient(135deg,#ecfdf5,#eff6ff);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:40px}.det-logo img{width:100%;height:100%;object-fit:cover}.det-desc{margin:8px 0 0;color:#475569;font-weight:750;line-height:1.45}.det-box{margin-top:14px;border:1px solid #e2e8f0;border-radius:18px;background:#f8fafc;padding:14px}.det-box h4{margin:0 0 8px;font-size:15px;font-weight:1000;color:#0f172a}.det-box ul{margin:0;padding-left:18px;color:#475569;font-weight:750}.det-box li{margin:4px 0}.det-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.det-metric{background:#fff;border:1px solid #e2e8f0;border-radius:16px;text-align:center;padding:12px}.det-metric strong{display:block;font-size:20px;font-weight:1000}.det-metric span{display:block;margin-top:4px;color:#64748b;font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.04em}
+  .det-hero{display:grid;grid-template-columns:92px 1fr;gap:16px;align-items:center;margin-bottom:16px}.det-logo{width:92px;height:92px;border-radius:24px;border:1px solid #e2e8f0;background:linear-gradient(135deg,#ecfdf5,#eff6ff);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:40px}.det-logo img{width:100%;height:100%;object-fit:contain;display:block;padding:10px;background:#fff}.det-desc{margin:8px 0 0;color:#475569;font-weight:750;line-height:1.45}.det-box{margin-top:14px;border:1px solid #e2e8f0;border-radius:18px;background:#f8fafc;padding:14px}.det-box h4{margin:0 0 8px;font-size:15px;font-weight:1000;color:#0f172a}.det-box ul{margin:0;padding-left:18px;color:#475569;font-weight:750}.det-box li{margin:4px 0}.det-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.det-metric{background:#fff;border:1px solid #e2e8f0;border-radius:16px;text-align:center;padding:12px}.det-metric strong{display:block;font-size:20px;font-weight:1000}.det-metric span{display:block;margin-top:4px;color:#64748b;font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.04em}
   @media(max-width:760px){.det-hero{grid-template-columns:1fr}.det-summary-grid{grid-template-columns:1fr}}
 
   @media(max-width:1200px){.publicos-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.filters{grid-template-columns:1fr 1fr 1fr}.filters .field:first-child{grid-column:1/-1}.filters .btn{grid-column:1/-1}.hero-grid{grid-template-columns:1fr}.auth-card{min-width:0}}
-  @media(max-width:760px){.page{width:100%;padding:0 0 24px}.hero,.shell{border-radius:0}.stats{grid-template-columns:repeat(2,1fr);padding:0 12px}.filters{grid-template-columns:1fr;padding:14px}.content{padding:14px}.publicos-grid{grid-template-columns:1fr}.titlebar{padding:18px 14px}.hero{padding:22px 16px}.card-actions{grid-template-columns:1fr}.auth-card{width:100%}}
+  @media(max-width:760px){.page{width:100%;padding:0 0 24px}.hero,.shell{border-radius:0}.stats{grid-template-columns:repeat(2,1fr);padding:0 12px}.filters{grid-template-columns:1fr;padding:14px}.content{padding:14px}.publicos-grid{grid-template-columns:1fr}.titlebar{padding:18px 14px}.hero{padding:22px 16px}.card-actions{grid-template-columns:1fr}.auth-card{width:100%}.progress-top{align-items:flex-start}.date-line,.meta-row{align-items:flex-start;flex-direction:column;gap:4px}.date-line strong,.meta-row strong{text-align:left}}
 </style>
 </head>
 <body>
@@ -116,7 +118,7 @@
       <div>
         <span class="kicker">🏆 Portal SimonSports • Bolões públicos</span>
         <h1>Bolões públicos disponíveis</h1>
-        <p>Entre nos bolões oficiais públicos do Portal SimonSports. Escolha o campeonato, veja o andamento e participe automaticamente com login Google.</p>
+        <p>Entre nos bolões oficiais públicos do Portal SimonSports. Escolha o campeonato, veja o andamento real por jogos finalizados e participe automaticamente com login Google.</p>
         <div class="hero-actions">
           <a class="btn primary" href="bolao.html">Meu painel</a>
           <a class="btn ghost" href="index.html">Página inicial</a>
@@ -140,7 +142,7 @@
     <div class="titlebar">
       <div>
         <h2>Explorar bolões públicos</h2>
-        <p>Entrada automática, logos dos campeonatos, datas, barra de evolução e ordem por andamento.</p>
+        <p>Entrada automática, logos dos campeonatos, datas, barra de evolução por jogos finalizados e ordem por status real.</p>
       </div>
       <button class="btn dark" id="btnAtualizar">Atualizar</button>
     </div>
@@ -195,10 +197,15 @@
     console.warn('Falha ao definir persistência local do login:', e);
   });
   const db = firebase.firestore();
+  const API_BASE = "https://script.google.com/macros/s/AKfycbxbFTg0YODAo1oSX6OQe4HPbMnkrMsXQP93oJsTj4ilhA2fTiZgxk-4qKv1XPiNyyaC/exec";
 
   const $ = s => document.querySelector(s);
   const URL_PARAMS = new URLSearchParams(location.search);
-  const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', publicos:[], filtrados:[], meusIds:new Set(), detalhe:null, pendingEnter:null, urlFiltersApplied:false };
+  const state = {
+    uid:'GUEST', nome:'Visitante', email:'', foto:'',
+    publicos:[], filtrados:[], meusIds:new Set(), detalhe:null, pendingEnter:null,
+    urlFiltersApplied:false, catalogoCamp:{}
+  };
   function normalizeCampParam(v){ const s=String(v||'').trim().toUpperCase(); if(s==='BR') return 'BRA'; return s; }
 
   function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),3600); }
@@ -206,13 +213,13 @@
   function norm(v){ return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
   function safeId(v){ return String(v||'').trim().replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,80) || ('BOLAO_'+Date.now()); }
   const CAMP_INFO = {
-    CUP:{label:'Copa do Mundo',short:'CUP',logo:'assets/logos/campeonatos/copa-do-mundo.png',ordem:10,inicio:'2026-06-11',fim:'2026-06-27',qtdJogos:72,status:'A iniciar'},
+    CUP:{label:'Copa do Mundo',short:'CUP',logo:'assets/logos/campeonatos/copa-do-mundo.png',ordem:10,inicio:'2026-06-11',fim:'2026-07-19',qtdJogos:104,status:'A iniciar'},
     BRA:{label:'Brasileirão',short:'BRA',logo:'assets/logos/campeonatos/brasileirao.png',ordem:20,inicio:'2026-02-01',fim:'2026-12-01',qtdJogos:380,status:'Em andamento'},
     ENG:{label:'Premier League',short:'ENG',logo:'assets/logos/campeonatos/premier-league.png',ordem:30,inicio:'2025-08-15',fim:'2026-05-24',qtdJogos:380,status:'Finalizado'},
     ESP:{label:'Campeonato Espanhol',short:'ESP',logo:'assets/logos/campeonatos/campeonato-espanhol.png',ordem:40,inicio:'2025-08-15',fim:'2026-05-24',qtdJogos:380,status:'Finalizado'},
     ITA:{label:'Campeonato Italiano',short:'ITA',logo:'assets/logos/campeonatos/campeonato-italiano.png',ordem:50,inicio:'2026-08-22',fim:'2027-05-29',qtdJogos:380,status:'A iniciar'},
     FRA:{label:'Campeonato Francês',short:'FRA',logo:'assets/logos/campeonatos/campeonato-frances.png',ordem:60,inicio:'2025-08-15',fim:'2026-05-17',qtdJogos:306,status:'Finalizado'},
-    SUP:{label:'Super Bolão',short:'SUP',logo:'assets/logos/campeonatos/super-bolao.png',ordem:70,inicio:'2025-08-15',fim:'2027-05-29',qtdJogos:1826,status:'Em andamento'},
+    SUP:{label:'Super Bolão',short:'SUP',logo:'assets/logos/campeonatos/super-bolao.png',ordem:70,inicio:'2025-08-15',fim:'2027-05-29',qtdJogos:1930,status:'Em andamento'},
     LIB:{label:'Libertadores',short:'LIB',logo:'assets/logos/campeonatos/libertadores.png',ordem:80,inicio:'',fim:'',qtdJogos:0,status:''},
     UCL:{label:'Champions League',short:'UCL',logo:'assets/logos/campeonatos/champions-league.png',ordem:90,inicio:'',fim:'',qtdJogos:0,status:''}
   };
@@ -234,7 +241,11 @@
     return up || 'CUP';
   }
   function campRaw(b){ return campCode(b?.campeonatoSigla || b?.camp || b?.sigla || b?.campeonato || 'CUP'); }
-  function campLabel(c){ const code=campCode(c); return CAMP_INFO[code]?.label || c || 'Campeonato'; }
+  function infoCamp(c){
+    const code=campCode(c);
+    return { ...(CAMP_INFO[code] || {label:code,short:code,ordem:999,qtdJogos:0}), ...(state.catalogoCamp[code] || {}) };
+  }
+  function campLabel(c){ const code=campCode(c); return infoCamp(code)?.label || code || 'Campeonato'; }
   function pesoModo(b){ return (b?.usaPesoRodada===true || b?.pontuacaoModo==='COM_PESO') ? 'COM_PESO' : 'SEM_PESO'; }
   function pesoLabel(b){ return pesoModo(b)==='COM_PESO' ? 'Com peso' : 'Sem peso'; }
   function formatoLabel(b){
@@ -252,14 +263,16 @@
     }
     return '';
   }
-  function numCampo(b, keys){
-    const v=pickFirst(b,keys);
+  function numValor(v){
     if(v === '' || v === null || v === undefined) return null;
+    if(typeof v === 'string') v = v.replace(/[^0-9,.-]/g,'').replace(',','.');
     const n=Number(v);
     return Number.isFinite(n) ? n : null;
   }
+  function numCampo(b, keys){ return numValor(pickFirst(b,keys)); }
   function logoCampeonatoSrc(b){
     const camp=campRaw(b);
+    const info=infoCamp(camp);
     return String(
       b?.logoCampeonato ||
       b?.logoCampeonatoUrl ||
@@ -267,13 +280,13 @@
       b?.imagemUrl ||
       b?.logo ||
       b?.imagem ||
-      CAMP_INFO[camp]?.logo ||
+      info?.logo ||
       ''
     ).trim();
   }
   function logoBolaoHtml(b, cls){
     const camp=campRaw(b);
-    const info=CAMP_INFO[camp] || {short:camp||'🏆'};
+    const info=infoCamp(camp) || {short:camp||'🏆'};
     const src=logoCampeonatoSrc(b);
     const fallback=`<span class="logo-fallback camp-${esc(camp)}">${esc(info.short || camp || '🏆')}</span>`;
     if(src){
@@ -305,14 +318,12 @@
   function inicioBolao(b){
     const direto=parseDateValue(pickFirst(b,['dataInicio','inicio','dtInicio','data_inicio','temporadaInicio','inicioCampeonato']));
     if(direto) return direto;
-    const info=CAMP_INFO[campRaw(b)] || {};
-    return parseDateValue(info.inicio);
+    return parseDateValue(infoCamp(campRaw(b)).inicio);
   }
   function fimBolao(b){
     const direto=parseDateValue(pickFirst(b,['dataFim','fim','dtFim','data_fim','temporadaFim','fimCampeonato']));
     if(direto) return direto;
-    const info=CAMP_INFO[campRaw(b)] || {};
-    return parseDateValue(info.fim);
+    return parseDateValue(infoCamp(campRaw(b)).fim);
   }
   function dataLabel(v){
     const d=parseDateValue(v);
@@ -325,11 +336,41 @@
     if(!ini && !fim) return 'Datas não informadas';
     return `${ini?dataLabel(ini):'—'} até ${fim?dataLabel(fim):'—'}`;
   }
-  function statusCompeticao(b){
-    const raw=norm(pickFirst(b,['statusCampeonato','statusCompeticao','statusCalendario','faseStatus','andamento']) || (CAMP_INFO[campRaw(b)]?.status || ''));
+  function totalJogosBolao(b){
+    const direto=numCampo(b,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos','totalPartidas','qtdPartidas']);
+    if(direto !== null) return Math.max(0, Math.round(direto));
+    const info=infoCamp(campRaw(b));
+    const n=numValor(info.totalJogos ?? info.qtdJogos ?? info.jogosTotal ?? info.total_jogos);
+    return n !== null ? Math.max(0, Math.round(n)) : 0;
+  }
+  function jogosFinalizadosBolao(b){
+    const direto=numCampo(b,[
+      'jogosFinalizados','qtdFinalizados','qtd_jogos_finalizados','finalizados','jogosEncerrados','jogosRealizados',
+      'jogosAvaliados','qtdJogosAvaliados','totalJogosAvaliados','jogosComResultado','qtdComResultado','partidasFinalizadas'
+    ]);
+    if(direto !== null) return Math.max(0, Math.round(direto));
+    const info=infoCamp(campRaw(b));
+    const n=numValor(info.jogosFinalizados ?? info.qtdFinalizados ?? info.finalizados ?? info.jogosEncerrados ?? info.jogosAvaliados ?? info.jogosComResultado);
+    return n !== null ? Math.max(0, Math.round(n)) : null;
+  }
+  function statusPorLabelRaw(b){
+    const raw=norm(pickFirst(b,['statusCampeonato','statusCompeticao','statusCalendario','faseStatus','andamento']) || (infoCamp(campRaw(b))?.status || ''));
     if(raw.includes('final')) return {key:'FINALIZADO',label:'Finalizado',classe:'status-finalizado',ordem:3};
     if(raw.includes('iniciar') || raw.includes('a comecar') || raw.includes('a começar')) return {key:'A_INICIAR',label:'A iniciar',classe:'status-iniciar',ordem:2};
     if(raw.includes('andamento') || raw.includes('ao vivo')) return {key:'EM_ANDAMENTO',label:'Em andamento',classe:'status-andamento',ordem:1};
+    return null;
+  }
+  function statusCompeticao(b){
+    const total=totalJogosBolao(b);
+    const feitos=jogosFinalizadosBolao(b);
+    if(total > 0 && feitos !== null){
+      if(feitos >= total) return {key:'FINALIZADO',label:'Finalizado',classe:'status-finalizado',ordem:3};
+      if(feitos > 0) return {key:'EM_ANDAMENTO',label:'Em andamento',classe:'status-andamento',ordem:1};
+    }
+
+    const raw=statusPorLabelRaw(b);
+    if(raw) return raw;
+
     const ini=inicioBolao(b), fim=fimBolao(b);
     const hoje=new Date();
     const hojeDia=new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate());
@@ -344,22 +385,28 @@
     return {key:'EM_ANDAMENTO',label:'Em andamento',classe:'status-andamento',ordem:1};
   }
   function calcularProgresso(b){
+    const total=totalJogosBolao(b);
+    const feitosRaw=jogosFinalizadosBolao(b);
     const st=statusCompeticao(b);
-    const total=numCampo(b,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos']) || (CAMP_INFO[campRaw(b)]?.qtdJogos || 0);
-    const feitos=numCampo(b,['jogosFinalizados','qtdFinalizados','qtd_jogos_finalizados','finalizados','jogosEncerrados','jogosRealizados']);
-    if(total && total>0 && feitos !== null){
-      const pct=Math.max(0,Math.min(100,Math.round((feitos/total)*100)));
-      return {pct, texto:`${feitos}/${total} jogos`, nota:'Progresso por jogos finalizados'};
+
+    if(total > 0){
+      let feitos = feitosRaw;
+      if(feitos === null){
+        if(st.key === 'FINALIZADO') feitos = total;
+        else if(st.key === 'A_INICIAR') feitos = 0;
+        else feitos = null;
+      }
+      if(feitos !== null){
+        feitos = Math.max(0, Math.min(total, Math.round(feitos)));
+        const pct=Math.max(0,Math.min(100,Math.round((feitos/total)*100)));
+        return {pct, feitos, total, texto:`${feitos}/${total} jogos finalizados • ${pct}%`, nota:'Progresso calculado por jogos finalizados'};
+      }
+      return {pct:0, feitos:null, total, texto:`Aguardando jogos finalizados`, nota:`Total cadastrado: ${total} jogos. Não utiliza estimativa por data.`};
     }
-    const ini=inicioBolao(b), fim=fimBolao(b);
-    if(ini && fim && fim>ini){
-      const now=Date.now();
-      const pct=Math.max(0,Math.min(100,Math.round(((now-ini.getTime())/(fim.getTime()-ini.getTime()))*100)));
-      return {pct, texto:`${pct}%`, nota:'Progresso estimado por data'};
-    }
-    if(st.key==='FINALIZADO') return {pct:100,texto:'100%',nota:'Campeonato finalizado'};
-    if(st.key==='A_INICIAR') return {pct:0,texto:'0%',nota:'Campeonato ainda não iniciou'};
-    return {pct:0,texto:'—',nota:'Total de jogos cadastrado; aguardando finalizados'};
+
+    if(st.key==='FINALIZADO') return {pct:100,feitos:null,total:null,texto:'Finalizado',nota:'Campeonato finalizado'};
+    if(st.key==='A_INICIAR') return {pct:0,feitos:null,total:null,texto:'A iniciar',nota:'Aguardando cadastro dos jogos'};
+    return {pct:0,feitos:null,total:null,texto:'Aguardando jogos/resultados',nota:'Cadastre total de jogos e finalizados para calcular o progresso'};
   }
   function progressoHtml(b){
     const p=calcularProgresso(b);
@@ -371,7 +418,7 @@
       const sa=statusCompeticao(a), sb=statusCompeticao(b);
       if(sa.ordem !== sb.ordem) return sa.ordem - sb.ordem;
       const ca=campRaw(a), cb=campRaw(b);
-      const oa=CAMP_INFO[ca]?.ordem || 999, ob=CAMP_INFO[cb]?.ordem || 999;
+      const oa=infoCamp(ca)?.ordem || 999, ob=infoCamp(cb)?.ordem || 999;
       if(oa !== ob) return oa - ob;
       if(ordenaPeso(a) !== ordenaPeso(b)) return ordenaPeso(a) - ordenaPeso(b);
       return String(a.nome||a.titulo||'').localeCompare(String(b.nome||b.titulo||''),'pt-BR');
@@ -471,22 +518,63 @@
     }catch(e){ console.warn('meusBoloes indisponível:', e); }
   }
 
+  async function carregarCatalogoCampeonatos(){
+    try{
+      const r = await fetch(`${API_BASE}?action=catalog&_=${Date.now()}`, {cache:'no-store'});
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      const j = await r.json().catch(()=>({}));
+      const arr = Array.isArray(j) ? j : (Array.isArray(j?.data) ? j.data : (Array.isArray(j?.dados) ? j.dados : []));
+      const mapa={};
+      arr.forEach(c=>{
+        const code=campCode(c.sigla || c.camp || c.campeonatoSigla || c.nome || c.campeonato);
+        mapa[code]={
+          label:String(c.nome || c.label || c.campeonato || CAMP_INFO[code]?.label || code).trim(),
+          short:String(c.sigla || c.short || code).trim().toUpperCase(),
+          logo:String(c.logoCampeonato || c.logoCampeonatoUrl || c.logoUrl || c.imagemUrl || c.logo || CAMP_INFO[code]?.logo || '').trim(),
+          ordem:numValor(c.ordem) ?? CAMP_INFO[code]?.ordem ?? 999,
+          inicio:c.inicio || c.dataInicio || c.temporadaInicio || c.inicioCampeonato || CAMP_INFO[code]?.inicio || '',
+          fim:c.fim || c.dataFim || c.temporadaFim || c.fimCampeonato || CAMP_INFO[code]?.fim || '',
+          qtdJogos:numValor(c.qtdJogos ?? c.totalJogos ?? c.jogosTotal ?? c.total_jogos) ?? CAMP_INFO[code]?.qtdJogos ?? 0,
+          jogosFinalizados:numValor(c.jogosFinalizados ?? c.qtdFinalizados ?? c.finalizados ?? c.jogosEncerrados ?? c.jogosAvaliados ?? c.jogosComResultado),
+          status:c.status || c.statusCampeonato || c.statusCompeticao || CAMP_INFO[code]?.status || ''
+        };
+      });
+      state.catalogoCamp = mapa;
+    }catch(e){
+      console.warn('Catálogo de campeonatos indisponível; usando fallback local:', e);
+      state.catalogoCamp = {};
+    }
+  }
+
+  function enriquecerBolaoComCatalogo(b){
+    const camp=campRaw(b);
+    const info=infoCamp(camp);
+    const out={...b};
+    if(!out.logoCampeonato && info.logo) out.logoCampeonato = info.logo;
+    if(!out.dataInicio && !out.inicio && info.inicio) out.inicioCampeonato = info.inicio;
+    if(!out.dataFim && !out.fim && info.fim) out.fimCampeonato = info.fim;
+    if(numCampo(out,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos']) === null && info.qtdJogos) out.totalJogos = info.qtdJogos;
+    if(numCampo(out,['jogosFinalizados','qtdFinalizados','qtd_jogos_finalizados','finalizados','jogosEncerrados','jogosRealizados','jogosAvaliados']) === null && info.jogosFinalizados !== null && info.jogosFinalizados !== undefined) out.jogosFinalizados = info.jogosFinalizados;
+    if(!out.statusCampeonato && info.status) out.statusCampeonato = info.status;
+    return out;
+  }
+
   async function carregarPublicos(){
     $('#publicosGrid').innerHTML='<div class="loading">Carregando bolões públicos...</div>';
     try{
+      await carregarCatalogoCampeonatos();
       const mapa = new Map();
 
       async function incluirConsulta(q){
         const qs = await q.limit(120).get();
         qs.docs.forEach(d => {
-          const b = { id:d.id, ...d.data() };
+          const b = enriquecerBolaoComCatalogo({ id:d.id, ...d.data() });
           if(b.excluido !== true && b.ativo !== false && (b.publico === true || b.tipo === 'PUBLICO')){
             mapa.set(d.id, b);
           }
         });
       }
 
-      // Consulta principal: documentos novos com publico:true.
       await incluirConsulta(
         db.collection('boloes')
           .where('ativo','==',true)
@@ -494,8 +582,6 @@
           .where('excluido','==',false)
       );
 
-      // Consulta complementar: documentos antigos/alternativos marcados por tipo:'PUBLICO'.
-      // As regras V21/V22 permitem leitura pública somente de documentos públicos e ativos.
       await incluirConsulta(
         db.collection('boloes')
           .where('ativo','==',true)
@@ -524,9 +610,11 @@
     if(!state.urlFiltersApplied){
       const campUrl = normalizeCampParam(URL_PARAMS.get('campeonato') || URL_PARAMS.get('camp'));
       const pesoUrl = String(URL_PARAMS.get('peso') || '').trim().toUpperCase();
+      const statusUrl = String(URL_PARAMS.get('status') || '').trim().toUpperCase();
       const buscaUrl = String(URL_PARAMS.get('busca') || '').trim();
       if(campUrl && [...sel.options].some(o=>o.value===campUrl)) sel.value = campUrl;
       if(pesoUrl && ['COM_PESO','SEM_PESO'].includes(pesoUrl)) $('#fPeso').value = pesoUrl;
+      if(statusUrl && ['EM_ANDAMENTO','A_INICIAR','FINALIZADO'].includes(statusUrl)) $('#fStatus').value = statusUrl;
       if(buscaUrl) $('#fBusca').value = buscaUrl;
       state.urlFiltersApplied = true;
     }
@@ -699,7 +787,7 @@
     }
   };
   $('#btnAtualizar').onclick=()=>carregarPublicos();
-  $('#btnLimpar').onclick=()=>{ $('#fBusca').value=''; $('#fCamp').value=''; $('#fPeso').value=''; aplicarFiltros(); };
+  $('#btnLimpar').onclick=()=>{ $('#fBusca').value=''; $('#fCamp').value=''; $('#fPeso').value=''; $('#fStatus').value=''; aplicarFiltros(); };
   ['#fBusca','#fCamp','#fPeso','#fStatus'].forEach(sel=>$(sel).addEventListener(sel==='#fBusca'?'input':'change', aplicarFiltros));
   $('#detFechar').onclick=fecharDetalhes;
   $('#detCompartilhar').onclick=()=>{ if(state.detalhe) compartilharBolao(state.detalhe); };
@@ -709,3 +797,4 @@
 </script>
 </body>
 </html>
+
