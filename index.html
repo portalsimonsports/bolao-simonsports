@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V008_INDEX_HOME_AUTH_ADMIN_SAFE_PUBLICOS_2026-06-27 -->
+<!-- V009_INDEX_HOME_STATS_REAIS_PUBLICOS_JOGOS_2026-06-27 -->
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -326,7 +326,7 @@
       border:1px solid #e8eef7;
       padding:14px 10px;
     }
-    .stat-card strong{font-size:clamp(26px,3.6vw,42px);line-height:1;color:#0f172a;font-weight:950;letter-spacing:-.04em}
+    .stat-card strong{font-size:clamp(24px,3.2vw,42px);line-height:1;color:#0f172a;font-weight:950;letter-spacing:-.04em}
     .stat-card span{margin-top:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-size:11px;font-weight:950}
     .stats-updated{grid-column:1/-1;text-align:right;color:#718096;font-size:12px;font-weight:800;padding:0 6px 2px}
 
@@ -344,11 +344,22 @@
       box-shadow:0 12px 28px rgba(15,23,42,.07);
       display:flex;
       flex-direction:column;
-      min-height:190px;
+      min-height:226px;
     }
     .catalog-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-    .catalog-logo{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:#eef8f0;font-size:24px;flex:0 0 auto}
+    .catalog-logo{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;background:#eef8f0;font-size:26px;flex:0 0 auto;overflow:hidden}
+    .catalog-logo img{width:100%;height:100%;object-fit:contain;padding:8px}
     .catalog-card h3{margin:0;font-size:18px;line-height:1.2}.catalog-card p{margin:2px 0 0;color:#64748b;font-weight:800;font-size:13px}
+    .catalog-status-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 10px}
+    .catalog-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:950;border:1px solid #e2e8f0;background:#f8fafc;color:#475569}
+    .catalog-badge.ok{background:#ecfdf5;color:#047857;border-color:#bbf7d0}
+    .catalog-badge.wait{background:#fff7ed;color:#9a3412;border-color:#fed7aa}
+    .catalog-badge.done{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+    .catalog-progress{margin:4px 0 10px}
+    .catalog-progress-top{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#334155;font-size:12px;font-weight:950;margin-bottom:7px}
+    .catalog-bar{height:9px;border-radius:999px;background:#e8eef7;overflow:hidden}
+    .catalog-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#10b981,#2563eb);width:0%}
+    .catalog-footnote{color:#64748b;font-size:12px;font-weight:800;margin-top:2px}
     .catalog-actions{display:flex;gap:10px;margin-top:auto;flex-wrap:wrap}
     .empty,.loading{padding:24px;border:1px dashed #cbd5e1;border-radius:18px;background:#fff;color:#64748b;font-weight:800;text-align:center}
 
@@ -393,7 +404,7 @@
       .nav{display:none}.hero-grid{grid-template-columns:1fr;min-height:auto}.preview-panel{max-width:560px}.catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.how-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.publicos-panel{grid-template-columns:1fr}.stats-panel{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
     @media(max-width:640px){
-      .container{width:min(92vw,1180px)}.topbar-row{min-height:auto;padding:10px 0;align-items:flex-start;flex-direction:column}.login-area{width:100%;justify-content:space-between;flex-wrap:wrap}.user-box{max-width:100%;order:3;width:100%}.hero-grid{padding:42px 0 54px}.hero h1{font-size:40px}.hero-actions .btn{width:100%}.preview-panel{display:none}.stat-strip{margin-top:-22px}.stats-panel{grid-template-columns:repeat(2,minmax(0,1fr));border-radius:20px}.stat-card{min-height:96px}.catalog-grid,.how-grid,.faq-grid{grid-template-columns:1fr}.section-head{display:block}.publicos-panel{padding:20px}.footer-row{display:block}.footer a{display:inline-block;margin:8px 12px 0 0}}
+      .container{width:min(92vw,1180px)}.topbar-row{min-height:auto;padding:10px 0;align-items:flex-start;flex-direction:column}.login-area{width:100%;justify-content:space-between;flex-wrap:wrap}.user-box{max-width:100%;order:3;width:100%}.hero-grid{padding:42px 0 54px}.hero h1{font-size:40px}.hero-actions .btn{width:100%}.preview-panel{display:none}.stat-strip{margin-top:-22px}.stats-panel{grid-template-columns:repeat(2,minmax(0,1fr));border-radius:20px}.stat-card{min-height:96px}.catalog-grid,.how-grid,.faq-grid{grid-template-columns:1fr}.section-head{display:block}.publicos-panel{padding:20px}.footer-row{display:block}.footer a{display:inline-block;margin:8px 12px 0 0}.catalog-logo{width:46px;height:46px}.catalog-card{min-height:0}}
   </style>
 </head>
 <body>
@@ -608,6 +619,9 @@
   let currentUser = null;
   let currentUserProfile = null;
   let currentUserIsAdmin = false;
+  let catalogStatsCache = null;
+  let statsConfiguracaoValida = false;
+  let statsFonteAtual = '';
 
   function toast(msg){
     toastEl.textContent = msg;
@@ -617,17 +631,61 @@
   }
   function esc(v){ return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
   function formatNum(v){ const n=Number(v||0); return isFinite(n) ? Math.max(0,Math.round(n)).toLocaleString('pt-BR') : '0'; }
+  function normalizaTexto(v){ return String(v ?? '').trim(); }
+  function txtUpper(v){ return normalizaTexto(v).toUpperCase(); }
+  function ehNumeroValido(v){ const n=Number(v); return isFinite(n) && !isNaN(n); }
+  function toNumber(v){
+    if(typeof v === 'number') return isFinite(v) ? v : 0;
+    if(typeof v === 'string'){
+      const limpo = v.replace(/\./g,'').replace(',','.').replace(/[^0-9.-]/g,'');
+      const n = Number(limpo);
+      return isFinite(n) ? n : 0;
+    }
+    return 0;
+  }
+  function pickValue(obj, keys){
+    if(!obj) return undefined;
+    for(const k of keys){
+      if(obj[k] !== undefined && obj[k] !== null && obj[k] !== '') return obj[k];
+    }
+    return undefined;
+  }
+  function pickNumber(obj, keys){
+    const v = pickValue(obj, keys);
+    if(Array.isArray(v)) return v.length;
+    if(typeof v === 'object' && v !== null) return Object.keys(v).length;
+    return toNumber(v);
+  }
+  function parseDateFlex(v){
+    if(!v) return null;
+    if(v && typeof v.toDate === 'function'){
+      const d = v.toDate();
+      return isNaN(d) ? null : d;
+    }
+    if(v instanceof Date) return isNaN(v) ? null : v;
+    const s = String(v).trim();
+    if(!s) return null;
+    let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(m){
+      const d = new Date(Number(m[1]), Number(m[2])-1, Number(m[3]));
+      return isNaN(d) ? null : d;
+    }
+    m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    if(m){
+      const d = new Date(Number(m[3]), Number(m[2])-1, Number(m[1]));
+      return isNaN(d) ? null : d;
+    }
+    const d = new Date(s);
+    return isNaN(d) ? null : d;
+  }
   function formatDateOnly(v){
-    if(!v) return '';
-    const d = new Date(v);
-    if(isNaN(d)) return '';
+    const d = parseDateFlex(v);
+    if(!d) return '';
     return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
   }
   function formatDateTime(v){
     try{
-      let d=null;
-      if(v && typeof v.toDate === 'function') d=v.toDate();
-      else if(v) d=new Date(v);
+      const d = parseDateFlex(v);
       if(!d || isNaN(d)) return '';
       return d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
     }catch(e){ return ''; }
@@ -636,7 +694,14 @@
     const map={BRA:'🇧🇷',BR:'🇧🇷',ESP:'🇪🇸',ENG:'🏴',ITA:'🇮🇹',FRA:'🇫🇷',SUP:'🌍',CUP:'🏆',UCL:'🏆',LIB:'🏆'};
     return map[String(sig||'').toUpperCase()] || '🏟️';
   }
-  function txtUpper(v){ return String(v ?? '').trim().toUpperCase(); }
+  function ligaLogoHtml(c){
+    const logo = pickValue(c, ['logo','logoUrl','logo_url','imagem','icone','escudo','urlLogo']);
+    const sig = String(c?.sigla || '').trim();
+    if(logo && /^https?:\/\//i.test(String(logo))){
+      return `<img src="${esc(logo)}" alt="${esc(sig || 'Campeonato')}" loading="lazy" onerror="this.replaceWith(document.createTextNode('${ligaEmoji(sig)}'))">`;
+    }
+    return ligaEmoji(sig);
+  }
   function statusValidoPerfil(dados){
     const status = txtUpper(dados?.status || 'ATIVO');
     return dados?.ativo !== false && (status === '' || status === 'ATIVO' || status === 'APROVADO');
@@ -852,26 +917,258 @@
     }
   });
 
+  function normalizaStatusItem(d){
+    return txtUpper(pickValue(d, ['status','situacao','estado','fase']) || '');
+  }
+  function isAtivo(d){
+    const status = normalizaStatusItem(d);
+    return d?.ativo !== false && d?.excluido !== true && d?.deletado !== true && d?.arquivado !== true &&
+      (!status || ['ATIVO','ABERTO','PUBLICADO','EM ANDAMENTO','ANDAMENTO','INICIADO','A INICIAR','AGENDADO','APROVADO'].includes(status));
+  }
+  function isPublico(d){
+    const vis = txtUpper(pickValue(d, ['visibilidade','tipo','tipoBolao','privacidade','acesso']) || '');
+    return d?.publico === true || d?.publicado === true || vis === 'PUBLICO' || vis === 'PÚBLICO' || vis === 'OFICIAL';
+  }
+  function jogoFinalizado(j){
+    const st = normalizaStatusItem(j);
+    const pm = pickValue(j, ['placarMandante','golsMandante','mandante_gols','homeScore','scoreHome','resultadoMandante']);
+    const pv = pickValue(j, ['placarVisitante','golsVisitante','visitante_gols','awayScore','scoreAway','resultadoVisitante']);
+    const temPlacar = pm !== undefined && pm !== null && pm !== '' && pv !== undefined && pv !== null && pv !== '';
+    return j?.finalizado === true || j?.encerrado === true || ['FINALIZADO','ENCERRADO','FECHADO','FIM','FT'].includes(st) || temPlacar;
+  }
+  function progressoCampeonato(c){
+    let total = pickNumber(c, ['totalJogos','jogosTotal','qtdJogos','quantidadeJogos','total_jogos','jogos_total']);
+    let finalizados = pickNumber(c, ['jogosFinalizados','finalizados','jogosAvaliados','jogosEncerrados','qtdJogosFinalizados','totalJogosFinalizados','jogos_finalizados','jogos_avaliados']);
+
+    const jogos = pickValue(c, ['jogos','partidas','matches']);
+    if(Array.isArray(jogos)){
+      total = total || jogos.length;
+      finalizados = finalizados || jogos.filter(jogoFinalizado).length;
+    }
+
+    total = Math.max(0, Math.round(total || 0));
+    finalizados = Math.max(0, Math.round(finalizados || 0));
+    if(total > 0 && finalizados > total) finalizados = total;
+    const pct = total > 0 ? Math.round((finalizados / total) * 100) : 0;
+    return {total, finalizados, pct};
+  }
+  function statusCampeonatoReal(c){
+    const p = progressoCampeonato(c);
+    const inicio = parseDateFlex(pickValue(c, ['inicio','dataInicio','data_inicio','inicioEm','dtInicio']));
+    const fim = parseDateFlex(pickValue(c, ['fim','termino','dataFim','data_fim','terminoEm','dtFim']));
+    const hoje = new Date();
+    const statusOriginal = normalizaStatusItem(c);
+
+    if(p.total > 0 && p.finalizados >= p.total) return 'Finalizado';
+    if(p.finalizados > 0) return 'Em andamento';
+    if(inicio && hoje < inicio) return 'A iniciar';
+    if(fim && hoje > fim && p.total === 0) return statusOriginal ? normalizaLabelStatus(statusOriginal) : 'Aguardando jogos';
+    if(['FINALIZADO','ENCERRADO'].includes(statusOriginal)) return 'Finalizado';
+    if(['A INICIAR','AGENDADO'].includes(statusOriginal)) return 'A iniciar';
+    if(['ATIVO','ABERTO','PUBLICADO','EM ANDAMENTO','ANDAMENTO','INICIADO'].includes(statusOriginal)) return 'Em andamento';
+    return statusOriginal ? normalizaLabelStatus(statusOriginal) : 'Disponível';
+  }
+  function normalizaLabelStatus(st){
+    const s = txtUpper(st);
+    if(s === 'FINALIZADO' || s === 'ENCERRADO') return 'Finalizado';
+    if(s === 'A INICIAR' || s === 'AGENDADO') return 'A iniciar';
+    if(s === 'ATIVO' || s === 'ABERTO' || s === 'PUBLICADO' || s === 'EM ANDAMENTO' || s === 'ANDAMENTO' || s === 'INICIADO') return 'Em andamento';
+    return String(st || '').toLowerCase().replace(/^./, m => m.toUpperCase());
+  }
+  function statusBadgeClass(label){
+    const s = txtUpper(label);
+    if(s.includes('FINAL')) return 'done';
+    if(s.includes('INICIAR') || s.includes('AGUARD')) return 'wait';
+    if(s.includes('ANDAMENTO') || s.includes('DISPON')) return 'ok';
+    return '';
+  }
+  function resumoProgresso(c){
+    const p = progressoCampeonato(c);
+    if(p.total > 0){
+      return {
+        texto: `${formatNum(p.finalizados)}/${formatNum(p.total)} jogos finalizados`,
+        detalhe: 'Progresso calculado por jogos finalizados',
+        pct: p.pct
+      };
+    }
+    return {
+      texto: 'Aguardando jogos/resultados',
+      detalhe: 'Sem estimativa por data',
+      pct: 0
+    };
+  }
+  function statsTemValor(d){
+    if(!d) return false;
+    const chaves = [
+      'boloesAtivos','boloes_ativos','publicosAtivos','totalBoloesAtivos','qtdBoloesAtivos',
+      'participantes','participantesTotal','totalParticipantes','qtdParticipantes',
+      'palpitesRegistrados','palpites','totalPalpites','qtdPalpites',
+      'jogosAvaliados','jogos_avaliados','jogosFinalizados','jogos_finalizados','totalJogosAvaliados','totalJogos','jogosTotal','total_jogos'
+    ];
+    return chaves.some(k => toNumber(d[k]) > 0);
+  }
   function setStats(dados){
-    statBoloesAtivos.textContent = formatNum(dados.boloesAtivos ?? dados.boloes_ativos ?? dados.publicosAtivos ?? 0);
-    statParticipantes.textContent = formatNum(dados.participantes ?? dados.participantesTotal ?? dados.totalParticipantes ?? 0);
-    statPalpites.textContent = formatNum(dados.palpitesRegistrados ?? dados.palpites ?? dados.totalPalpites ?? 0);
-    statJogosAvaliados.textContent = formatNum(dados.jogosAvaliados ?? dados.jogos_avaliados ?? dados.totalJogosAvaliados ?? 0);
-    const atualizado = formatDateTime(dados.atualizadoEm || dados.atualizado_em || dados.ultimaAtualizacao);
-    statsAtualizacao.textContent = atualizado ? `Atualizado em ${atualizado}` : 'Estatísticas públicas';
+    const boloes = pickNumber(dados, ['boloesAtivos','boloes_ativos','publicosAtivos','totalBoloesAtivos','qtdBoloesAtivos']);
+    const participantes = pickNumber(dados, ['participantes','participantesTotal','totalParticipantes','qtdParticipantes']);
+    const palpites = pickNumber(dados, ['palpitesRegistrados','palpites','totalPalpites','qtdPalpites']);
+    const jogosFinalizados = pickNumber(dados, ['jogosFinalizados','jogos_finalizados','jogosAvaliados','jogos_avaliados','totalJogosAvaliados']);
+    const jogosTotal = pickNumber(dados, ['totalJogos','jogosTotal','total_jogos','jogos_total']);
+
+    statBoloesAtivos.textContent = formatNum(boloes);
+    statParticipantes.textContent = formatNum(participantes);
+    statPalpites.textContent = formatNum(palpites);
+    statJogosAvaliados.textContent = jogosTotal > 0 ? `${formatNum(jogosFinalizados)}/${formatNum(jogosTotal)}` : formatNum(jogosFinalizados);
+
+    const atualizado = formatDateTime(dados.atualizadoEm || dados.atualizado_em || dados.ultimaAtualizacao || dados.geradoEm || dados.dataHora);
+    const fonte = dados.fonteStats || dados.fonte || statsFonteAtual || '';
+    if(atualizado && fonte) statsAtualizacao.textContent = `Atualizado em ${atualizado} • ${fonte}`;
+    else if(atualizado) statsAtualizacao.textContent = `Atualizado em ${atualizado}`;
+    else if(fonte) statsAtualizacao.textContent = fonte;
+    else statsAtualizacao.textContent = 'Estatísticas públicas';
+  }
+  function usarStatsCacheOuZerado(msg){
+    if(catalogStatsCache && statsTemValor(catalogStatsCache)){
+      statsFonteAtual = catalogStatsCache.fonteStats || 'Dados públicos disponíveis';
+      setStats(catalogStatsCache);
+    }else{
+      setStats({});
+      statsAtualizacao.textContent = msg || 'Aguardando atualização';
+    }
   }
   function loadStats(){
     try{
       db.collection('configuracoes').doc('estatisticasPublicas').onSnapshot(snap => {
-        if(!snap.exists){ setStats({}); statsAtualizacao.textContent='Aguardando atualização'; return; }
-        setStats(snap.data() || {});
+        if(!snap.exists){
+          statsConfiguracaoValida = false;
+          usarStatsCacheOuZerado('Aguardando atualização');
+          return;
+        }
+        const dados = snap.data() || {};
+        if(statsTemValor(dados)){
+          statsConfiguracaoValida = true;
+          statsFonteAtual = 'Estatísticas públicas';
+          setStats({...dados, fonteStats:'Estatísticas públicas'});
+        }else{
+          statsConfiguracaoValida = false;
+          usarStatsCacheOuZerado('Aguardando atualização');
+        }
       }, erro => {
         console.warn('Falha estatísticas:', erro);
-        setStats({}); statsAtualizacao.textContent='Estatísticas indisponíveis';
+        statsConfiguracaoValida = false;
+        usarStatsCacheOuZerado('Estatísticas indisponíveis');
       });
-    }catch(e){ console.warn('Falha iniciar estatísticas:', e); setStats({}); }
+    }catch(e){
+      console.warn('Falha iniciar estatísticas:', e);
+      statsConfiguracaoValida = false;
+      usarStatsCacheOuZerado('Estatísticas indisponíveis');
+    }
   }
 
+  function extrairArrayResposta(j){
+    if(Array.isArray(j)) return j;
+    if(Array.isArray(j?.data)) return j.data;
+    if(Array.isArray(j?.dados)) return j.dados;
+    if(Array.isArray(j?.result)) return j.result;
+    if(Array.isArray(j?.items)) return j.items;
+    if(Array.isArray(j?.boloes)) return j.boloes;
+    if(Array.isArray(j?.publicos)) return j.publicos;
+    if(Array.isArray(j?.campeonatos)) return j.campeonatos;
+    if(Array.isArray(j?.result?.boloes)) return j.result.boloes;
+    if(Array.isArray(j?.dados?.boloes)) return j.dados.boloes;
+    if(Array.isArray(j?.dados?.publicos)) return j.dados.publicos;
+    return [];
+  }
+  async function fetchAction(action){
+    const r = await fetch(`${API_BASE}?action=${encodeURIComponent(action)}&_=${Date.now()}`);
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.json().catch(() => ({}));
+  }
+  function statsFromBoloesPublicos(arr){
+    const stats = {boloesAtivos:0,participantes:0,palpitesRegistrados:0,jogosFinalizados:0,totalJogos:0,fonteStats:'Bolões públicos'};
+    for(const b of (arr || [])){
+      if(!isAtivo(b) || !isPublico(b)) continue;
+      stats.boloesAtivos += 1;
+      let participantes = pickNumber(b, ['participantes','qtdParticipantes','totalParticipantes','participantesTotal','inscritos','qtdInscritos']);
+      let palpites = pickNumber(b, ['palpites','palpitesRegistrados','qtdPalpites','totalPalpites']);
+      const ranking = pickValue(b, ['ranking','classificacao']);
+      const palpitesLista = pickValue(b, ['listaPalpites','palpitesLista']);
+      if(!participantes && Array.isArray(ranking)) participantes = ranking.length;
+      if(!palpites && Array.isArray(palpitesLista)) palpites = palpitesLista.length;
+      stats.participantes += participantes;
+      stats.palpitesRegistrados += palpites;
+
+      const p = progressoCampeonato(b);
+      stats.jogosFinalizados += p.finalizados;
+      stats.totalJogos += p.total;
+    }
+    if(catalogStatsCache){
+      if(!stats.totalJogos && catalogStatsCache.totalJogos) stats.totalJogos = catalogStatsCache.totalJogos;
+      if(!stats.jogosFinalizados && catalogStatsCache.jogosFinalizados) stats.jogosFinalizados = catalogStatsCache.jogosFinalizados;
+    }
+    return stats;
+  }
+  async function loadPublicosStatsApi(){
+    const actions = ['publicos','boloesPublicos','boloes_publicos','listar_publicos','vitrine_publica'];
+    for(const action of actions){
+      try{
+        const j = await fetchAction(action);
+        const arr = extrairArrayResposta(j);
+        if(arr && arr.length){
+          const stats = statsFromBoloesPublicos(arr);
+          if(statsTemValor(stats)){
+            catalogStatsCache = {...(catalogStatsCache || {}), ...stats};
+            if(!statsConfiguracaoValida){
+              statsFonteAtual = stats.fonteStats;
+              setStats(stats);
+            }
+            return;
+          }
+        }
+      }catch(e){
+        console.warn('Falha ao buscar stats públicos via action '+action+':', e);
+      }
+    }
+  }
+  async function loadStatsFirestoreFallback(){
+    try{
+      const snap = await db.collection('boloes').limit(800).get();
+      const arr = [];
+      snap.forEach(doc => arr.push({id:doc.id,...(doc.data() || {})}));
+      if(arr.length){
+        const stats = statsFromBoloesPublicos(arr);
+        stats.fonteStats = 'Firestore público';
+        if(statsTemValor(stats)){
+          catalogStatsCache = {...(catalogStatsCache || {}), ...stats};
+          if(!statsConfiguracaoValida){
+            statsFonteAtual = stats.fonteStats;
+            setStats(stats);
+          }
+        }
+      }
+    }catch(e){
+      console.warn('Fallback Firestore de bolões indisponível:', e);
+    }
+  }
+  function statsFromCatalog(items){
+    const stats = {boloesAtivos:0,participantes:0,palpitesRegistrados:0,jogosFinalizados:0,totalJogos:0,fonteStats:'Catálogo de campeonatos'};
+    for(const c of (items || [])){
+      const p = progressoCampeonato(c);
+      stats.jogosFinalizados += p.finalizados;
+      stats.totalJogos += p.total;
+      stats.boloesAtivos += pickNumber(c, ['boloesAtivos','publicosAtivos','boloesPublicos','qtdBoloes','qtdBoloesPublicos']);
+      stats.participantes += pickNumber(c, ['participantes','totalParticipantes','qtdParticipantes','participantesTotal']);
+      stats.palpitesRegistrados += pickNumber(c, ['palpites','palpitesRegistrados','qtdPalpites','totalPalpites']);
+    }
+    return stats;
+  }
+
+  function ordemStatus(c){
+    const s = txtUpper(statusCampeonatoReal(c));
+    if(s.includes('ANDAMENTO')) return 0;
+    if(s.includes('INICIAR') || s.includes('AGUARD')) return 1;
+    if(s.includes('FINAL')) return 2;
+    return 3;
+  }
   function renderCatalog(items){
     catalogGrid.innerHTML = '';
     if(!items || !items.length){
@@ -879,39 +1176,63 @@
       return;
     }
     items.sort((a,b) => {
-      const sigA=String(a.sigla||''); const sigB=String(b.sigla||'');
-      if(sigA==='SUP' && sigB!=='SUP') return 1;
-      if(sigA!=='SUP' && sigB==='SUP') return -1;
-      return sigA.localeCompare(sigB,'pt-BR');
+      const os = ordemStatus(a) - ordemStatus(b);
+      if(os !== 0) return os;
+      const nomeA = String(a.nome || a.sigla || '');
+      const nomeB = String(b.nome || b.sigla || '');
+      return nomeA.localeCompare(nomeB,'pt-BR');
     });
     catalogGrid.innerHTML = items.slice(0,9).map(c => {
       const sigla = String(c.sigla || '').trim();
       const nome = String(c.nome || sigla || 'Campeonato').trim();
-      const status = String(c.status || '').trim();
-      const periodo = `${formatDateOnly(c.inicio)} — ${formatDateOnly(c.fim)}`.replace(/^ — | — $/g,'');
+      const statusReal = statusCampeonatoReal(c);
+      const p = resumoProgresso(c);
+      const inicio = formatDateOnly(pickValue(c, ['inicio','dataInicio','data_inicio','inicioEm','dtInicio']));
+      const fim = formatDateOnly(pickValue(c, ['fim','termino','dataFim','data_fim','terminoEm','dtFim']));
+      const periodo = `${inicio} — ${fim}`.replace(/^ — | — $/g,'');
+      const boloesPublicos = pickNumber(c, ['boloesPublicos','publicosAtivos','boloesAtivos','qtdBoloesPublicos','qtdBoloes']);
+      const boloesTexto = boloesPublicos > 0 ? `${formatNum(boloesPublicos)} ${boloesPublicos === 1 ? 'bolão público' : 'bolões públicos'}` : 'Bolões conforme publicação';
+      const linkPublicos = sigla ? `publicos.html?campeonato=${encodeURIComponent(sigla)}` : 'publicos.html';
       return `<article class="catalog-card">
         <div class="catalog-top">
-          <div class="catalog-logo">${ligaEmoji(sigla)}</div>
-          <div><h3>${esc(nome)}</h3><p>${esc(periodo || status || 'Disponível no sistema')}</p></div>
+          <div class="catalog-logo">${ligaLogoHtml(c)}</div>
+          <div><h3>${esc(nome)}</h3><p>${esc(periodo || 'Período não informado')}</p></div>
         </div>
-        <p>${esc(status || 'Acompanhe jogos, palpites e ranking conforme publicação do sistema.')}</p>
+        <div class="catalog-status-row">
+          <span class="catalog-badge ${statusBadgeClass(statusReal)}">${esc(statusReal)}</span>
+          <span class="catalog-badge">${esc(boloesTexto)}</span>
+        </div>
+        <div class="catalog-progress" aria-label="${esc(p.texto)}">
+          <div class="catalog-progress-top"><span>${esc(p.texto)}</span><span>${formatNum(p.pct)}%</span></div>
+          <div class="catalog-bar"><span style="width:${Math.max(0,Math.min(100,p.pct))}%"></span></div>
+          <div class="catalog-footnote">${esc(p.detalhe)}</div>
+        </div>
         <div class="catalog-actions">
           <a class="btn btn-dark btn-sm" href="bolao.html#${encodeURIComponent(sigla)}">Dar palpite</a>
-          <a class="btn btn-light btn-sm" href="publicos.html">Bolões públicos</a>
+          <a class="btn btn-light btn-sm" href="${linkPublicos}">Bolões públicos</a>
         </div>
       </article>`;
     }).join('');
   }
   async function loadCatalog(){
     try{
-      const r = await fetch(`${API_BASE}?action=catalog`);
+      const r = await fetch(`${API_BASE}?action=catalog&_=${Date.now()}`);
       if(!r.ok) throw new Error(`HTTP ${r.status}`);
       const j = await r.json().catch(() => ({}));
-      const arr = (j && j.data) ? j.data : (Array.isArray(j) ? j : []);
+      const arr = extrairArrayResposta(j);
       renderCatalog(arr);
+      catalogStatsCache = statsFromCatalog(arr);
+      if(!statsConfiguracaoValida && statsTemValor(catalogStatsCache)){
+        statsFonteAtual = catalogStatsCache.fonteStats;
+        setStats(catalogStatsCache);
+      }
+      loadPublicosStatsApi();
+      loadStatsFirestoreFallback();
     }catch(e){
       console.warn('Erro ao carregar catálogo:', e);
       renderCatalog([]);
+      loadPublicosStatsApi();
+      loadStatsFirestoreFallback();
     }
   }
 
