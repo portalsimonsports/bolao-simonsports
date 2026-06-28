@@ -1037,7 +1037,7 @@
     if(p.total > 0 && p.finalizados >= p.total) return 'Finalizado';
     if(p.finalizados > 0) return 'Em andamento';
     if(inicio && hoje < inicio) return 'A iniciar';
-    if(fim && hoje > fim && p.total === 0) return statusOriginal ? normalizaLabelStatus(statusOriginal) : 'Aguardando jogos';
+    if(fim && hoje > fim && p.total === 0) return statusOriginal ? normalizaLabelStatus(statusOriginal) : 'Sem jogos cadastrados';
     if(['FINALIZADO','ENCERRADO'].includes(statusOriginal)) return 'Finalizado';
     if(['A INICIAR','AGENDADO'].includes(statusOriginal)) return 'A iniciar';
     if(['ATIVO','ABERTO','PUBLICADO','EM ANDAMENTO','ANDAMENTO','INICIADO'].includes(statusOriginal)) return 'Em andamento';
@@ -1067,8 +1067,8 @@
       };
     }
     return {
-      texto: 'Aguardando jogos/resultados',
-      detalhe: 'Sem estimativa por data',
+      texto: '0/0 jogos finalizados',
+      detalhe: 'Sem jogos cadastrados ou total ainda não publicado',
       pct: 0
     };
   }
