@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V036_BOLAO_PROGRESSO_REAL_JOGOS_FINALIZADOS_STATUS_CAMPEONATO_2026-06-27 -->
+<!-- V037_BOLAO_COPA_JOGOS_REALIZADOS_FINALIZADOS_VS_FIX_2026-06-28 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -188,7 +188,60 @@
   function campInfo(camp){const code=String(camp||'CUP').toUpperCase(); return state.catalogo.find(x=>x.sigla===code)||CATALOG_BASE_FALLBACK.find(x=>x.sigla===code)||{sigla:code,nome:code,qtd_jogos:0}}
   function campLabel(camp){return campInfo(camp).nome||camp||'Campeonato'}
   function pickFirst(obj,keys){for(const k of keys){if(obj&&obj[k]!==undefined&&obj[k]!==null&&obj[k]!=='')return obj[k]} return ''}
-  function numCampo(obj,keys){const v=pickFirst(obj,keys); if(v===''||v===null||v===undefined)return null; const n=Number(v); return Number.isFinite(n)?n:null}
+  function numCampo(obj,keys){const v=pickFirst(obj,keys); if(v===''||v===null||v===undefined)return null; const n=Number(String(v).replace(',','.')); return Number.isFinite(n)?n:null}
+  function placarValorValido(v){
+    if(v===undefined||v===null)return null;
+    if(typeof v==='number')return Number.isFinite(v)?v:null;
+    const s=String(v).trim();
+    if(!s)return null;
+    const ctrl=normalizarTextoControle(s);
+    if(['VS','X','-','—','A DEFINIR','ADIADO','CANCELADO','PENDENTE',''].includes(ctrl))return null;
+    const m=s.match(/-?\d+/);
+    if(!m)return null;
+    const n=Number(m[0]);
+    return Number.isFinite(n)?n:null;
+  }
+  function parsePlacarCombinado(v){
+    if(v===undefined||v===null)return null;
+    const s=String(v).trim();
+    if(!s)return null;
+    const ctrl=normalizarTextoControle(s);
+    if(ctrl==='VS'||ctrl==='X'||ctrl.includes(' A DEFINIR'))return null;
+    const m=s.match(/(\d+)\s*(?:x|X|×|\-|–|—|:)\s*(\d+)/);
+    if(!m)return null;
+    const gm=Number(m[1]),gv=Number(m[2]);
+    return Number.isFinite(gm)&&Number.isFinite(gv)?{gm,gv}:null;
+  }
+  function placarOficialJogo(g){
+    if(!g||typeof g!=='object')return null;
+    const comb=pickFirst(g,['placar','placar_oficial','placarOficial','resultado','resultado_final','resultadoFinal','score','score_final','fullTimeScore','ft','placarFinal']);
+    const pc=parsePlacarCombinado(comb);
+    if(pc)return pc;
+    const gm=placarValorValido(pickFirst(g,['gols_mandante_oficial','gm','gols_mandante','placar_mandante','placarMandante','home_score','homeScore','scoreHome','mandante_gols','resultadoMandante','mandanteScore','golsCasa','casa_gols']));
+    const gv=placarValorValido(pickFirst(g,['gols_visitante_oficial','gv','gols_visitante','placar_visitante','placarVisitante','away_score','awayScore','scoreAway','visitante_gols','resultadoVisitante','visitanteScore','golsFora','fora_gols']));
+    return gm!==null&&gv!==null?{gm,gv}:null;
+  }
+  function jogoTemPlacarOficial(g){return !!placarOficialJogo(g)}
+  function statusTextoJogo(g){return String(pickFirst(g||{},['status','situacao','estado','fase','status_jogo','statusJogo'])||'')}
+  function statusControleJogo(g){return normalizarTextoControle(statusTextoJogo(g))}
+  function jogoTemStatusVS(g){const st=statusControleJogo(g); const placar=normalizarTextoControle(pickFirst(g||{},['placar','resultado','score'])||''); return st==='VS'||placar==='VS'}
+  function jogoFinalizadoOuRealizado(g){
+    if(!g)return false;
+    if(jogoTemPlacarOficial(g))return true;
+    const st=statusControleJogo(g);
+    if(['FINALIZADO','ENCERRADO','FECHADO','FIM','FT','FULL TIME','AO VIVO','AOVIVO','EM ANDAMENTO','INICIADO'].some(x=>st.includes(x)))return true;
+    if(jogoTemStatusVS(g))return false;
+    return false;
+  }
+  function statusVisualJogo(g,dt){
+    if(jogoFinalizadoOuRealizado(g))return 'encerrado';
+    const st=String(statusTextoJogo(g)||'agendado').toLowerCase();
+    if(dt){
+      if(dt.getTime()>Date.now())return 'agendado';
+      if(st==='agendado'||st==='aberto'||st==='vs'||st==='')return 'encerrado';
+    }
+    return st||'agendado';
+  }
   function inicioBolao(b){return parseDateSafe(pickFirst(b,['dataInicio','inicio','dtInicio','data_inicio','temporadaInicio','inicioCampeonato']))||parseDateSafe(campInfo(b?.campeonato||b?.camp).inicio)}
   function fimBolao(b){return parseDateSafe(pickFirst(b,['dataFim','fim','dtFim','data_fim','temporadaFim','fimCampeonato']))||parseDateSafe(campInfo(b?.campeonato||b?.camp).fim)}
   function periodoBolaoLabel(b){const i=inicioBolao(b),f=fimBolao(b); if(!i&&!f)return 'Datas não informadas'; return `${i?dataLabel(i):'—'} até ${f?dataLabel(f):'—'}`}
@@ -204,14 +257,62 @@
   }
   function calcularProgressoBolao(b){
     if(!b)return {pct:0,texto:'—',jogos:'—',nota:'Selecione um bolão.'};
-    const camp=b.campeonato||b.camp||'CUP'; const cache=state.progressoCache[camp]||{}; const info=campInfo(camp); const st=statusCompeticaoBolao(b);
+    const camp=String(b.campeonato||b.camp||'CUP').toUpperCase();
+    const cache=state.progressoCache[camp]||{};
+    const info=campInfo(camp);
+    const st=statusCompeticaoBolao(b);
     const total=numCampo(b,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos'])||Number(cache.total)||Number(info.qtd_jogos)||0;
-    const feitos=numCampo(b,['jogosFinalizados','qtdFinalizados','qtd_jogos_finalizados','finalizados','jogosEncerrados','jogosRealizados'])??(Number.isFinite(Number(cache.finalizados))?Number(cache.finalizados):null);
-    if(total>0&&feitos!==null){const pct=Math.max(0,Math.min(100,Math.round((feitos/total)*100))); return {pct,texto:`${pct}%`,jogos:`${feitos}/${total}`,nota:'Progresso real por jogos finalizados.'};}
-    const i=inicioBolao(b),f=fimBolao(b); if(i&&f&&f>i){const pct=Math.max(0,Math.min(100,Math.round(((Date.now()-i.getTime())/(f.getTime()-i.getTime()))*100))); return {pct,texto:`${pct}%`,jogos:total?`—/${total}`:'—',nota:'Progresso estimado por data até os jogos finalizados serem lidos.'};}
+    const campoFeitos=numCampo(b,['jogosFinalizados','qtdFinalizados','qtd_jogos_finalizados','finalizados','jogosEncerrados','jogosRealizados','jogos_realizados']);
+    const feitos=campoFeitos!==null?campoFeitos:(Number.isFinite(Number(cache.finalizados))?Number(cache.finalizados):null);
+    if(total>0&&feitos!==null){
+      const f=Math.max(0,Math.min(total,Math.round(feitos)));
+      const pct=Math.max(0,Math.min(100,Math.round((f/total)*100)));
+      return {pct,texto:`${pct}%`,jogos:`${f}/${total}`,nota:'Progresso real por jogos finalizados/realizados.'};
+    }
     if(st.key==='FINALIZADO')return {pct:100,texto:'100%',jogos:total?`${total}/${total}`:'100%',nota:'Campeonato finalizado.'};
     if(st.key==='A_INICIAR')return {pct:0,texto:'0%',jogos:total?`0/${total}`:'0%',nota:'Campeonato ainda não iniciou.'};
-    return {pct:0,texto:'—',jogos:total?`—/${total}`:'—',nota:'Aguardando leitura de jogos finalizados.'};
+    const i=inicioBolao(b),f=fimBolao(b);
+    if(i&&f&&f>i){
+      const pct=Math.max(0,Math.min(100,Math.round(((Date.now()-i.getTime())/(f.getTime()-i.getTime()))*100)));
+      return {pct,texto:`${pct}%`,jogos:total?`0/${total}`:'—',nota:'Contagem real de jogos em atualização. Assim que os resultados forem lidos, troca para realizados/total.'};
+    }
+    return {pct:0,texto:'—',jogos:total?`0/${total}`:'—',nota:'Aguardando leitura de jogos finalizados.'};
+  }
+  async function atualizarProgressoCampeonatoCompleto(camp){
+    camp=String(camp||state.bolao?.campeonato||state.bolao?.camp||'CUP').toUpperCase();
+    const info=campInfo(camp);
+    const rodadas=getRodadasDisponiveis();
+    let totalLido=0,finalizados=0;
+    const vistos=new Set();
+    for(const rodada of rodadas){
+      try{
+        const rows=await buscarJogosRodada(camp,rodada);
+        for(const g of (rows||[])){
+          const id=String(g.id||g.id_jogo||g.jogo_id||`${camp}_${rodada}_${g.mandante||g.home||''}_${g.visitante||g.away||''}_${g.data_jogo||g.data||g.horario||''}`);
+          if(vistos.has(id))continue;
+          vistos.add(id);
+          totalLido++;
+          if(jogoFinalizadoOuRealizado(g))finalizados++;
+        }
+      }catch(e){console.warn('Progresso '+camp+' rodada '+rodada,e)}
+    }
+    const total=Math.max(totalLido,Number(info.qtd_jogos)||0);
+    if(total>0){
+      state.progressoCache[camp]={total,finalizados,atualizadoEm:Date.now()};
+      atualizarProgressoUI();
+      renderBoloes();
+    }
+    return state.progressoCache[camp]||null;
+  }
+  function atualizarProgressoCacheComRows(camp,rows){
+    camp=String(camp||'CUP').toUpperCase();
+    const info=campInfo(camp);
+    const arr=Array.isArray(rows)?rows:[];
+    const totalBase=Number(info.qtd_jogos)||arr.length||0;
+    const prev=state.progressoCache[camp]||{};
+    const total=Math.max(Number(prev.total)||0,totalBase,arr.length);
+    const finalizados=Math.max(Number(prev.finalizados)||0,arr.filter(jogoFinalizadoOuRealizado).length);
+    if(total>0){state.progressoCache[camp]={total,finalizados,atualizadoEm:Date.now()}; atualizarProgressoUI()}
   }
   function atualizarProgressoUI(){
     if(!state.bolao)return; const b=state.bolao, p=calcularProgressoBolao(b), st=statusCompeticaoBolao(b), periodo=periodoBolaoLabel(b), camp=b.campeonato||b.camp||'CUP';
@@ -256,13 +357,51 @@
   async function refreshAll(){await Promise.allSettled([loadMeus(),loadPublicos()]); renderBoloes(); renderSelected()}
   async function loadMeus(){if(state.uid==='GUEST'){state.meus=[]; state.privados=[]; return} const byId=new Map(); try{const idx=await db.collection('usuarios').doc(state.uid).collection('meusBoloes').get(); idx.docs.forEach(doc=>byId.set(doc.id,{id:doc.id,...doc.data()}))}catch(e){console.warn('meusBoloes:',e)} try{const criados=await db.collection('boloes').where('criadorUid','==',state.uid).get(); for(const doc of criados.docs){const b={id:doc.id,...doc.data(),minhaParticipacao:{papel:'CRIADOR',status:'APROVADO',ativo:true}}; byId.set(b.id,b); await upsertMeuBolaoIndex(b.id,b,b.minhaParticipacao).catch(()=>{})}}catch(e){console.warn('criados:',e)} try{const parts=await db.collectionGroup('participantes').where('uid','==',state.uid).get(); for(const doc of parts.docs){const p=doc.data()||{}; const bolaoRef=doc.ref.parent.parent; if(!bolaoRef)continue; const bSnap=await bolaoRef.get(); if(bSnap.exists){const b={id:bSnap.id,...bSnap.data(),minhaParticipacao:p}; byId.set(b.id,b); await upsertMeuBolaoIndex(b.id,b,p).catch(()=>{})}}}catch(e){console.warn('collectionGroup participantes:',e)} const list=Array.from(byId.values()).filter(b=>b.excluido!==true); state.meus=list.filter(b=>b.minhaParticipacao?.status==='APROVADO'); state.privados=list.filter(b=>b.tipo==='PRIVADO'||b.publico===false||b.minhaParticipacao?.status==='PENDENTE')}
   async function upsertMeuBolaoIndex(bolaoId,bolao,participacao){if(state.uid==='GUEST'||!bolaoId)return; const payload={id:bolaoId,nome:bolao.nome||bolao.titulo||'Bolão sem nome',titulo:bolao.titulo||bolao.nome||'Bolão sem nome',descricao:bolao.descricao||'',campeonato:bolao.campeonato||bolao.camp||'CUP',camp:bolao.camp||bolao.campeonato||'CUP',tipo:bolao.tipo||(bolao.publico?'PUBLICO':'PRIVADO'),publico:bolao.publico===true,privado:bolao.publico!==true,ativo:bolao.ativo!==false,pontuacaoModo:bolao.pontuacaoModo||'SEM_PESO',usaPesoRodada:bolao.usaPesoRodada===true,modoBolao:bolao.modoBolao||bolao.formatoBolao||'CAMPEONATO',formatoBolao:bolao.formatoBolao||bolao.modoBolao||'CAMPEONATO',rodadaInicial:bolao.rodadaInicial||null,rodadaFinal:bolao.rodadaFinal||null,dataInicio:bolao.dataInicio||'',dataFim:bolao.dataFim||'',criadorUid:bolao.criadorUid||'',codigoConvite:bolao.codigoConvite||bolaoId,minhaParticipacao:participacao||{papel:'PARTICIPANTE',status:'APROVADO',ativo:true},atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()}; await db.collection('usuarios').doc(state.uid).collection('meusBoloes').doc(bolaoId).set(payload,{merge:true})}
-  async function loadPublicos(){const map=new Map(); async function incluir(q){const qs=await q.limit(120).get(); qs.docs.forEach(d=>{const b={id:d.id,...d.data()}; if(b.excluido!==true&&b.ativo!==false&&(b.publico===true||b.tipo==='PUBLICO'))map.set(d.id,b)})} try{await incluir(db.collection('boloes').where('ativo','==',true).where('publico','==',true).where('excluido','==',false)).catch(async()=>incluir(db.collection('boloes').where('ativo','==',true).where('publico','==',true))); await incluir(db.collection('boloes').where('ativo','==',true).where('tipo','==','PUBLICO').where('excluido','==',false)).catch(async()=>incluir(db.collection('boloes').where('ativo','==',true).where('tipo','==','PUBLICO'))); state.publicos=Array.from(map.values()).sort((a,b)=>String(a.nome||a.titulo||'').localeCompare(String(b.nome||b.titulo||''),'pt-BR'))}catch(e){console.warn(e); state.publicos=[]}}
+  async function loadPublicos(){
+    const map=new Map();
+    const incluirDoc=d=>{
+      const b={id:d.id,...d.data()};
+      if(isBolaoPublicoAtivo(b))map.set(d.id,b);
+    };
+    async function incluir(q){
+      const qs=await q.limit(250).get();
+      qs.docs.forEach(incluirDoc);
+    }
+    try{
+      await incluir(db.collection('boloes').where('ativo','==',true).where('publico','==',true).where('excluido','==',false)).catch(async()=>incluir(db.collection('boloes').where('ativo','==',true).where('publico','==',true)));
+      await incluir(db.collection('boloes').where('ativo','==',true).where('tipo','==','PUBLICO').where('excluido','==',false)).catch(async()=>incluir(db.collection('boloes').where('ativo','==',true).where('tipo','==','PUBLICO')));
+      await db.collection('boloes').limit(500).get().then(qs=>qs.docs.forEach(incluirDoc)).catch(e=>console.warn('Fallback público geral:',e));
+      state.publicos=ordenarBoloesPublicos(Array.from(map.values()));
+    }catch(e){console.warn(e); state.publicos=[]}
+  }
+  function isBolaoPublicoAtivo(b){
+    if(!b||b.excluido===true||b.deletado===true||b.arquivado===true||b.ativo===false)return false;
+    const tipo=normalizarTextoControle(b.tipo||b.tipoBolao||b.visibilidade||b.acesso||'');
+    return b.publico===true||b.publicado===true||b.publicoOficial===true||tipo==='PUBLICO'||tipo==='PÚBLICO'||tipo==='OFICIAL';
+  }
+  function campFocoAtual(){const h=(location.hash||'').replace('#','').trim().toUpperCase(); if(h)return h; return String(state.bolao?.campeonato||state.bolao?.camp||$('#selCamp')?.value||'').toUpperCase()}
+  function ordenarBoloesPublicos(list){
+    const foco=campFocoAtual();
+    return (list||[]).slice().sort((a,b)=>{
+      const ca=String(a.campeonato||a.camp||'').toUpperCase(),cb=String(b.campeonato||b.camp||'').toUpperCase();
+      const fa=foco&&ca===foco?0:1,fb=foco&&cb===foco?0:1;
+      if(fa!==fb)return fa-fb;
+      const sa=statusCompeticaoBolao(a).ordem,sb=statusCompeticaoBolao(b).ordem;
+      if(sa!==sb)return sa-sb;
+      return String(a.nome||a.titulo||'').localeCompare(String(b.nome||b.titulo||''),'pt-BR');
+    });
+  }
+  function garantirCopaVisivelSeExistirNaBase(list){
+    const arr=list||[];
+    if(arr.some(b=>String(b.campeonato||b.camp||'').toUpperCase()==='CUP'))return arr;
+    return arr;
+  }
   function isAdminBolao(b){const papel=b?.minhaParticipacao?.papel||''; return papel==='CRIADOR'||papel==='ADMIN'||b?.criadorUid===state.uid}
-  function publicosVisiveis(){const map=new Map(); (state.publicos||[]).forEach(b=>{if(b&&b.excluido!==true&&b.ativo!==false&&(b.publico===true||b.tipo==='PUBLICO'))map.set(b.id,b)}); (state.meus||[]).forEach(b=>{if(b&&b.excluido!==true&&b.ativo!==false&&(b.publico===true||b.tipo==='PUBLICO'))map.set(b.id,b)}); return Array.from(map.values())}
+  function publicosVisiveis(){const map=new Map(); (state.publicos||[]).forEach(b=>{if(isBolaoPublicoAtivo(b))map.set(b.id,b)}); (state.meus||[]).forEach(b=>{if(isBolaoPublicoAtivo(b))map.set(b.id,b)}); return ordenarBoloesPublicos(garantirCopaVisivelSeExistirNaBase(Array.from(map.values())))}
   function renderBoloes(){const pubs=publicosVisiveis(); setText('#stMeus',state.meus.length); setText('#stAdmin',state.meus.filter(isAdminBolao).length); setText('#stPublicos',pubs.length); setText('#stPendentes',state.privados.filter(b=>b.minhaParticipacao?.status==='PENDENTE').length); renderList('#meusBoloes',state.meus,'Você ainda não participa de nenhum bolão. Crie um novo ou explore bolões públicos.'); renderList('#publicosBoloes',pubs,'Nenhum bolão público disponível no momento.'); renderList('#privadosBoloes',state.privados,'Nenhum bolão privado vinculado à sua conta.')}
   function renderList(sel,list,empty){const box=$(sel); if(!box)return; box.innerHTML=''; if(!list||!list.length){box.innerHTML=`<div class="empty">${empty}</div>`; return} list.forEach(b=>{const part=b.minhaParticipacao||{}, selected=state.bolao&&state.bolao.id===b.id, st=statusCompeticaoBolao(b), p=calcularProgressoBolao(b); const div=document.createElement('div'); div.className='bolao-card'+(selected?' selected':''); div.innerHTML=`<div class="bolao-title"><div><h3>${escapeHtml(b.nome||b.titulo||'Bolão sem nome')}</h3><div class="bolao-meta"><span class="badge ${st.classe}">${escapeHtml(st.label)}</span><span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Público':'Privado'}</span>${isAdminBolao(b)?'<span class="badge admin">Você administra</span>':''}${part.status==='PENDENTE'?'<span class="badge pendente">Pendente</span>':''}${b.ativo===false?'<span class="badge pendente">Inativo</span>':''}<span class="badge">${escapeHtml(b.campeonato||b.camp||'CUP')}</span><span class="mode-chip">${escapeHtml(p.texto)}</span></div></div></div><div class="muted">${escapeHtml(b.descricao||escopoBolaoResumo(b)||'Bolão esportivo com ranking e palpites.')}</div><div class="bolao-actions"><button class="btn primary mini" data-open="${escapeHtml(b.id)}">Abrir</button>${!part.status&&state.uid!=='GUEST'?'<button class="btn blue mini" data-join="'+escapeHtml(b.id)+'">Participar</button>':''}${isAdminBolao(b)?'<button class="btn mini" data-share="'+escapeHtml(b.id)+'">Convidar</button>':''}</div>`; box.appendChild(div)}); box.querySelectorAll('[data-open]').forEach(btn=>btn.onclick=()=>selectBolao(list.find(b=>b.id===btn.dataset.open))); box.querySelectorAll('[data-join]').forEach(btn=>btn.onclick=()=>entrarBolao(btn.dataset.join)); box.querySelectorAll('[data-share]').forEach(btn=>btn.onclick=()=>copiarConvite(btn.dataset.share))}
   function renderSelected(){const box=$('#bolaoSelecionado'); if(!state.bolao){if(box)box.style.display='none'; setText('#mainHint','Selecione um bolão ou crie um novo para começar.'); return} const b=state.bolao, admin=isAdminBolao(b), st=statusCompeticaoBolao(b), p=calcularProgressoBolao(b); box.style.display='grid'; setText('#mainHint','Agora carregue os jogos, salve palpites ou compartilhe o convite.'); setText('#selNome',b.nome||b.titulo||'Bolão selecionado'); setText('#selResumo',`${b.publico?'Público':'Privado'} • ${b.campeonato||b.camp||'CUP'} • ${b.ativo===false?'Inativo':'Ativo'} • ${escopoBolaoResumo(b)}`); $('#selBadges').innerHTML=`<span class="badge ${st.classe}" data-status-camp="1">${escapeHtml(st.label)}</span><span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Entrada automática':'Aprovação do criador'}</span>${admin?'<span class="badge admin">Administrador</span>':''}${b.ativo===false?'<span class="badge pendente">Inativo</span>':''}<span class="badge auto">${escapeHtml(pontuacaoLabel(b))}</span><span class="mode-chip">${escapeHtml(formatoBolaoLabel(b))}</span><span class="badge auto">Autosave ativo</span>`; setText('#shareBox',shareUrl(b.id)); setText('#miniCamp',b.campeonato||b.camp||'CUP'); setText('#miniParticipantes',b.participantes||b.qtdParticipantes||'-'); $('#adminActions')?.classList.toggle('open',admin); const btnInativar=$('#btnInativarBolao'); if(btnInativar)btnInativar.textContent=b.ativo===false?'Reativar':'Inativar'; atualizarProgressoUI()}
-  function selectBolao(b){if(!b)return; state.bolao=b; state.jogos=[]; state.jogosExibidos=[]; setBolaoView('resumo'); if(isAdminBolao(b))ensureDesafianteBolao(b.id); renderBoloes(); renderSelected(); const camp=b.campeonato||b.camp||$('#selCamp')?.value||'CUP'; if($('#selCamp'))$('#selCamp').value=camp; atualizarLetreiroCampeonato(camp).catch(console.warn); toast('Bolão selecionado: '+(b.nome||b.titulo||b.id)+'. Buscando automaticamente a próxima rodada disponível...'); iniciarBolaoSelecionadoAuto(b).catch(e=>{console.warn(e); toast('Bolão selecionado. Não foi possível carregar automaticamente: '+e.message)})}
+  function selectBolao(b){if(!b)return; state.bolao=b; state.jogos=[]; state.jogosExibidos=[]; setBolaoView('resumo'); if(isAdminBolao(b))ensureDesafianteBolao(b.id); renderBoloes(); renderSelected(); const camp=b.campeonato||b.camp||$('#selCamp')?.value||'CUP'; if($('#selCamp'))$('#selCamp').value=camp; atualizarLetreiroCampeonato(camp).catch(console.warn); atualizarProgressoCampeonatoCompleto(camp).catch(console.warn); toast('Bolão selecionado: '+(b.nome||b.titulo||b.id)+'. Buscando automaticamente a próxima rodada disponível...'); iniciarBolaoSelecionadoAuto(b).catch(e=>{console.warn(e); toast('Bolão selecionado. Não foi possível carregar automaticamente: '+e.message)})}
 
   async function criarBolao(){if(state.uid==='GUEST'){toast('Entre com Google antes de criar um bolão.'); return} aplicarPermissoesCriacao(); const form=readBolaoForm('novo'); if(!form.nome){toast('Informe o nome do bolão.'); return} const adminGlobal=usuarioPodeCriarPublico(); if(form.publico&&!adminGlobal){form.tipo='PRIVADO'; form.publico=false; form.privado=true} const id=safeId(codeBolao()); const payload={id,...form,criadorUid:state.uid,criadorNome:state.nome,criadorEmail:state.email||'',criadoPorPerfil:adminGlobal?'ADMIN':'USUARIO',publicoOficial:form.publico===true&&adminGlobal,origemBolao:form.publico===true&&adminGlobal?'ADMIN_PUBLICO_GLOBAL':'USUARIO_PRIVADO',codigoConvite:id,excluido:false,criadoEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()}; await db.collection('boloes').doc(id).set(payload); const part={uid:state.uid,nome:state.nome,email:state.email,foto:state.foto,papel:'CRIADOR',status:'APROVADO',ativo:true,criadoEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()}; await db.collection('boloes').doc(id).collection('participantes').doc(state.uid).set(part); await upsertMeuBolaoIndex(id,payload,part); await ensureDesafianteBolao(id); $('#novoNome').value=''; $('#novoDesc').value=''; await refreshAll(); selectBolao({id,...payload,minhaParticipacao:part}); setTab('meus'); toast(form.publico?'Bolão público criado na coleção global e disponível para participantes.':'Bolão privado criado. Compartilhe o convite com quem vai participar.')}
   $('#btnCriarBolao').onclick=()=>criarBolao().catch(e=>toast('Erro ao criar bolão: '+e.message));
@@ -292,11 +431,11 @@
   function pesoDaRodada(rodada){const r=Number(rodada||$('#selRod')?.value||1),base=Number(state.bolao?.pesoInicial||10); return base+Math.max((Number.isFinite(r)?r:1)-1,0)}
   async function buscarJogosRodada(camp,rodada){const rows=await apiGet(withDualAction('jogos',`camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}`)); return Array.isArray(rows)?rows:[]}
   function getRodadasDisponiveis(){return Array.from($('#selRod')?.options||[]).map(o=>String(o.value||'').trim()).filter(Boolean)}
-  function getVisualStatus(apiStatus,dt){const st=String(apiStatus||'agendado').toLowerCase(); if(dt){if(dt.getTime()>Date.now())return 'agendado'; return (st==='agendado'||st==='aberto')?'encerrado':st} return st}
-  function isJogoAbertoParaPalpite(dt,status){const st=String(status||'').toLowerCase(); if(!dt||isNaN(dt.getTime()))return false; if(dt.getTime()<=Date.now())return false; if(['encerrado','finalizado','fechado','ao vivo','aovivo','em andamento','cancelado'].includes(st))return false; return true}
-  function jogoFuturoAberto(g){const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''); const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d); return isJogoAbertoParaPalpite(d,status)}
+  function getVisualStatus(apiStatus,dt,g){if(g&&jogoFinalizadoOuRealizado(g))return 'encerrado'; const st=String(apiStatus||'agendado').toLowerCase(); if(dt){if(dt.getTime()>Date.now())return 'agendado'; return (st==='agendado'||st==='aberto'||st==='vs'||st==='')?'encerrado':st} return st}
+  function isJogoAbertoParaPalpite(dt,status,g){const st=String(status||'').toLowerCase(); if(g&&jogoFinalizadoOuRealizado(g))return false; if(!dt||isNaN(dt.getTime()))return false; if(dt.getTime()<=Date.now())return false; if(['encerrado','finalizado','fechado','ao vivo','aovivo','em andamento','cancelado'].includes(st))return false; return true}
+  function jogoFuturoAberto(g){const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''); const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d,g); return isJogoAbertoParaPalpite(d,status,g)}
   async function encontrarProximaRodadaDisponivel(camp){const rodadas=getRodadasDisponiveis(); let fallback=null; for(const rodada of rodadas){try{let rows=await buscarJogosRodada(camp,rodada); rows=filtrarJogosPorEscopoBolao(rows,rodada); if(!rows.length)continue; rows.sort((a,b)=>(parseDateSafe(a.data_jogo||a.data||a.horario||a.inicio||'')?.getTime()||0)-(parseDateSafe(b.data_jogo||b.data||b.horario||b.inicio||'')?.getTime()||0)); if(!fallback)fallback={rodada,rows}; const futuros=rows.filter(jogoFuturoAberto); if(futuros.length)return {rodada,rows,futuros}}catch(e){console.warn('Falha ao consultar rodada '+rodada,e)}} return fallback}
-  async function iniciarBolaoSelecionadoAuto(b){if(!b||!state.bolao||state.bolao.id!==b.id)return; const token=Date.now(); state.autoLoadToken=token; state.autoLoading=true; const camp=b.campeonato||b.camp||$('#selCamp')?.value||'CUP'; if($('#selCamp'))$('#selCamp').value=camp; await loadRodadas(camp); if(state.autoLoadToken!==token)return; $('#proxJogosResumo').innerHTML='<div class="info-empty">Buscando automaticamente a próxima rodada aberta para palpite...</div>'; $('#rankingResumoBody').innerHTML='<div class="info-empty">Atualizando ranking automaticamente...</div>'; $('#meusPalpitesResumo').innerHTML='<div class="info-empty">Carregando seus palpites da próxima rodada...</div>'; const prox=await encontrarProximaRodadaDisponivel(camp); if(state.autoLoadToken!==token)return; if(prox&&prox.rodada){$('#selRod').value=prox.rodada; await carregarJogos({auto:true,keepView:true,somenteFuturos:!!prox.futuros?.length,rowsPreloaded:prox.rows,atualizarRanking:false}); await carregarRankingGeralAuto(camp); setBolaoView('resumo'); toast(`Bolão aberto. Próxima rodada disponível: ${prox.rodada}ª rodada.`)}else{setBolaoView('resumo'); toast('Bolão aberto. Não encontrei rodada futura aberta para palpite.'); await carregarRankingGeralAuto(camp).catch(()=>{})} state.autoLoading=false; setTimeout(refreshResumos,150)}
+  async function iniciarBolaoSelecionadoAuto(b){if(!b||!state.bolao||state.bolao.id!==b.id)return; const token=Date.now(); state.autoLoadToken=token; state.autoLoading=true; const camp=b.campeonato||b.camp||$('#selCamp')?.value||'CUP'; if($('#selCamp'))$('#selCamp').value=camp; await loadRodadas(camp); if(state.autoLoadToken!==token)return; $('#proxJogosResumo').innerHTML='<div class="info-empty">Buscando automaticamente a próxima rodada aberta para palpite...</div>'; $('#rankingResumoBody').innerHTML='<div class="info-empty">Atualizando ranking automaticamente...</div>'; $('#meusPalpitesResumo').innerHTML='<div class="info-empty">Carregando seus palpites da próxima rodada...</div>'; const prox=await encontrarProximaRodadaDisponivel(camp); if(state.autoLoadToken!==token)return; if(prox&&prox.rodada){$('#selRod').value=prox.rodada; await carregarJogos({auto:true,keepView:true,somenteFuturos:false,rowsPreloaded:prox.rows,atualizarRanking:false}); await carregarRankingGeralAuto(camp); setBolaoView('resumo'); toast(`Bolão aberto. Próxima rodada disponível: ${prox.rodada}ª rodada.`)}else{setBolaoView('resumo'); toast('Bolão aberto. Não encontrei rodada futura aberta para palpite.'); await carregarRankingGeralAuto(camp).catch(()=>{})} state.autoLoading=false; setTimeout(refreshResumos,150)}
 
   function translateTeam(nome){const raw=String(nome||'').trim(); const n=norm(raw); return TEAM_NAMES_PT[raw.toLowerCase()]||TEAM_NAMES_PT[n]||raw||'-'}
   function teamFlagCode(nome){const raw=String(nome||'').trim().toLowerCase(),n=norm(nome); return TEAM_FLAG_CODES[raw]||TEAM_FLAG_CODES[n]||''}
@@ -309,7 +448,7 @@
   function liveCountdown(target){if(!target)return ''; let ms=target-new Date(); if(ms<=0)return 'encerrado'; const s=Math.floor(ms/1000)%60,m=Math.floor(ms/60000)%60,h=Math.floor(ms/3600000)%24,d=Math.floor(ms/86400000); const p=[]; if(d)p.push(d+'d'); if(h||d)p.push(h+'h'); p.push(m+'min'); p.push(s+'s'); return p.join(' ')}
   let etaTimer=null; function startEtaTicker(){if(etaTimer)clearInterval(etaTimer); const t=()=>{$$('.js-eta').forEach(el=>{const status=(el.dataset.status||'').toLowerCase(); if(status!=='agendado'){el.classList.add('enc'); return} const dt=new Date(el.dataset.t||''); if(dt-new Date()<=0){el.textContent='encerrado'; el.classList.add('enc'); el.dataset.status='encerrado'}else{el.textContent=liveCountdown(dt); el.classList.remove('enc')}})}; t(); etaTimer=setInterval(t,1000)}
   const PLACE='–'; function numOrEmpty(v,st){if(st==='agendado'||v===''||v==null)return PLACE; const n=Number(v); return Number.isFinite(n)?String(n):PLACE} function palpiteField(id,value,disabled){const v=(value===''||value==null)?'':String(value); return `<input class="inp-palpite" type="number" min="0" inputmode="numeric" data-id="${escapeHtml(id)}" value="${escapeHtml(v)}" ${disabled?'disabled':''}>`}
-  async function carregarJogos(opcoes){const opts=opcoes||{}; if(!opts.keepView)setBolaoView('jogos'); const camp=$('#selCamp').value,rodada=$('#selRod').value; if(!state.bolao){toast('Selecione ou crie um bolão antes de carregar jogos.'); return} $('#msg').hidden=false; $('#msg').textContent=opts.auto?'Carregando automaticamente a próxima rodada disponível...':'Carregando jogos...'; $('#lista').hidden=true; try{let rows=Array.isArray(opts.rowsPreloaded)?opts.rowsPreloaded:await buscarJogosRodada(camp,rodada); rows=filtrarJogosPorEscopoBolao(rows,rodada); if(!rows.length){toast(`Nenhum jogo encontrado dentro do escopo deste bolão para ${camp} • ${rodada}ª rodada.`); return} rows.sort((a,b)=>(parseDateSafe(a.data_jogo||a.data||a.horario||a.inicio||'')?.getTime()||0)-(parseDateSafe(b.data_jogo||b.data||b.horario||b.inicio||'')?.getTime()||0)); state.jogos=rows; atualizarLetreiroCampeonato(camp).catch(console.warn); let rowsTela=rows; if(opts.somenteFuturos){rowsTela=rows.filter(g=>{const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''); const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d); return isJogoAbertoParaPalpite(d,status)})} state.jogosExibidos=rowsTela; const palpites=await carregarPalpitesFirestore(camp,rodada); if(!rowsTela.length){$('#lista').innerHTML='<div class="info-empty">Nenhum jogo futuro aberto para palpite nesta rodada. Altere a rodada para consultar jogos passados ou encerrados.</div>'; $('#msg').hidden=true; $('#lista').hidden=false; refreshResumos(); return} $('#lista').innerHTML=rowsTela.map((g,idx)=>{const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''),dts=fmtDataHoraJogo(d),status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d),home=g.mandante||g.home||g.time_mandante||'-',away=g.visitante||g.away||g.time_visitante||'-',gm=numOrEmpty(g.gols_mandante_oficial??g.gm??g.gols_mandante,status),gv=numOrEmpty(g.gols_visitante_oficial??g.gv??g.gols_visitante,status),id=String(g.id||`${camp}_${rodada}_${idx}`),p=palpites[id]||{},aberto=isJogoAbertoParaPalpite(d,status),pts=pontuarPalpite({...p,rodada:String(rodada)},g),tipo=tipoAcertoHTML({...p,rodada:String(rodada)},g); return `<div class="match-card" data-jogo="${escapeHtml(id)}" data-home="${escapeHtml(home)}" data-away="${escapeHtml(away)}" data-palpite-aberto="${aberto?'1':'0'}"><div class="match-head"><div><div class="match-date">${dts}</div><div class="match-meta">${escapeHtml(camp)} • ${escapeHtml(rodada)}ª Rodada</div></div><span class="eta js-eta" data-status="${escapeHtml(status)}" data-t="${d?d.toISOString():''}">${status==='agendado'?liveCountdown(d):'encerrado'}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div>${teamHTML(home,'home')}<div class="official-box">${escapeHtml(gm)}</div>${palpiteField(id+'_gm',p.gm,!aberto)}${teamHTML(away,'away')}<div class="official-box">${escapeHtml(gv)}</div>${palpiteField(id+'_gv',p.gv,!aberto)}</div><div class="match-foot"><div><div class="foot-label">Seu palpite</div><div class="autosave-status" data-status-save="${escapeHtml(id)}">${p.atualizadoEm?'salvo anteriormente':(aberto?'':'palpite encerrado')}</div>${tipo}</div><span class="pts" data-pts="${escapeHtml(id)}">${pts} pts</span><button class="btn primary mini" data-save="${escapeHtml(id)}" ${!aberto?'disabled':''}>Salvar</button></div></div>`}).join(''); $('#msg').hidden=true; $('#lista').hidden=false; attachSaveListeners(camp,rodada); applyPAIfNeeded(camp,rodada); gerarDesafianteParaJogos(camp,rodada).catch(console.warn); startEtaTicker(); setTimeout(refreshResumos,150); if(opts.atualizarRanking!==false)carregarRankingGeralAuto(camp).catch(console.warn); if(opts.keepView)setBolaoView('resumo')}catch(e){toast('Erro: '+e.message)}}
+  async function carregarJogos(opcoes){const opts=opcoes||{}; if(!opts.keepView)setBolaoView('jogos'); const camp=$('#selCamp').value,rodada=$('#selRod').value; if(!state.bolao){toast('Selecione ou crie um bolão antes de carregar jogos.'); return} $('#msg').hidden=false; $('#msg').textContent=opts.auto?'Carregando automaticamente a próxima rodada disponível...':'Carregando jogos...'; $('#lista').hidden=true; try{let rows=Array.isArray(opts.rowsPreloaded)?opts.rowsPreloaded:await buscarJogosRodada(camp,rodada); rows=filtrarJogosPorEscopoBolao(rows,rodada); if(!rows.length){toast(`Nenhum jogo encontrado dentro do escopo deste bolão para ${camp} • ${rodada}ª rodada.`); return} rows.sort((a,b)=>(parseDateSafe(a.data_jogo||a.data||a.horario||a.inicio||'')?.getTime()||0)-(parseDateSafe(b.data_jogo||b.data||b.horario||b.inicio||'')?.getTime()||0)); state.jogos=rows; atualizarProgressoCacheComRows(camp,rows); atualizarLetreiroCampeonato(camp).catch(console.warn); atualizarProgressoCampeonatoCompleto(camp).catch(console.warn); let rowsTela=rows; if(opts.somenteFuturos){rowsTela=rows.filter(g=>{const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''); const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d,g); return isJogoAbertoParaPalpite(d,status,g)||jogoFinalizadoOuRealizado(g)||(!jogoTemStatusVS(g)&&status!=='agendado')})} state.jogosExibidos=rowsTela; const palpites=await carregarPalpitesFirestore(camp,rodada); if(!rowsTela.length){$('#lista').innerHTML='<div class="info-empty">Nenhum jogo futuro aberto para palpite nesta rodada. Altere a rodada para consultar jogos passados ou encerrados.</div>'; $('#msg').hidden=true; $('#lista').hidden=false; refreshResumos(); return} $('#lista').innerHTML=rowsTela.map((g,idx)=>{const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''),dts=fmtDataHoraJogo(d),status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d,g),home=g.mandante||g.home||g.time_mandante||'-',away=g.visitante||g.away||g.time_visitante||'-',of=placarOficialJogo(g),gm=of?String(of.gm):PLACE,gv=of?String(of.gv):PLACE,id=String(g.id||`${camp}_${rodada}_${idx}`),p=palpites[id]||{},aberto=isJogoAbertoParaPalpite(d,status,g),pts=pontuarPalpite({...p,rodada:String(rodada)},g),tipo=tipoAcertoHTML({...p,rodada:String(rodada)},g); return `<div class="match-card" data-jogo="${escapeHtml(id)}" data-home="${escapeHtml(home)}" data-away="${escapeHtml(away)}" data-palpite-aberto="${aberto?'1':'0'}"><div class="match-head"><div><div class="match-date">${dts}</div><div class="match-meta">${escapeHtml(camp)} • ${escapeHtml(rodada)}ª Rodada</div></div><span class="eta js-eta" data-status="${escapeHtml(status)}" data-t="${d?d.toISOString():''}">${status==='agendado'?liveCountdown(d):'encerrado'}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div>${teamHTML(home,'home')}<div class="official-box">${escapeHtml(gm)}</div>${palpiteField(id+'_gm',p.gm,!aberto)}${teamHTML(away,'away')}<div class="official-box">${escapeHtml(gv)}</div>${palpiteField(id+'_gv',p.gv,!aberto)}</div><div class="match-foot"><div><div class="foot-label">Seu palpite</div><div class="autosave-status" data-status-save="${escapeHtml(id)}">${p.atualizadoEm?'salvo anteriormente':(aberto?'':'palpite encerrado')}</div>${tipo}</div><span class="pts" data-pts="${escapeHtml(id)}">${pts} pts</span><button class="btn primary mini" data-save="${escapeHtml(id)}" ${!aberto?'disabled':''}>Salvar</button></div></div>`}).join(''); $('#msg').hidden=true; $('#lista').hidden=false; attachSaveListeners(camp,rodada); applyPAIfNeeded(camp,rodada); gerarDesafianteParaJogos(camp,rodada).catch(console.warn); startEtaTicker(); setTimeout(refreshResumos,150); if(opts.atualizarRanking!==false)carregarRankingGeralAuto(camp).catch(console.warn); if(opts.keepView)setBolaoView('resumo')}catch(e){toast('Erro: '+e.message)}}
   $('#btnCarregar').onclick=()=>carregarJogos();
   async function carregarPalpitesFirestore(camp,rodada){const out={}; if(!state.bolao||state.uid==='GUEST')return out; try{const qs=await db.collection('boloes').doc(state.bolao.id).collection('palpites').where('uid','==',state.uid).where('camp','==',camp).where('rodada','==',String(rodada)).get(); qs.docs.forEach(d=>{out[d.data().idJogo]=d.data()})}catch(e){console.warn(e)} return out}
   function setSaveStatus(id,txt,cls){const st=$(`.autosave-status[data-status-save="${cssEsc(id)}"]`); if(st){st.textContent=txt||''; st.className='autosave-status '+(cls||'')}}
@@ -328,10 +467,10 @@
   function applyPAIfNeeded(camp,rodada){if(!state.pa?.perfil)return; $$('.match-card').forEach(card=>{const id=card.dataset.jogo; if(card.dataset.palpiteAberto!=='1')return; const gm=$(`input[data-id="${cssEsc(id)}_gm"]`),gv=$(`input[data-id="${cssEsc(id)}_gv"]`); if(gm&&!gm.disabled&&gv&&!gv.disabled&&gm.value===''&&gv.value===''){const p=gerarPalpitePerfil(card.dataset.home||'',card.dataset.away||'',state.pa.perfil,`${camp}_${rodada}_${id}`); gm.value=p.gm; gv.value=p.gv; setSaveStatus(id,'P.A. '+labelPerfilPA(state.pa.perfil)+' aplicado em jogo futuro','saving'); salvarPalpiteJogo(id,camp,rodada,'PA_'+state.pa.perfil).catch(console.warn)}})}
   async function gerarDesafianteParaJogos(camp,rodada){if(!state.bolao)return; try{await ensureDesafianteBolao(state.bolao.id)}catch(_){} const batch=db.batch(); let total=0; $$('.match-card').forEach(card=>{const id=card.dataset.jogo; if(card.dataset.palpiteAberto!=='1')return; const p=gerarPalpitePerfil(card.dataset.home||'',card.dataset.away||'','FAVORITOS',`DESAFIANTE_${camp}_${rodada}_${id}`); const ref=db.collection('boloes').doc(state.bolao.id).collection('palpites').doc(safeId(`${DESAFIANTE_UID}_${camp}_${rodada}_${id}`)); batch.set(ref,{uid:DESAFIANTE_UID,nome:DESAFIANTE_NOME,idJogo:id,camp,rodada:String(rodada),gm:p.gm,gv:p.gv,origem:'DESAFIANTE_IA',perfil:'FAVORITOS_ESTATISTICO',virtual:true,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}); total++}); if(total)await batch.commit()}
 
-  function placarOficialJogo(g){const gm=g.gols_mandante_oficial??g.gm??g.gols_mandante??g.placar_mandante??g.home_score, gv=g.gols_visitante_oficial??g.gv??g.gols_visitante??g.placar_visitante??g.away_score; const ngm=Number(gm),ngv=Number(gv); return Number.isFinite(ngm)&&Number.isFinite(ngv)?{gm:ngm,gv:ngv}:null}
+  function placarOficialJogo(g){if(!g||typeof g!=='object')return null; const comb=pickFirst(g,['placar','placar_oficial','placarOficial','resultado','resultado_final','resultadoFinal','score','score_final','fullTimeScore','ft','placarFinal']); const pc=parsePlacarCombinado(comb); if(pc)return pc; const gm=placarValorValido(pickFirst(g,['gols_mandante_oficial','gm','gols_mandante','placar_mandante','placarMandante','home_score','homeScore','scoreHome','mandante_gols','resultadoMandante','mandanteScore','golsCasa','casa_gols'])); const gv=placarValorValido(pickFirst(g,['gols_visitante_oficial','gv','gols_visitante','placar_visitante','placarVisitante','away_score','awayScore','scoreAway','visitante_gols','resultadoVisitante','visitanteScore','golsFora','fora_gols'])); return gm!==null&&gv!==null?{gm,gv}:null}
   function idJogoDaLinhaPalpite(r){return String(getVal(r,['idJogo','jogo_id','id_jogo','jogo','partida','confronto','id'],'')).trim()}
   function getVal(obj,keys,fallback=''){if(!obj||typeof obj!=='object')return fallback; for(const k of keys)if(obj[k]!==undefined&&obj[k]!==null&&obj[k]!=='')return obj[k]; return fallback}
-  function jogoJaIniciadoParaExibirPalpite(r){const id=idJogoDaLinhaPalpite(r),cands=[]; if(id)cands.push(...(state.jogos||[]).filter(g=>String(g.id||'')===id||String(g.jogo||'')===id||String(g.partida||'')===id||String(`${g.mandante||g.home||''} x ${g.visitante||g.away||''}`).trim()===id)); cands.push(r); for(const g of cands){const dt=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||g.dataHora||g.date||''); if(dt&&!isNaN(dt.getTime()))return dt.getTime()<=Date.now(); const st=String(g.status||g.situacao||'').toLowerCase(); if(['ao vivo','aovivo','em andamento','iniciado','encerrado','finalizado','fechado'].some(x=>st.includes(x)))return true; if(['agendado','aberto','a começar','a comecar','programado'].some(x=>st.includes(x)))return false} return false}
+  function jogoJaIniciadoParaExibirPalpite(r){const id=idJogoDaLinhaPalpite(r),cands=[]; if(id)cands.push(...(state.jogos||[]).filter(g=>String(g.id||'')===id||String(g.jogo||'')===id||String(g.partida||'')===id||String(`${g.mandante||g.home||''} x ${g.visitante||g.away||''}`).trim()===id)); cands.push(r); for(const g of cands){if(jogoFinalizadoOuRealizado(g))return true; const dt=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||g.dataHora||g.date||''); if(dt&&!isNaN(dt.getTime()))return dt.getTime()<=Date.now(); const st=String(g.status||g.situacao||'').toLowerCase(); if(['ao vivo','aovivo','em andamento','iniciado','encerrado','finalizado','fechado','ft','fim'].some(x=>st.includes(x)))return true; if(['vs','agendado','aberto','a começar','a comecar','programado'].some(x=>st.includes(x)))return false} return false}
   function detalhesAcertoPalpite(p,g){const of=placarOficialJogo(g),pgm=Number(p?.gm),pgv=Number(p?.gv); if(!of||!Number.isFinite(pgm)||!Number.isFinite(pgv))return {base:0,label:'',classe:'',abbr:'—'}; if(pgm===of.gm&&pgv===of.gv)return {base:25,label:'Placar exato',classe:'exato',abbr:'PE'}; const res=(a,b)=>a>b?'M':(a<b?'V':'E'),rp=res(pgm,pgv),ro=res(of.gm,of.gv); if(rp==='E'&&ro!=='E')return {base:4,label:'Empate garantido',classe:'vencedor',abbr:'E'}; if(rp!==ro)return {base:0,label:'',classe:'',abbr:'—'}; if(ro==='E')return {base:15,label:'Saldo',classe:'saldo',abbr:'SG'}; const mand=ro==='M',gvp=mand?pgm:pgv,gvo=mand?of.gm:of.gv,gpp=mand?pgv:pgm,gpo=mand?of.gv:of.gm,sp=Math.abs(pgm-pgv),so=Math.abs(of.gm-of.gv); if(gvp===gvo)return {base:18,label:'Gol vencedor',classe:'gol',abbr:'GV'}; if(sp===so)return {base:15,label:'Saldo',classe:'saldo',abbr:'SG'}; if(gpp===gpo)return {base:12,label:'Gol perdedor',classe:'gol',abbr:'GP'}; return {base:10,label:'Vencedor',classe:'vencedor',abbr:'V'}}
   function pontosBasePalpite(p,g){return detalhesAcertoPalpite(p,g).base||0}
   function pontuarPalpite(p,g){const base=pontosBasePalpite(p,g); if(!base)return 0; const usar=state.bolao?.usaPesoRodada===true||state.bolao?.pontuacaoModo==='COM_PESO'; return usar?base*pesoDaRodada(p.rodada||g.__rodada||$('#selRod')?.value||1):base}
@@ -355,11 +494,11 @@
   async function carregarPalpitesPainel(){setBolaoView('palpites'); $('#palpitesStatus').textContent='carregando...'; $('#palpitesBody').innerHTML='<div class="info-empty">Carregando palpites...</div>'; if(!state.bolao){$('#palpitesStatus').textContent='aguardando bolão'; $('#palpitesBody').innerHTML='<div class="info-empty">Selecione um bolão antes de consultar os palpites.</div>'; return} if(!state.jogos.length){$('#palpitesStatus').textContent='carregue jogos'; $('#palpitesBody').innerHTML='<div class="info-empty">Carregue os jogos da rodada primeiro. Assim o sistema consegue ocultar corretamente palpites de jogos ainda não iniciados.</div>'; return} try{renderPalpitesLocal(await buscarPalpitesFirestoreRodada())}catch(e){$('#palpitesStatus').textContent='erro'; $('#palpitesBody').innerHTML=`<div class="info-empty">Erro ao carregar palpites: ${escapeHtml(e.message)}</div>`}}
   $('#btnRanking').onclick=carregarRankingPainel; $('#btnTodos').onclick=carregarPalpitesPainel;
 
-  function statusFinalizadoParaLetreiro(g,d){const st=String(g.status||'').toLowerCase(),gm=g.gols_mandante_oficial??g.gm??g.gols_mandante,gv=g.gols_visitante_oficial??g.gv??g.gols_visitante,tem=gm!==''&&gm!==null&&gm!==undefined&&gv!==''&&gv!==null&&gv!==undefined; return tem||['encerrado','finalizado','fechado'].includes(st)||(d&&d.getTime()<Date.now()&&tem)}
-  function placarLetreiro(g){const gm=g.gols_mandante_oficial??g.gm??g.gols_mandante,gv=g.gols_visitante_oficial??g.gv??g.gols_visitante; return (gm===''||gm==null||gv===''||gv==null)?'':`${gm} x ${gv}`}
+  function statusFinalizadoParaLetreiro(g,d){return jogoFinalizadoOuRealizado(g)||(d&&d.getTime()<Date.now()&&!jogoTemStatusVS(g))}
+  function placarLetreiro(g){const of=placarOficialJogo(g); return of?`${of.gm} x ${of.gv}`:''}
   function itemLetreiroHTML(tipo,g){const home=g.mandante||g.home||g.time_mandante||'-',away=g.visitante||g.away||g.time_visitante||'-',d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''),cls=tipo==='done'?'done':'next',tag=tipo==='done'?'Resultado':'Próximo'; return `<span class="ticker-item ${cls}"><span class="tag-mini">${tag}</span>${confrontoMiniComPlacarHTML(home,away,placarLetreiro(g))}<span>${escapeHtml(fmtDataHoraCurta(d))}</span></span>`}
   function atualizarTitulosCampeonato(camp){const nome=campLabel(camp); setText('#tickerTitle',nome); setText('#tickerSub','Jogos e resultados.'); setText('#painelHomeTitulo',nome); setText('#painelHomeSub','')}
-  async function atualizarLetreiroCampeonato(camp){const track=$('#tickerTrack'); if(!track)return; if(!camp){track.innerHTML='<div class="ticker-empty">Abra um bolão para carregar o letreiro do campeonato.</div>'; return} atualizarTitulosCampeonato(camp); track.innerHTML='<div class="ticker-empty">Carregando letreiro...</div>'; const rodadas=getRodadasDisponiveis(),proximos=[],ultimos=[]; for(const rodada of rodadas.slice(0,12)){try{const rows=await buscarJogosRodada(camp,rodada); for(const g of rows){const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''); if(!d||isNaN(d.getTime()))continue; const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d); if(isJogoAbertoParaPalpite(d,status))proximos.push({...g,__dt:d}); else if(statusFinalizadoParaLetreiro(g,d))ultimos.push({...g,__dt:d})}}catch(e){console.warn('Letreiro rodada '+rodada,e)} if(proximos.length>=6&&ultimos.length>=4)break} proximos.sort((a,b)=>a.__dt-b.__dt); ultimos.sort((a,b)=>b.__dt-a.__dt); const itens=[...proximos.slice(0,6).map(g=>itemLetreiroHTML('next',g)),...ultimos.slice(0,4).map(g=>itemLetreiroHTML('done',g))]; if(!itens.length){track.innerHTML='<div class="ticker-empty">Nenhum jogo futuro ou resultado recente encontrado para este campeonato.</div>'; return} const html=itens.join('<span style="opacity:.35">•</span>'); track.innerHTML=`<div class="ticker-content">${html}<span style="opacity:.35">•</span>${html}</div>`}
+  async function atualizarLetreiroCampeonato(camp){const track=$('#tickerTrack'); if(!track)return; if(!camp){track.innerHTML='<div class="ticker-empty">Abra um bolão para carregar o letreiro do campeonato.</div>'; return} atualizarTitulosCampeonato(camp); track.innerHTML='<div class="ticker-empty">Carregando letreiro...</div>'; const rodadas=getRodadasDisponiveis(),proximos=[],ultimos=[]; for(const rodada of rodadas.slice(0,12)){try{const rows=await buscarJogosRodada(camp,rodada); atualizarProgressoCacheComRows(camp,rows); for(const g of rows){const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''); if(!d||isNaN(d.getTime()))continue; const status=getVisualStatus(String(g.status||'agendado').toLowerCase(),d,g); if(isJogoAbertoParaPalpite(d,status,g))proximos.push({...g,__dt:d}); else if(statusFinalizadoParaLetreiro(g,d))ultimos.push({...g,__dt:d})}}catch(e){console.warn('Letreiro rodada '+rodada,e)} if(proximos.length>=6&&ultimos.length>=4)break} proximos.sort((a,b)=>a.__dt-b.__dt); ultimos.sort((a,b)=>b.__dt-a.__dt); const itens=[...proximos.slice(0,6).map(g=>itemLetreiroHTML('next',g)),...ultimos.slice(0,4).map(g=>itemLetreiroHTML('done',g))]; if(!itens.length){track.innerHTML='<div class="ticker-empty">Nenhum jogo futuro ou resultado recente encontrado para este campeonato.</div>'; return} const html=itens.join('<span style="opacity:.35">•</span>'); track.innerHTML=`<div class="ticker-content">${html}<span style="opacity:.35">•</span>${html}</div>`}
   async function irParaPrimeiroJogoSemPalpite(){setBolaoView('jogos'); if(state.bolao&&(!state.jogosExibidos||!state.jogosExibidos.length))await carregarJogos({auto:true}).catch(console.warn); const cards=$$('.match-card[data-palpite-aberto="1"]'); let alvo=null; for(const card of cards){const inputs=card.querySelectorAll('.inp-palpite'); if(inputs.length>=2&&(inputs[0].value===''||inputs[1].value==='')){alvo=card; break}} if(!alvo)alvo=cards[0]||$('.match-card'); if(alvo){alvo.scrollIntoView({behavior:'smooth',block:'center'}); const first=alvo.querySelector('.inp-palpite:not(:disabled)'); if(first)setTimeout(()=>first.focus(),450)}}
 
   function renderMiniProximos(){const box=$('#proxJogosResumo'),jogos=state.jogos||[]; if(!box)return; if(!jogos.length){box.innerHTML='<div class="info-empty">Abra um bolão e carregue uma rodada para listar os próximos jogos.</div>'; return} const futuros=jogos.filter(g=>{const d=parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||''); return d&&d>new Date()}).slice(0,4); const rows=(futuros.length?futuros:jogos.slice(0,4)).map(g=>`<div class="mini-row"><strong>${confrontoMiniHTML(g.mandante||g.home||g.time_mandante||'-',g.visitante||g.away||g.time_visitante||'-')}</strong><span>${escapeHtml(fmtDataHoraCurta(parseDateSafe(g.data_jogo||g.data||g.horario||g.inicio||'')))}</span></div>`).join(''); box.innerHTML=rows||'<div class="info-empty">Nenhum jogo disponível para esta rodada.</div>'}
@@ -368,7 +507,25 @@
   function refreshResumos(){if(state.bolao){setText('#miniParticipantes',state.bolao.participantes||state.bolao.qtdParticipantes||'-'); atualizarProgressoUI()} renderMiniProximos(); renderMeusPalpitesResumo(); renderRankingResumoFromMain()}
   document.addEventListener('input',e=>{if(e.target&&e.target.classList&&e.target.classList.contains('inp-palpite'))setTimeout(renderMeusPalpitesResumo,80)});
 
-  (async function boot(){loadPA(); await loadCatalog(); await loadPublicos(); renderBoloes(); aplicarPermissoesCriacao()})();
+  (async function boot(){
+    loadPA();
+    await loadCatalog();
+    await loadPublicos();
+    renderBoloes();
+    aplicarPermissoesCriacao();
+    const hash=(location.hash||'').replace('#','').trim().toUpperCase();
+    if(hash){
+      setTab('publicos');
+      const alvo=publicosVisiveis().find(b=>String(b.campeonato||b.camp||'').toUpperCase()===hash);
+      if(alvo)selectBolao(alvo);
+      else{
+        if($('#selCamp'))$('#selCamp').value=hash;
+        atualizarTitulosCampeonato(hash);
+        atualizarLetreiroCampeonato(hash).catch(console.warn);
+        atualizarProgressoCampeonatoCompleto(hash).catch(console.warn);
+      }
+    }
+  })();
 </script>
 </body>
 </html>
