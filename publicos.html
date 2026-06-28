@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- V012_PUBLICOS_SEM_AGUARDANDO_JOGOS_FINALIZADOS_PLACAR_VS_FIX -->
 <!-- V011_PUBLICOS_PROGRESSO_REAL_JOGOS_FINALIZADOS_HOME_SYNC -->
 <!-- V010_PUBLICOS_DATAS_FALLBACK_PLANILHA_FIRESTORE_ORDEM_STATUS -->
 <!-- V008_PUBLICOS_FILTROS_URL_CAMPEONATO_PESO_OFICIAIS -->
@@ -213,7 +214,7 @@
   function norm(v){ return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
   function safeId(v){ return String(v||'').trim().replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,80) || ('BOLAO_'+Date.now()); }
   const CAMP_INFO = {
-    CUP:{label:'Copa do Mundo',short:'CUP',logo:'assets/logos/campeonatos/copa-do-mundo.png',ordem:10,inicio:'2026-06-11',fim:'2026-07-19',qtdJogos:104,status:'A iniciar'},
+    CUP:{label:'Copa do Mundo',short:'CUP',logo:'assets/logos/campeonatos/copa-do-mundo.png',ordem:10,inicio:'2026-06-11',fim:'2026-07-19',qtdJogos:104,status:'Em andamento'},
     BRA:{label:'Brasileirão',short:'BRA',logo:'assets/logos/campeonatos/brasileirao.png',ordem:20,inicio:'2026-02-01',fim:'2026-12-01',qtdJogos:380,status:'Em andamento'},
     ENG:{label:'Premier League',short:'ENG',logo:'assets/logos/campeonatos/premier-league.png',ordem:30,inicio:'2025-08-15',fim:'2026-05-24',qtdJogos:380,status:'Finalizado'},
     ESP:{label:'Campeonato Espanhol',short:'ESP',logo:'assets/logos/campeonatos/campeonato-espanhol.png',ordem:40,inicio:'2025-08-15',fim:'2026-05-24',qtdJogos:380,status:'Finalizado'},
@@ -339,9 +340,72 @@
   function totalJogosBolao(b){
     const direto=numCampo(b,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos','totalPartidas','qtdPartidas']);
     if(direto !== null) return Math.max(0, Math.round(direto));
+
+    const lista=jogosArrayBolao(b);
+    if(lista.length) return lista.length;
+
     const info=infoCamp(campRaw(b));
     const n=numValor(info.totalJogos ?? info.qtdJogos ?? info.jogosTotal ?? info.total_jogos);
     return n !== null ? Math.max(0, Math.round(n)) : 0;
+  }
+  function normalizaPlacarTexto(v){
+    return String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();
+  }
+  function valorEhVS(v){
+    const s=normalizaPlacarTexto(v).replace(/\s+/g,'');
+    if(!s) return true;
+    return ['VS','V.S.','X','-','--','—','–','A-DEFINIR','ADEFINIR','NAOINICIADO','NAO-INICIADO','PENDENTE'].includes(s);
+  }
+  function placarNumeroValido(v){
+    if(v === '' || v === null || v === undefined) return null;
+    if(typeof v === 'string' && valorEhVS(v)) return null;
+    const n=Number(String(v).replace(/[^0-9,.-]/g,'').replace(',','.'));
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  }
+  function placarPorTexto(v){
+    const s=String(v ?? '').trim();
+    if(!s || valorEhVS(s)) return null;
+    const m=s.match(/(\d+)\s*(?:x|X|×|-|–|—|:)\s*(\d+)/);
+    if(!m) return null;
+    const gm=Number(m[1]), gv=Number(m[2]);
+    return Number.isFinite(gm) && Number.isFinite(gv) ? {gm,gv} : null;
+  }
+  function placarDoJogo(j){
+    if(!j || typeof j !== 'object') return null;
+    const mand=pickFirst(j,[
+      'placarMandante','golsMandante','mandante_gols','homeScore','scoreHome','resultadoMandante',
+      'gols_mandante_oficial','gols_mandante','placar_mandante','gm','home_score','mandantePlacar'
+    ]);
+    const vis=pickFirst(j,[
+      'placarVisitante','golsVisitante','visitante_gols','awayScore','scoreAway','resultadoVisitante',
+      'gols_visitante_oficial','gols_visitante','placar_visitante','gv','away_score','visitantePlacar'
+    ]);
+    const gm=placarNumeroValido(mand), gv=placarNumeroValido(vis);
+    if(gm !== null && gv !== null) return {gm,gv};
+
+    const texto=pickFirst(j,['placar','resultado','score','resultadoFinal','placarFinal','fullTime','ft','res','placar_oficial']);
+    return placarPorTexto(texto);
+  }
+  function jogoTemResultadoValido(j){
+    if(!j || typeof j !== 'object') return false;
+    if(placarDoJogo(j)) return true;
+
+    const st=normalizaPlacarTexto(pickFirst(j,['status','situacao','estado','fase','statusJogo']));
+    if(['FINALIZADO','ENCERRADO','FECHADO','FIM','FT','FULLTIME','FULL TIME'].includes(st)) return true;
+    if(st.includes('FINAL') || st.includes('ENCERR') || st === 'FECHADO') return true;
+    if(st.includes('CANCEL') || st.includes('ADIAD') || st.includes('SUSP')) return false;
+
+    const texto=pickFirst(j,['placar','resultado','score','resultadoFinal','placarFinal']);
+    return !!texto && !valorEhVS(texto) && !!String(texto).match(/\d/);
+  }
+  function jogosArrayBolao(b){
+    const possiveis=['jogos','partidas','matches','fixtures','calendario','listaJogos','jogosLista','partidasLista'];
+    for(const k of possiveis){
+      const v=b?.[k];
+      if(Array.isArray(v)) return v;
+      if(v && typeof v === 'object') return Object.values(v);
+    }
+    return [];
   }
   function jogosFinalizadosBolao(b){
     const direto=numCampo(b,[
@@ -349,6 +413,10 @@
       'jogosAvaliados','qtdJogosAvaliados','totalJogosAvaliados','jogosComResultado','qtdComResultado','partidasFinalizadas'
     ]);
     if(direto !== null) return Math.max(0, Math.round(direto));
+
+    const lista=jogosArrayBolao(b);
+    if(lista.length) return lista.filter(jogoTemResultadoValido).length;
+
     const info=infoCamp(campRaw(b));
     const n=numValor(info.jogosFinalizados ?? info.qtdFinalizados ?? info.finalizados ?? info.jogosEncerrados ?? info.jogosAvaliados ?? info.jogosComResultado);
     return n !== null ? Math.max(0, Math.round(n)) : null;
@@ -368,9 +436,6 @@
       if(feitos > 0) return {key:'EM_ANDAMENTO',label:'Em andamento',classe:'status-andamento',ordem:1};
     }
 
-    const raw=statusPorLabelRaw(b);
-    if(raw) return raw;
-
     const ini=inicioBolao(b), fim=fimBolao(b);
     const hoje=new Date();
     const hojeDia=new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate());
@@ -382,6 +447,10 @@
       const fimDia=new Date(fim.getFullYear(),fim.getMonth(),fim.getDate());
       if(hojeDia > fimDia) return {key:'FINALIZADO',label:'Finalizado',classe:'status-finalizado',ordem:3};
     }
+
+    const raw=statusPorLabelRaw(b);
+    if(raw) return raw;
+
     return {key:'EM_ANDAMENTO',label:'Em andamento',classe:'status-andamento',ordem:1};
   }
   function calcularProgresso(b){
@@ -393,20 +462,19 @@
       let feitos = feitosRaw;
       if(feitos === null){
         if(st.key === 'FINALIZADO') feitos = total;
-        else if(st.key === 'A_INICIAR') feitos = 0;
-        else feitos = null;
+        else feitos = 0;
       }
-      if(feitos !== null){
-        feitos = Math.max(0, Math.min(total, Math.round(feitos)));
-        const pct=Math.max(0,Math.min(100,Math.round((feitos/total)*100)));
-        return {pct, feitos, total, texto:`${feitos}/${total} jogos finalizados • ${pct}%`, nota:'Progresso calculado por jogos finalizados'};
-      }
-      return {pct:0, feitos:null, total, texto:`Aguardando jogos finalizados`, nota:`Total cadastrado: ${total} jogos. Não utiliza estimativa por data.`};
+      feitos = Math.max(0, Math.min(total, Math.round(feitos)));
+      const pct=Math.max(0,Math.min(100,Math.round((feitos/total)*100)));
+      const nota = feitos > 0
+        ? 'Progresso calculado por jogos finalizados'
+        : (st.key === 'A_INICIAR' ? 'Campeonato ainda não iniciou' : 'Nenhum jogo finalizado registrado até o momento');
+      return {pct, feitos, total, texto:`${feitos}/${total} jogos finalizados • ${pct}%`, nota};
     }
 
     if(st.key==='FINALIZADO') return {pct:100,feitos:null,total:null,texto:'Finalizado',nota:'Campeonato finalizado'};
     if(st.key==='A_INICIAR') return {pct:0,feitos:null,total:null,texto:'A iniciar',nota:'Aguardando cadastro dos jogos'};
-    return {pct:0,feitos:null,total:null,texto:'Aguardando jogos/resultados',nota:'Cadastre total de jogos e finalizados para calcular o progresso'};
+    return {pct:0,feitos:null,total:null,texto:'Sem total de jogos informado',nota:'Cadastre total de jogos para calcular o progresso'};
   }
   function progressoHtml(b){
     const p=calcularProgresso(b);
