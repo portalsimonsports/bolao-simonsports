@@ -82,7 +82,7 @@
                 <div class="opA-detail-metric"><strong id="miniJogos">-</strong><span>Jogos</span></div>
                 <div class="opA-detail-metric"><strong id="miniParticipantes">-</strong><span>Participantes</span></div>
               </div>
-              <div class="progress-card" id="selProgressCard"><div class="progress-top"><span>Progresso real do campeonato</span><strong id="selProgressText">—</strong></div><div class="progress-track"><div class="progress-fill" id="selProgressFill"></div></div><div class="progress-note" id="selProgressNote">Aguardando jogos finalizados.</div></div>
+              <div class="progress-card" id="selProgressCard"><div class="progress-top"><span>Progresso real do campeonato</span><strong id="selProgressText">—</strong></div><div class="progress-track"><div class="progress-fill" id="selProgressFill"></div></div><div class="progress-note" id="selProgressNote">Abra um bolão para atualizar jogos realizados.</div></div>
               <div class="share-box" id="shareBox">Convite ainda não gerado.</div>
             </div>
             <div id="msg" class="empty">Selecione um bolão para ver detalhes, próximos jogos, ranking e seus palpites.</div>
@@ -274,9 +274,9 @@
     const i=inicioBolao(b),f=fimBolao(b);
     if(i&&f&&f>i){
       const pct=Math.max(0,Math.min(100,Math.round(((Date.now()-i.getTime())/(f.getTime()-i.getTime()))*100)));
-      return {pct,texto:`${pct}%`,jogos:total?`0/${total}`:'—',nota:'Contagem real de jogos em atualização. Assim que os resultados forem lidos, troca para realizados/total.'};
+      return {pct,texto:`${pct}%`,jogos:total?`0/${total}`:'—',nota:'Contagem exibida por jogos finalizados/realizados. Se nenhum resultado foi publicado, fica 0/total.'};
     }
-    return {pct:0,texto:'—',jogos:total?`0/${total}`:'—',nota:'Aguardando leitura de jogos finalizados.'};
+    return {pct:0,texto:total?'0%':'—',jogos:total?`0/${total}`:'—',nota:total?'Nenhum jogo finalizado/realizado encontrado nos dados publicados.':'Total de jogos ainda não informado.'};
   }
   async function atualizarProgressoCampeonatoCompleto(camp){
     camp=String(camp||state.bolao?.campeonato||state.bolao?.camp||'CUP').toUpperCase();
