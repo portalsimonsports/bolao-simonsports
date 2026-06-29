@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V041_BOLAO_LIMPO_SEM_OVERRIDE_PLACAR_TRADUCAO_PROGRESSO_2026-06-28 -->
+<!-- V042_BOLAO_SEM_BLOCO_PUBLICOS_DUPLICADO_LINK_PUBLICOS_HTML_2026-06-28 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -64,6 +64,12 @@
 </style>
 </head>
 <body>
+<script>
+  if (location.hash === '#publicos') {
+    location.replace('publicos.html' + (location.search || ''));
+  }
+</script>
+
 <div class="page" id="page">
   <header class="topbar">
     <div class="container topbar-row">
@@ -90,7 +96,7 @@
           <div class="hero-actions">
             <button class="btn primary" id="btnLoginHero" type="button">Entrar com Google</button>
             <a class="btn ghost" href="index.html">Voltar para início</a>
-            <a class="btn outline" href="#publicos">Ver bolões públicos</a>
+            <a class="btn outline" href="publicos.html">Ver bolões públicos</a>
           </div>
           <div class="hero-mini">
             <span>✓ Públicos oficiais</span><span>✓ Privados por convite</span><span>✓ Palpites por placar</span><span>✓ Ranking automático</span>
@@ -132,23 +138,7 @@
           </div>
         </div>
       </section>
-
-      <section class="section publicos-area" id="publicos">
-        <div class="container">
-          <div class="section-head">
-            <div>
-              <span class="tag">Bolões públicos oficiais</span>
-              <h2>Bolões disponíveis para participação</h2>
-              <p>Depois do login, a entrada em bolão público ativo é automática.</p>
-            </div>
-            <button class="btn primary" id="btnLoginPublicos" type="button">Entrar com Google</button>
-          </div>
-          <div id="publicHomeGrid" class="public-boloes-grid">
-            <div class="loading">Carregando bolões públicos...</div>
-          </div>
-        </div>
-      </section>
-    </div>
+</div>
 
     <div class="app-shell">
       <section class="app-hero">
