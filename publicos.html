@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- V028_PUBLICOS_VISUAL_LOGOS_DATAS_PROGRESSO_FIRESTORE_2026-06-29 -->
+<!-- V029_PUBLICOS_ORDEM_RODAPE_FONTE_FIRESTORE_2026-06-29 -->
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -130,8 +130,11 @@
   .det-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
   .det-metric{background:#fff;border:1px solid #e2e8f0;border-radius:16px;text-align:center;padding:12px}.det-metric strong{display:block;font-size:20px;font-weight:1000}.det-metric span{display:block;margin-top:4px;color:#64748b;font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.04em}
 
+  .footer{margin:18px 0 0;background:#061121;color:#d8e3f0;border-radius:24px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;box-shadow:0 14px 34px rgba(15,23,42,.10)}
+  .footer strong{display:block;color:#fff;font-size:15px;font-weight:1000}.footer span{display:block;color:#9fb0c7;font-size:12px;font-weight:800;margin-top:3px}.footer a{color:#bbf7d0;font-weight:1000}
+
   @media(max-width:1200px){.publicos-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.filters{grid-template-columns:1fr 1fr 1fr}.filters .field:first-child{grid-column:1/-1}.filters .btn{grid-column:1/-1}.hero-grid{grid-template-columns:1fr}.auth-card{min-width:0}}
-  @media(max-width:760px){.page{width:100%;padding:0 0 24px}.hero,.shell{border-radius:0}.stats{grid-template-columns:repeat(2,1fr);padding:0 12px}.filters{grid-template-columns:1fr;padding:14px}.content{padding:14px}.publicos-grid{grid-template-columns:1fr}.titlebar{padding:18px 14px}.hero{padding:22px 16px}.card-actions{grid-template-columns:1fr}.auth-card{width:100%}.bolao-card-top,.det-hero{grid-template-columns:1fr}.date-line,.meta-row,.progress-top{align-items:flex-start;flex-direction:column;gap:4px}.date-line strong,.meta-row strong,.progress-top strong{text-align:left}}
+  @media(max-width:760px){.page{width:100%;padding:0 0 24px}.hero,.shell{border-radius:0}.stats{grid-template-columns:repeat(2,1fr);padding:0 12px}.filters{grid-template-columns:1fr;padding:14px}.content{padding:14px}.publicos-grid{grid-template-columns:1fr}.titlebar{padding:18px 14px}.hero{padding:22px 16px}.card-actions{grid-template-columns:1fr}.auth-card{width:100%}.footer{border-radius:0;margin-top:0}.bolao-card-top,.det-hero{grid-template-columns:1fr}.date-line,.meta-row,.progress-top{align-items:flex-start;flex-direction:column;gap:4px}.date-line strong,.meta-row strong,.progress-top strong{text-align:left}}
 </style>
 </head>
 <body>
@@ -182,6 +185,13 @@
       <div class="publicos-grid" id="publicosGrid"><div class="loading">Carregando bolões públicos...</div></div>
     </div>
   </section>
+  <footer class="footer">
+    <div>
+      <strong>Portal SimonSports • Bolões públicos</strong>
+      <span>Dados carregados automaticamente do Firestore. A vitrine atualiza sozinha a cada 60 segundos.</span>
+    </div>
+    <a href="index.html">Voltar à página inicial</a>
+  </footer>
 </div>
 
 <div class="modal" id="detalheModal" aria-hidden="true">
@@ -212,7 +222,7 @@
   const db = firebase.firestore();
 
   const $ = s => document.querySelector(s);
-  const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', publicos:[], filtrados:[], meusIds:new Set(), detalhe:null, pendingEnter:null, autoRefresh:null };
+  const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', publicos:[], filtrados:[], meusIds:new Set(), detalhe:null, pendingEnter:null, autoRefresh:null, campeonatos:{} };
 
   function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),3600); }
   function esc(v){ return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
@@ -260,7 +270,21 @@
     return isNaN(d) ? null : d;
   }
   function dateLabel(v){ const d=parseDate(v); return d ? `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()}` : '—'; }
-  function periodo(b){ return `${dateLabel(b.dataInicio || b.inicio)} até ${dateLabel(b.dataFim || b.fim)}`; }
+  function campInfo(b){
+    const code=campRaw(b);
+    return state.campeonatos[code] || state.campeonatos[String(b?.campeonato||'').toUpperCase()] || state.campeonatos[String(b?.camp||'').toUpperCase()] || {};
+  }
+  function pickCampo(b,keys){
+    const c=campInfo(b);
+    for(const fonte of [b,c]){
+      for(const k of keys){
+        const v=fonte && fonte[k];
+        if(v!==undefined && v!==null && v!=='') return v;
+      }
+    }
+    return '';
+  }
+  function periodo(b){ return `${dateLabel(pickCampo(b,['dataInicio','inicio','temporadaInicio']))} até ${dateLabel(pickCampo(b,['dataFim','fim','temporadaFim']))}`; }
   function pesoModo(b){ return (b?.usaPesoRodada===true || String(b?.pontuacaoModo||'').toUpperCase()==='COM_PESO') ? 'COM_PESO' : 'SEM_PESO'; }
   function pesoLabel(b){ return pesoModo(b)==='COM_PESO' ? 'Com peso' : 'Sem peso'; }
   function formatoLabel(b){
@@ -272,38 +296,49 @@
   }
   function participantesLabel(b){ return fmt(b?.qtdParticipantes || b?.participantes || b?.totalParticipantes || 1); }
   function proximaLabel(b){ return b?.proximaRodada ? `${b.proximaRodada}ª Rodada` : (b?.rodadaInicial ? `${b.rodadaInicial}ª Rodada` : formatoLabel(b)); }
-  function numBolao(b,keys){
+  function numFonte(fonte,keys){
     for(const k of keys){
-      const v=b && b[k];
+      const v=fonte && fonte[k];
       if(v!==undefined && v!==null && v!==''){
         const n=Number(String(v).replace(/[^0-9,.-]/g,'').replace(',','.'));
         if(Number.isFinite(n)) return Math.max(0,Math.round(n));
       }
     }
-    return 0;
+    return null;
   }
-  function totalJogos(b){ return numBolao(b,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos','qtdPartidas','totalPartidas']); }
-  function jogosFinalizados(b){ return numBolao(b,['jogosFinalizados','qtdFinalizados','finalizados','jogosEncerrados','jogosAvaliados','qtdJogosFinalizados','partidasFinalizadas','jogosRealizados','realizados']); }
+  function numBolao(b,keys){
+    const direto=numFonte(b,keys);
+    if(direto!==null) return direto;
+    const camp=numFonte(campInfo(b),keys);
+    return camp!==null ? camp : 0;
+  }
+  function totalJogos(b){ return numBolao(b,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos','qtdPartidas','totalPartidas','total']); }
+  function jogosFinalizados(b){ return numBolao(b,['jogosFinalizados','qtdFinalizados','finalizados','jogosEncerrados','jogosAvaliados','qtdJogosFinalizados','partidasFinalizadas','encerrados']); }
+  function jogosRealizados(b){ return numBolao(b,['jogosRealizados','realizados','jogosIniciados','partidasRealizadas','qtdJogosRealizados']); }
   function statusBolao(b){
-    const total=totalJogos(b), fin=jogosFinalizados(b), ini=parseDate(b.dataInicio||b.inicio), fim=parseDate(b.dataFim||b.fim), hoje=new Date();
-    const statusFonte=String(b.statusCampeonato || b.statusCompeticao || b.statusBolao || '').toUpperCase();
-    if(total && fin>=total) return {key:'FINALIZADO', label:'Finalizado', cls:'status-finalizado'};
-    if(statusFonte.includes('FINAL')) return {key:'FINALIZADO', label:'Finalizado', cls:'status-finalizado'};
-    if(ini && hoje < ini) return {key:'A_INICIAR', label:'A iniciar', cls:'status-iniciar'};
-    if(statusFonte.includes('INICIAR')) return {key:'A_INICIAR', label:'A iniciar', cls:'status-iniciar'};
-    if(fim && hoje > fim && (!total || fin>=total)) return {key:'FINALIZADO', label:'Finalizado', cls:'status-finalizado'};
-    return {key:'EM_ANDAMENTO', label:'Em andamento', cls:'status-andamento'};
+    const total=totalJogos(b), fin=jogosFinalizados(b), rea=Math.max(jogosRealizados(b),fin), ini=parseDate(pickCampo(b,['dataInicio','inicio','temporadaInicio'])), fim=parseDate(pickCampo(b,['dataFim','fim','temporadaFim'])), hoje=new Date();
+    const statusFonte=String(pickCampo(b,['statusCampeonato','statusCompeticao','statusBolao','status']) || '').toUpperCase();
+    if(total && fin>=total) return {key:'FINALIZADO', label:'Finalizado', cls:'status-finalizado', ordem:3};
+    if(statusFonte.includes('FINAL')) return {key:'FINALIZADO', label:'Finalizado', cls:'status-finalizado', ordem:3};
+    if(ini && hoje < ini) return {key:'A_INICIAR', label:'A iniciar', cls:'status-iniciar', ordem:2};
+    if(statusFonte.includes('INICIAR')) return {key:'A_INICIAR', label:'A iniciar', cls:'status-iniciar', ordem:2};
+    if(rea>0 || statusFonte.includes('ANDAMENTO')) return {key:'EM_ANDAMENTO', label:'Em andamento', cls:'status-andamento', ordem:1};
+    if(fim && hoje > fim && (!total || fin>=total)) return {key:'FINALIZADO', label:'Finalizado', cls:'status-finalizado', ordem:3};
+    return {key:'EM_ANDAMENTO', label:'Em andamento', cls:'status-andamento', ordem:1};
   }
   function progresso(b){
     const total=totalJogos(b);
     const fin=Math.min(total || jogosFinalizados(b), jogosFinalizados(b));
-    const pct=total ? Math.round((fin/total)*100) : 0;
-    const texto = total ? `${fmt(fin)}/${fmt(total)} jogos finalizados` : `${fmt(fin)} jogos finalizados`;
-    return {total, fin, pct, texto};
+    const rea=Math.min(total || Math.max(jogosRealizados(b),fin), Math.max(jogosRealizados(b),fin));
+    const base=fin || rea;
+    const pct=total ? Math.round((base/total)*100) : 0;
+    const texto = total ? `${fmt(base)}/${fmt(total)} jogos finalizados` : `${fmt(base)} jogos finalizados`;
+    const detalhe = rea && rea!==fin ? `${fmt(rea)} realizados • ${fmt(fin)} finalizados` : 'Progresso por jogos finalizados.';
+    return {total, fin:base, realizados:rea, pct, texto, detalhe};
   }
   function logoHtml(b, cls){
     const code=campRaw(b);
-    const src=b.logoCampeonato || b.logoCampeonatoUrl || b.logoUrl || b.logo || '';
+    const src=pickCampo(b,['logoCampeonato','logoCampeonatoUrl','logoUrl','logo']);
     const fallback=`<span class="logo-fallback camp-${esc(code)}">${esc(code)}</span>`;
     return `<div class="${cls}">${src ? `<img src="${esc(src)}" alt="${esc(campLabel(code))}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="logo-fallback camp-${esc(code)}" style="display:none">${esc(code)}</span>` : fallback}</div>`;
   }
@@ -326,9 +361,26 @@
     }catch(e){ console.warn('meusBoloes indisponível:', e); }
   }
 
+  async function carregarCampeonatos(){
+    try{
+      const qs=await db.collection('campeonatos').get();
+      const out={};
+      qs.docs.forEach(d=>{
+        const item={id:d.id,...d.data()};
+        const code=campCode(item.sigla || item.campeonatoSigla || item.camp || item.id || item.nome || d.id);
+        out[code]=item;
+      });
+      state.campeonatos=out;
+    }catch(e){
+      console.warn('campeonatos indisponível:', e);
+      state.campeonatos={};
+    }
+  }
+
   async function carregarPublicos(silencioso=false){
     if(!silencioso) $('#publicosGrid').innerHTML='<div class="loading">Carregando bolões públicos...</div>';
     try{
+      await carregarCampeonatos();
       const map=new Map();
 
       const q1=await db.collection('boloes')
@@ -348,7 +400,7 @@
       q2.docs.forEach(d=>map.set(d.id,{id:d.id,...d.data()}));
 
       state.publicos=Array.from(map.values()).filter(b=>b.excluido===false && b.ativo===true && (b.publico===true || b.tipo==='PUBLICO'));
-      state.publicos.sort((a,b)=>campLabel(campRaw(a)).localeCompare(campLabel(campRaw(b)),'pt-BR') || pesoModo(a).localeCompare(pesoModo(b)) || String(a.nome||'').localeCompare(String(b.nome||''),'pt-BR'));
+      state.publicos.sort(ordenaBoloes);
     }catch(e){
       console.warn(e);
       $('#publicosGrid').innerHTML=`<div class="empty"><strong>Não foi possível carregar os bolões públicos.</strong>Verifique as regras do Firestore e tente novamente.<br><br>${esc(e.message)}</div>`;
@@ -373,6 +425,18 @@
     $('#stMeus').textContent=fmt(list.filter(b=>state.meusIds.has(b.id)).length);
   }
 
+  function ordemCamp(c){
+    const map={BRA:10,SUP:20,CUP:30,ITA:40,ENG:50,ESP:60,FRA:70};
+    return map[campCode(c)] || 999;
+  }
+  function ordenaBoloes(a,b){
+    const sa=statusBolao(a), sb=statusBolao(b);
+    return (sa.ordem-sb.ordem)
+      || (ordemCamp(campRaw(a))-ordemCamp(campRaw(b)))
+      || pesoModo(a).localeCompare(pesoModo(b))
+      || String(a.nome||'').localeCompare(String(b.nome||''),'pt-BR');
+  }
+
   function aplicarFiltros(){
     const q=norm($('#fBusca').value);
     const camp=$('#fCamp').value;
@@ -385,6 +449,7 @@
     if(camp) list=list.filter(b=>campRaw(b)===camp);
     if(peso) list=list.filter(b=>pesoModo(b)===peso);
     if(st) list=list.filter(b=>statusBolao(b).key===st);
+    list.sort(ordenaBoloes);
     state.filtrados=list;
     renderPublicos(list);
     atualizarStats(list);
@@ -421,7 +486,7 @@
         <div class="progress-box">
           <div class="progress-top"><span>Progresso</span><strong>${esc(prog.texto)} • ${prog.pct}%</strong></div>
           <div class="progress-track"><div class="progress-fill" style="width:${prog.pct}%"></div></div>
-          <div class="progress-note">Progresso por jogos finalizados.</div>
+          <div class="progress-note">${esc(prog.detalhe)}</div>
         </div>
         <div class="meta-list">
           <div class="meta-row"><span>Campeonato</span><strong>${esc(campLabel(camp))}</strong></div>
