@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V045_BOLAO_RESTAURA_CRIACAO_PERSONALIZADA_2026-06-29 -->
+<!-- V047_BOLAO_CORRIGE_CARREGAR_JOGOS_PALPITES_USUARIO_2026-06-29 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -59,8 +59,47 @@
   .game-list{display:grid;gap:14px;margin-top:16px}.match-card{background:#071126;color:#e5e7eb;border-radius:22px;padding:17px;box-shadow:0 14px 30px rgba(15,23,42,.14);overflow:hidden;border:1px solid rgba(148,163,184,.18)}.match-head{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;margin-bottom:10px}.match-date{font-size:14px;font-weight:1000;color:#e2e8f0}.match-meta{margin-top:3px;font-size:12px;font-weight:850;color:#94a3b8}.eta{background:#0ea5e9;color:#052033;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:1000;white-space:nowrap}.eta.live{background:#fef3c7;color:#92400e}.eta.enc{background:#fecdd3;color:#7f1d1d}.match-table{width:100%;background:#0b152b;border:1px solid #1e293b;border-radius:18px;padding:12px;display:grid;grid-template-columns:minmax(0,1fr) 92px 92px;gap:8px;align-items:center}.th{color:#94a3b8;font-size:11px;font-weight:1000;text-align:center;text-transform:uppercase;letter-spacing:.04em}.team{display:flex;align-items:center;gap:10px;min-width:0;color:#fff;font-size:16px;font-weight:1000}.team-logo{width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 30px;background:#111c34;border:1px solid #263451;font-size:11px;font-weight:1000;overflow:hidden}.team-logo img{width:100%;height:100%;display:block;object-fit:cover;border-radius:999px}.team-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:normal;line-height:1.15}.box-score,.inp-palpite{width:100%;height:40px;border-radius:12px;border:1px solid #25324a;background:#0f1a30;color:#e5e7eb;display:flex;align-items:center;justify-content:center;text-align:center;font-size:16px;font-weight:1000}.inp-palpite{padding:0 8px;outline:none}.inp-palpite:disabled{opacity:.45}.match-foot{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;margin-top:12px}.autosave{font-size:12px;color:#94a3b8;font-weight:950}.autosave.ok{color:#86efac}.autosave.err{color:#fecaca}.autosave.saving{color:#bae6fd}.pts{justify-self:start;background:#065f46;color:#d1fae5;border-radius:999px;padding:8px 12px;font-weight:1000;font-size:13px}
   .info-table{width:100%;border-collapse:separate;border-spacing:0 8px}.info-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#64748b;text-align:left;padding:0 8px 4px;font-weight:1000}.info-table td{background:#f8fafc;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:10px 8px;font-size:13px;font-weight:800;color:#0f172a;vertical-align:middle}.info-table td:first-child{border-left:1px solid #e2e8f0;border-radius:12px 0 0 12px}.info-table td:last-child{border-right:1px solid #e2e8f0;border-radius:0 12px 12px 0}.info-pill{display:inline-flex;align-items:center;justify-content:center;min-width:28px;border-radius:999px;background:#e0f2fe;color:#075985;padding:4px 8px;font-weight:1000;font-size:12px}.legend{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:0 0 10px;padding:10px 12px;border:1px dashed #cbd5e1;border-radius:14px;background:#fbfdff;color:#475569;font-size:11px;font-weight:900}
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.58);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}.modal.open{display:flex}.modal-card{background:#fff;color:#111827;width:min(620px,96vw);border-radius:22px;padding:18px;box-shadow:0 22px 90px rgba(0,0,0,.35)}.modal-card h3{margin:0 0 8px;font-size:22px;font-weight:1000}.modal-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#071126;color:#fff;border-radius:999px;padding:11px 16px;font-weight:950;font-size:13px;box-shadow:0 18px 44px rgba(0,0,0,.28);z-index:10000;opacity:0;pointer-events:none;transition:.16s ease}.toast.show{opacity:1;bottom:26px}
+
+  /* V046 - limpeza visual e criação personalizada mais organizada */
+  .hero-grid{min-height:300px;padding:34px 0 40px}
+  .hero h1{max-width:640px;font-size:clamp(30px,4vw,46px);line-height:1.04}
+  .hero p{max-width:660px;font-size:clamp(15px,1.7vw,18px);margin-bottom:18px}
+  .hero-mini{margin-top:12px;font-size:12px;gap:8px}
+  .login-card{max-width:430px;padding:16px;border-radius:22px}
+  .logged .hero{display:none}
+  .logged .stats{margin-top:18px;margin-bottom:18px}
+  .app-hero{padding:18px 0 14px}
+  .app-card{padding:18px 20px;border-radius:24px}
+  .app-card h1{font-size:clamp(25px,3vw,34px);margin:8px 0 4px}
+  .app-card p{font-size:14px}
+  .app-card .hero-actions{gap:9px;margin-top:13px}
+  .app-card .btn{min-height:40px;padding:9px 13px}
+  .stats .stat{min-height:78px;padding:14px 12px}
+  .stats .stat .n{font-size:27px}
+  .stats .stat .t{font-size:10px;margin-top:6px}
+  .app-grid{gap:18px}
+  .app-grid.create-mode{grid-template-columns:minmax(410px,.95fr) minmax(0,1.35fr)}
+  .create-mode #sec-criar .field-grid.single{grid-template-columns:1fr 1fr;gap:12px}
+  #sec-criar .create-note{border:1px solid #dbeafe;background:linear-gradient(180deg,#f8fbff,#f1f7ff);color:#334155;border-radius:16px;padding:12px 14px}
+  #sec-criar .field-wide,
+  #sec-criar .create-note,
+  #sec-criar .create-submit{grid-column:1/-1}
+  #sec-criar .create-subgrid{grid-column:1/-1;grid-template-columns:1fr 1fr}
+  #sec-criar label{font-size:11px;margin-bottom:5px}
+  #sec-criar input,#sec-criar select,#sec-criar textarea{min-height:46px;padding:10px 12px;border-radius:13px}
+  #sec-criar textarea{min-height:84px}
+  #sec-criar .create-submit{margin-top:2px}
+  .main-panel .panel-head,.side-panel .panel-head{padding:14px 16px}
+  .tabs{padding:10px;gap:7px}
+  .tab{min-height:38px;padding:9px 12px;border-radius:12px}
+  .detail{padding:16px}
+
   @media(max-width:1040px){.hero-grid{grid-template-columns:1fr}.login-card{max-width:620px}.catalog-grid,.public-boloes-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.app-grid{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.tools{grid-template-columns:1fr 1fr}.tools .btn{width:100%}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:660px){.container{width:min(92vw,1240px)}.topbar-row{min-height:auto;padding:10px 0;align-items:flex-start;flex-direction:column}.top-actions{width:100%;justify-content:space-between;flex-wrap:wrap}.user-pill{order:3;max-width:100%;width:100%}.hero-grid{padding:38px 0 50px}.hero h1{font-size:38px}.hero-actions .btn{width:100%}.login-card{display:none}.section{padding:38px 0}.section-head{display:block}.catalog-grid,.public-boloes-grid{grid-template-columns:1fr}.stats{margin-top:-22px;gap:10px}.stat{min-height:84px}.stat .n{font-size:27px}.app-card{border-radius:22px;padding:16px}.tabs{padding:10px}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.field-grid,.tools{grid-template-columns:1fr}.match-card{padding:13px;border-radius:18px}.match-table{grid-template-columns:minmax(0,1fr) 64px 76px;gap:7px;padding:10px}.team{font-size:14px}.match-foot{grid-template-columns:1fr auto}.autosave{grid-column:1/-1}.brand-text strong{max-width:210px}.modal-card{padding:16px}}
+
+  @media(max-width:1040px){.app-grid.create-mode{grid-template-columns:1fr}.create-mode #sec-criar .field-grid.single{grid-template-columns:1fr 1fr}}
+  @media(max-width:660px){.logged .hero{display:none}.app-grid.create-mode{grid-template-columns:1fr}.create-mode #sec-criar .field-grid.single,#sec-criar .create-subgrid{grid-template-columns:1fr}.app-card .hero-actions .btn{width:100%}}
+
 </style>
 </head>
 <body>
@@ -92,8 +131,8 @@
       <div class="container hero-grid">
         <div>
           <span class="tag darktag">🏆 Portal SimonSports • Bolões esportivos</span>
-          <h1 id="heroTitle">Entre em bolões públicos ou crie bolões privados com aparência profissional.</h1>
-          <p id="heroText">A vitrine pública mostra campeonatos disponíveis, datas, andamento e bolões oficiais. O painel completo aparece somente depois do login.</p>
+          <h1 id="heroTitle">Bolões esportivos do Portal SimonSports</h1>
+          <p id="heroText">Participe de bolões públicos, crie bolões privados e acompanhe palpites, ranking e evolução dos campeonatos.</p>
           <div class="hero-actions">
             <button class="btn primary" id="btnLoginHero" type="button">Entrar com Google</button>
             <a class="btn ghost" href="index.html">Voltar para início</a>
@@ -148,7 +187,7 @@
           <div class="app-card">
             <span class="tag darktag">Painel do usuário</span>
             <h1>Seu painel de bolões</h1>
-            <p>Agora você pode abrir seus bolões, entrar em públicos, criar privados, registrar palpites e acompanhar ranking.</p>
+            <p>Abra seus bolões, registre palpites e acompanhe ranking em uma tela mais limpa.</p>
             <div class="hero-actions">
               <button class="btn primary" id="btnCriarTopo" type="button">+ Criar bolão privado</button>
               <button class="btn ghost" id="btnExplorarTopo" type="button">Explorar públicos</button>
@@ -182,8 +221,8 @@
           </section>
           <section class="tab-section" id="sec-criar">
             <div class="field-grid single">
-              <div class="create-note">Crie bolão privado com recorte por campeonato completo, rodada única, intervalo de rodadas, período por data ou personalizado. Bolão público continua restrito ao administrador.</div>
-              <div><label>Nome do bolão</label><input id="novoNome" placeholder="Ex.: Bolão da Família"></div>
+              <div class="create-note">Configure o bolão privado com campeonato completo, rodada única, intervalo de rodadas, período por data ou personalizado. Bolão público continua restrito ao administrador.</div>
+              <div class="field-wide"><label>Nome do bolão</label><input id="novoNome" placeholder="Ex.: Bolão da Família"></div>
               <div><label>Campeonato base</label><select id="novoCamp"></select></div>
               <div><label>Formato do bolão</label><select id="novoModoBolao"><option value="CAMPEONATO">Campeonato completo</option><option value="RODADA">Rodada única</option><option value="INTERVALO_RODADAS">Intervalo de rodadas</option><option value="PERIODO_DATAS">Período por data</option><option value="PERSONALIZADO">Personalizado</option></select></div>
               <div id="novoBoxRodadas" class="create-subgrid create-hidden">
@@ -202,8 +241,8 @@
                 <div><label>Valor por participante</label><input id="novoValorInformativo" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ex.: 10,00"></div>
                 <div><label>Observação do valor</label><input id="novoValorDescricao" placeholder="Ex.: controle interno do grupo"></div>
               </div>
-              <div><label>Descrição</label><textarea id="novoDesc" placeholder="Observações, regras rápidas ou grupo do bolão."></textarea></div>
-              <button class="btn primary" id="btnCriarBolao" type="button">Criar bolão agora</button>
+              <div class="field-wide"><label>Descrição</label><textarea id="novoDesc" placeholder="Observações, regras rápidas ou grupo do bolão."></textarea></div>
+              <button class="btn primary create-submit" id="btnCriarBolao" type="button">Criar bolão agora</button>
             </div>
           </section>
         </aside>
@@ -380,7 +419,7 @@
   async function loadMeus(){if(state.uid==='GUEST'){state.meus=[];state.privados=[];renderBoloes();return} const map=new Map(); try{const q=await db.collection('usuarios').doc(state.uid).collection('meusBoloes').get(); q.docs.forEach(d=>map.set(d.id,{id:d.id,...d.data()}));}catch(e){console.warn('meus index:',e.message)} try{const q=await db.collection('boloes').where('criadorUid','==',state.uid).get(); for(const d of q.docs){const b={id:d.id,...d.data(),minhaParticipacao:{papel:'CRIADOR',status:'APROVADO',ativo:true}}; map.set(b.id,b); await upsertMeuBolaoIndex(b.id,b,b.minhaParticipacao).catch(()=>{})}}catch(e){console.warn('criados:',e.message)} try{const q=await db.collectionGroup('participantes').where('uid','==',state.uid).get(); for(const d of q.docs){const p=d.data()||{}; const parent=d.ref.parent.parent; if(!parent)continue; const bs=await parent.get(); if(bs.exists){const b={id:bs.id,...bs.data(),minhaParticipacao:p}; map.set(b.id,b); await upsertMeuBolaoIndex(b.id,b,p).catch(()=>{})}}}catch(e){console.warn('participações:',e.message)} const arr=Array.from(map.values()).filter(b=>b.excluido!==true); state.meus=arr.filter(b=>(b.minhaParticipacao?.status||'APROVADO')==='APROVADO'); state.privados=arr.filter(b=>b.publico!==true||b.minhaParticipacao?.status==='PENDENTE'); renderBoloes();}
   async function refreshAll(){await Promise.allSettled([loadCatalogo(),loadPublicos(),loadMeus()]); renderSelected();}
 
-  function setAppTab(name){$$('.side-panel .tab[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===name)); $$('.tab-section').forEach(s=>s.classList.toggle('active',s.id==='sec-'+name));}
+  function setAppTab(name){$$('.side-panel .tab[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===name)); $$('.tab-section').forEach(s=>s.classList.toggle('active',s.id==='sec-'+name)); $('#painel')?.classList.toggle('create-mode',name==='criar');}
   function setView(name){$$('.view-tab').forEach(b=>b.classList.toggle('active',b.dataset.view===name)); $$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name)); if(name==='ranking')carregarRanking().catch(e=>toast('Erro no ranking: '+e.message)); if(name==='palpites')carregarPalpitesTodos().catch(e=>toast('Erro nos palpites: '+e.message)); if(name==='participantes')carregarParticipantes().catch(e=>toast('Erro nos participantes: '+e.message));}
   $$('.side-panel .tab[data-tab]').forEach(b=>b.onclick=()=>setAppTab(b.dataset.tab)); $$('.view-tab').forEach(b=>b.onclick=()=>setView(b.dataset.view));
   $('#btnExplorarTopo').onclick=()=>setAppTab('publicos'); $('#btnCriarTopo').onclick=()=>{ if(state.admin) location.href='admin-oficiais.html'; else setAppTab('criar'); }; $('#btnAtualizar').onclick=()=>refreshAll();
@@ -542,6 +581,93 @@
       renderCatalogo(); renderBoloes(); if(state.bolao&&String(state.bolao.campeonato||state.bolao.camp||'').toUpperCase()===camp)renderSelected();
     }finally{if(state.progressoCache[camp])state.progressoCache[camp].atualizando=false;}
   }
+
+  function translateTeam(nome){
+    const original = String(nome || '').trim();
+    if(!original) return '';
+    const key = norm(original);
+    return TEAM_NAMES_PT[key] || original;
+  }
+
+  function flagUrlByTeam(nome){
+    const key = norm(nome);
+    const code = TEAM_FLAG_CODES[key];
+    return code ? `https://flagcdn.com/w80/${code}.png` : '';
+  }
+
+  function teamHtml(nome){
+    const nomePt = translateTeam(nome);
+    const url = flagUrlByTeam(nome);
+    const initials = nomePt.split(/\s+/).filter(Boolean).slice(0,2).map(p=>p[0]).join('').toUpperCase() || '⚽';
+    return `<div class="team"><span class="team-logo">${url ? `<img src="${esc(url)}" alt="${esc(nomePt)}" loading="lazy" onerror="this.remove();this.parentNode.textContent='${esc(initials)}'">` : esc(initials)}</span><span class="team-title">${esc(nomePt)}</span></div>`;
+  }
+
+  function etaLabel(g){
+    const st = statusJogo(g);
+    if(st === 'AO VIVO') return 'Ao vivo';
+    if(st === 'ENCERRADO') return 'Encerrado';
+    const d = parseDate(pick(g,['data_jogo','data','horario','inicio','dataHora'],''));
+    if(!d) return 'Aberto';
+    const diff = d.getTime() - Date.now();
+    if(diff <= 0) return 'Fechado';
+    const min = Math.floor(diff / 60000);
+    if(min < 60) return `Fecha em ${min} min`;
+    const h = Math.floor(min / 60);
+    if(h < 24) return `Fecha em ${h}h`;
+    const dias = Math.floor(h / 24);
+    return `Fecha em ${dias}d`;
+  }
+
+  async function carregarPalpitesUsuario(camp,rodada){
+    state.palpites = {};
+    if(!state.bolao || state.uid === 'GUEST') return;
+
+    const rodadaTxt = String(rodada || '');
+    try{
+      const q = await db.collection('boloes')
+        .doc(state.bolao.id)
+        .collection('palpites')
+        .where('uid','==',state.uid)
+        .limit(500)
+        .get();
+
+      q.docs.forEach(d=>{
+        const p = {id:d.id,...d.data()};
+        const mesmoCamp = !p.camp || String(p.camp).toUpperCase() === String(camp).toUpperCase();
+        const mesmaRodada = !p.rodada || String(p.rodada) === rodadaTxt;
+        const idJogo = String(p.idJogo || p.jogoId || p.id_jogo || '');
+        if(mesmoCamp && mesmaRodada && idJogo){
+          state.palpites[idJogo] = p;
+        }
+      });
+    }catch(e){
+      console.warn('carregarPalpitesUsuario:', e.message || e);
+    }
+  }
+
+  async function carregarJogosAutomatico(){
+    if(!state.bolao) return;
+    const camp = String(state.bolao.campeonato || state.bolao.camp || 'CUP').toUpperCase();
+    if($('#selCamp')) $('#selCamp').value = camp;
+    try{
+      await loadRodadas(camp);
+    }catch(e){
+      console.warn('loadRodadas automático:', e.message || e);
+    }
+
+    const rodadaBase = state.bolao.rodadaInicial || state.bolao.rodada || state.bolao.proximaRodada || $('#selRod')?.value || 1;
+    if($('#selRod')){
+      const alvo = String(rodadaBase);
+      const existe = Array.from($('#selRod').options).some(o=>String(o.value)===alvo);
+      if(existe) $('#selRod').value = alvo;
+    }
+
+    if($('#lista')){
+      await carregarJogos();
+    }
+  }
+
+
   async function carregarJogos(){
     if(!state.bolao){toast('Selecione um bolão.');return}
     const camp=$('#selCamp').value||state.bolao.campeonato||'CUP',rodada=$('#selRod').value||1;
