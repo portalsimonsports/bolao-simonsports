@@ -1,51 +1,348 @@
 <!doctype html>
-<!-- V019_PUBLICOS_DINAMICO_SEM_DADOS_FIXOS_AUTO_REFRESH_2026-06-29 -->
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bolões públicos | Portal SimonSports</title>
-<meta name="description" content="Bolões públicos oficiais do Portal SimonSports com entrada automática, com peso ou sem peso, status, datas e progresso.">
-<meta name="theme-color" content="#061121">
+<meta name="description" content="Explore bolões públicos do Portal SimonSports. Entre com Google e participe automaticamente.">
 <style>
-:root{--bg:#f4f7fb;--panel:#fff;--ink:#0f172a;--muted:#64748b;--line:#dbe3ef;--soft:#f8fafc;--dark:#061121;--dark2:#0b152b;--green:#16a34a;--green2:#0f7a38;--blue:#0ea5e9;--yellow:#f59e0b;--red:#ef4444;--shadow:0 18px 46px rgba(15,23,42,.10)}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.45;overflow-x:hidden}a{color:inherit;text-decoration:none}button,input,select{font:inherit}button{cursor:pointer}.container{width:min(94vw,1240px);margin:0 auto}.topbar{position:sticky;top:0;z-index:30;background:rgba(6,17,33,.96);border-bottom:1px solid rgba(148,163,184,.16);backdrop-filter:blur(14px);color:#fff}.topbar-row{min-height:66px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:11px;font-weight:1000;min-width:0}.brand-mark{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#0f7a38,#38bdf8);box-shadow:0 12px 26px rgba(14,165,233,.20);flex:0 0 auto}.brand-text{display:flex;flex-direction:column;line-height:1.08;min-width:0}.brand-text strong{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.brand-text span{font-size:10px;color:#a7b4c8;font-weight:950;letter-spacing:.08em;text-transform:uppercase}.top-actions{display:flex;align-items:center;gap:9px;justify-content:flex-end}.user-pill{max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#cbd5e1;font-size:13px;font-weight:850}.role-pill{display:none;min-height:28px;padding:5px 10px;border-radius:999px;background:rgba(56,189,248,.12);color:#bae6fd;border:1px solid rgba(186,230,253,.22);font-size:11px;font-weight:1000;letter-spacing:.05em;text-transform:uppercase}
-.btn{border:0;border-radius:14px;min-height:42px;padding:10px 14px;font-weight:1000;background:#e8eef6;color:#0f172a;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;white-space:nowrap;transition:transform .12s ease,filter .12s ease}.btn:hover{transform:translateY(-1px);filter:brightness(.99)}.btn.primary{background:linear-gradient(135deg,#16a34a,#22c55e);color:#052111;box-shadow:0 12px 28px rgba(34,197,94,.24)}.btn.dark{background:#071126;color:#fff}.btn.blue{background:#0ea5e9;color:#052033}.btn.light{background:#fff;color:#0f172a;border:1px solid var(--line)}.btn.outline{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.30);color:#fff}.btn.mini{min-height:34px;padding:8px 11px;border-radius:11px;font-size:12px}.btn.block{width:100%}.btn:disabled{opacity:.58;cursor:not-allowed;transform:none}
-.hero{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(circle at 82% 12%,rgba(34,197,94,.28),transparent 34%),linear-gradient(118deg,#061121 0%,#0b152b 56%,#07321f 100%);color:#fff;border-bottom:1px solid rgba(255,255,255,.10)}.hero:after{content:"";position:absolute;right:-120px;bottom:-170px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(250,204,21,.15),rgba(34,197,94,.10) 44%,transparent 70%);z-index:-1}.hero-grid{min-height:320px;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(300px,.68fr);gap:34px;align-items:center;padding:42px 0 50px}.tag{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:7px 12px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.17);color:#dff7ef;font-size:12px;font-weight:1000;letter-spacing:.03em;text-transform:uppercase}.hero h1{margin:14px 0 12px;max-width:790px;font-size:clamp(31px,5vw,54px);line-height:1.02;font-weight:1000;letter-spacing:-.045em}.hero p{margin:0 0 20px;max-width:720px;color:#dce8f5;font-size:clamp(16px,2vw,19px);font-weight:750}.hero-actions{display:flex;gap:12px;flex-wrap:wrap}.login-card{background:rgba(3,10,21,.58);border:1px solid rgba(255,255,255,.18);border-radius:28px;padding:18px;box-shadow:0 26px 70px rgba(0,0,0,.34);backdrop-filter:blur(12px)}.login-card h3{margin:0 0 8px;font-size:20px}.login-card p{font-size:13px;margin:0 0 14px;color:#bed0e5}.clock{display:inline-flex;justify-content:center;min-width:178px;background:#38bdf8;color:#031724;border-radius:999px;padding:8px 12px;font-weight:1000;box-shadow:0 4px 0 rgba(0,0,0,.16);margin-bottom:12px}
-.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:-34px;position:relative;z-index:3}.stat{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px 14px;box-shadow:0 10px 26px rgba(15,23,42,.06);min-height:98px;display:grid;place-items:center;text-align:center;align-content:center}.stat .n{font-size:32px;font-weight:1000;line-height:1;color:#0f172a}.stat .t{font-size:11px;color:#64748b;font-weight:1000;margin-top:8px;text-transform:uppercase;letter-spacing:.06em}.shell{margin:32px 0 50px;background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}.titlebar{padding:22px 24px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;background:linear-gradient(180deg,#fff,#fbfdff)}.titlebar h2{margin:0;font-size:clamp(24px,3vw,34px);font-weight:1000;letter-spacing:-.04em}.titlebar p{margin:6px 0 0;color:var(--muted);font-weight:750;max-width:850px}.source-line{font-size:12px;color:#64748b;font-weight:850;margin-top:8px}.source-line.ok{color:#047857}.source-line.warn{color:#a16207}.filters{display:grid;grid-template-columns:1.4fr 1fr 1fr .8fr auto;gap:10px;padding:16px 24px;border-bottom:1px solid var(--line);background:#f8fafc}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:12px;font-weight:950;color:#64748b;text-transform:uppercase;letter-spacing:.05em}input,select{width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 12px;color:#0f172a;outline:none;font-weight:800;min-height:43px}input:focus,select:focus{border-color:#60a5fa;box-shadow:0 0 0 4px rgba(96,165,250,.16)}
-.content{padding:22px 24px 26px}.publicos-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}.bolao-card{border:1px solid var(--line);border-radius:22px;background:#fff;box-shadow:0 10px 26px rgba(15,23,42,.06);padding:17px;display:flex;flex-direction:column;min-height:292px;position:relative;overflow:hidden}.bolao-card:before{content:"";position:absolute;left:0;top:0;right:0;height:5px;background:linear-gradient(90deg,#10b981,#2563eb)}.bolao-card-top{display:grid;grid-template-columns:68px 1fr;gap:13px;align-items:start;margin-top:3px}.bolao-logo{width:68px;height:68px;border-radius:18px;border:1px solid #e2e8f0;background:linear-gradient(135deg,#ecfdf5,#eff6ff);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:30px;flex:0 0 auto}.bolao-logo img{width:100%;height:100%;object-fit:contain;display:block;padding:8px;background:#fff}.bolao-card h3{margin:2px 0 8px;font-size:20px;font-weight:1000;letter-spacing:-.025em;color:#0f172a;line-height:1.14}.bolao-desc{margin:8px 0 13px;color:#64748b;font-size:13px;font-weight:800;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:1000;border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8;text-transform:uppercase;letter-spacing:.03em}.badge.green{background:#ecfdf5;border-color:#bbf7d0;color:#047857}.badge.yellow{background:#fffbeb;border-color:#fde68a;color:#a16207}.badge.gray{background:#f1f5f9;border-color:#e2e8f0;color:#334155}.badge.purple{background:#f3e8ff;border-color:#ddd6fe;color:#6d28d9}.badge.status-andamento{background:#dcfce7;border-color:#86efac;color:#166534}.badge.status-iniciar{background:#fff7ed;border-color:#fed7aa;color:#9a3412}.badge.status-finalizado{background:#e2e8f0;border-color:#cbd5e1;color:#334155}.logo-fallback{width:100%;height:100%;display:grid;place-items:center;border-radius:inherit;font-size:15px;font-weight:1000;letter-spacing:-.03em;color:#fff;text-align:center;padding:4px;background:linear-gradient(135deg,#0f172a,#2563eb)}.logo-fallback.camp-CUP{background:linear-gradient(135deg,#0f766e,#22c55e)}.logo-fallback.camp-BRA{background:linear-gradient(135deg,#15803d,#fde047);color:#052e16}.logo-fallback.camp-SUP{background:linear-gradient(135deg,#4c1d95,#f59e0b)}.date-line{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:10px 0 12px;padding:9px 10px;border:1px solid #e2e8f0;border-radius:14px;background:#fbfdff;color:#334155;font-size:12px;font-weight:900}.date-line span{color:#64748b;text-transform:uppercase;letter-spacing:.04em;font-size:10px;font-weight:1000}.progress-box{margin:10px 0 12px}.progress-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px;color:#475569;font-size:12px;font-weight:950}.progress-top strong{text-align:right;line-height:1.25}.progress-track{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden}.progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#10b981,#2563eb);width:0%}.progress-note{margin-top:6px;color:#64748b;font-size:11px;font-weight:850}.meta-list{display:grid;gap:9px;margin-top:2px;color:#334155;font-weight:800;font-size:14px}.meta-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px dashed #e2e8f0;padding-bottom:7px}.meta-row span:first-child{color:#64748b;font-weight:800}.meta-row strong{text-align:right}.card-actions{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:9px;padding-top:15px}.card-actions .btn{width:100%}.empty{border:1px dashed #cbd5e1;border-radius:22px;padding:28px;text-align:center;color:#64748b;background:#f8fafc;font-weight:800;grid-column:1/-1}.empty strong{display:block;color:#0f172a;font-size:18px;margin-bottom:5px}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0f172a;color:#fff;border-radius:16px;padding:12px 16px;box-shadow:var(--shadow);z-index:40;display:none;font-weight:850;max-width:min(92vw,680px);text-align:center}.toast.show{display:block}.modal{position:fixed;inset:0;background:rgba(15,23,42,.58);display:none;place-items:center;z-index:50;padding:18px}.modal.open{display:grid}.modal-card{background:#fff;border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.32);width:min(760px,94vw);overflow:hidden;max-height:92vh;display:flex;flex-direction:column}.modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.modal-head h3{margin:0;font-size:22px;font-weight:1000}.modal-body{padding:18px 20px;overflow:auto}.modal-actions{display:flex;gap:10px;justify-content:flex-end;padding:16px 20px;border-top:1px solid var(--line);flex-wrap:wrap}.x{background:#f1f5f9;color:#0f172a;border:0;border-radius:12px;padding:8px 11px;font-weight:1000;cursor:pointer}.det-hero{display:grid;grid-template-columns:92px 1fr;gap:16px;align-items:center;margin-bottom:16px}.det-logo{width:92px;height:92px;border-radius:24px;border:1px solid #e2e8f0;background:linear-gradient(135deg,#ecfdf5,#eff6ff);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:40px}.det-desc{margin:8px 0 0;color:#475569;font-weight:750;line-height:1.45}.det-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.det-metric{background:#fff;border:1px solid #e2e8f0;border-radius:16px;text-align:center;padding:12px}.det-metric strong{display:block;font-size:20px;font-weight:1000}.det-metric span{display:block;margin-top:4px;color:#64748b;font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.04em}
-@media(max-width:1050px){.hero-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.publicos-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.filters{grid-template-columns:1fr 1fr}.filters .field:first-child{grid-column:1/-1}.filters .btn{grid-column:1/-1}}@media(max-width:700px){.container{width:min(94vw,1240px)}.topbar-row{min-height:auto;padding:10px 0}.brand-text strong{font-size:13px}.brand-mark{width:36px;height:36px}.user-pill{display:none}.hero-grid{padding:34px 0 44px}.hero h1{font-size:34px}.hero-actions .btn,.login-card .btn{width:100%}.stats{gap:10px}.stat{min-height:84px}.shell{border-radius:20px}.titlebar,.filters,.content{padding-left:14px;padding-right:14px}.filters{grid-template-columns:1fr}.publicos-grid{grid-template-columns:1fr}.card-actions{grid-template-columns:1fr}.date-line,.meta-row{align-items:flex-start;flex-direction:column;gap:4px}.date-line strong,.meta-row strong{text-align:left}.det-hero,.det-summary-grid{grid-template-columns:1fr}}
+  :root{
+    --bg:#f5f7fb;
+    --panel:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --soft:#f8fafc;
+    --dark:#0b1222;
+    --dark2:#101b33;
+    --green:#10b981;
+    --green2:#059669;
+    --blue:#2563eb;
+    --yellow:#f59e0b;
+    --red:#ef4444;
+    --shadow:0 18px 46px rgba(15,23,42,.10);
+    --radius:22px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.45}
+  a{color:inherit;text-decoration:none}
+  button,input,select{font:inherit}
+  .page{width:min(96vw,1560px);margin:0 auto;padding:18px 0 36px}
+
+  .hero{
+    background:linear-gradient(135deg,#07111f 0%,#0b1f3f 54%,#073a2c 100%);
+    color:#fff;border-radius:28px;padding:26px;box-shadow:var(--shadow);overflow:hidden;position:relative
+  }
+  .hero:after{content:"";position:absolute;right:-90px;top:-90px;width:260px;height:260px;border-radius:999px;background:rgba(16,185,129,.22);filter:blur(4px)}
+  .hero-grid{display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center;position:relative;z-index:1}
+  .kicker{display:inline-flex;gap:8px;align-items:center;padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);font-size:13px;font-weight:900;color:#d7ffe9}
+  h1{margin:12px 0 8px;font-size:clamp(28px,4vw,48px);letter-spacing:-.055em;line-height:1.05}
+  .hero p{margin:0;color:#cbd5e1;max-width:760px;font-weight:650}
+  .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .auth-card{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:14px;min-width:320px;backdrop-filter:blur(10px)}
+  .who{display:flex;flex-direction:column;gap:2px;margin-bottom:12px}.who strong{font-size:16px}.who span{font-size:13px;color:#cbd5e1}
+
+  .btn{border:0;border-radius:14px;padding:11px 14px;font-weight:1000;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;transition:.15s transform,.15s filter,.15s box-shadow;white-space:nowrap}
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.02)}
+  .btn.primary{background:linear-gradient(135deg,var(--green),var(--green2));color:#052e26;box-shadow:0 12px 28px rgba(16,185,129,.24)}
+  .btn.blue{background:#dbeafe;color:#1e3a8a}.btn.dark{background:#111827;color:#fff}.btn.ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.18)}
+  .btn.light{background:#fff;color:#0f172a;border:1px solid var(--line)}.btn.mini{padding:8px 11px;min-height:36px;border-radius:12px;font-size:13px}.btn.block{width:100%}
+
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:16px 0}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center;box-shadow:0 10px 28px rgba(15,23,42,.05)}
+  .stat .n{font-size:28px;font-weight:1000;letter-spacing:-.04em;color:#0f172a}.stat .t{color:var(--muted);font-size:13px;font-weight:850;margin-top:3px}
+
+  .shell{background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}
+  .titlebar{padding:22px 24px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;background:linear-gradient(180deg,#fff,#fbfdff)}
+  .titlebar h2{margin:0;font-size:26px;font-weight:1000;letter-spacing:-.04em;color:#0f172a}.titlebar p{margin:6px 0 0;color:var(--muted);font-weight:700;max-width:900px}
+  .filters{display:grid;grid-template-columns:1.4fr 1fr 1fr .8fr auto;gap:10px;padding:16px 24px;border-bottom:1px solid var(--line);background:#f8fafc}
+  .field{display:flex;flex-direction:column;gap:5px}.field label{font-size:12px;font-weight:950;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
+  input,select{width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 12px;color:#0f172a;outline:none;font-weight:750;min-height:43px}
+  input:focus,select:focus{border-color:#60a5fa;box-shadow:0 0 0 4px rgba(96,165,250,.16)}
+
+  .content{padding:22px 24px 26px}
+  .publicos-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
+  .bolao-card{border:1px solid var(--line);border-radius:22px;background:#fff;box-shadow:0 10px 26px rgba(15,23,42,.06);padding:17px;display:flex;flex-direction:column;min-height:255px;position:relative;overflow:hidden}
+  .bolao-card:before{content:"";position:absolute;left:0;top:0;right:0;height:5px;background:linear-gradient(90deg,#10b981,#2563eb)}
+  .bolao-card h3{margin:6px 0 8px;font-size:19px;font-weight:1000;letter-spacing:-.025em;color:#0f172a;line-height:1.18}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:1000;border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8}.badge.green{background:#ecfdf5;border-color:#bbf7d0;color:#047857}.badge.yellow{background:#fffbeb;border-color:#fde68a;color:#a16207}.badge.gray{background:#f1f5f9;border-color:#e2e8f0;color:#334155}
+  .meta-list{display:grid;gap:9px;margin-top:2px;color:#334155;font-weight:800;font-size:14px}.meta-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px dashed #e2e8f0;padding-bottom:7px}.meta-row span:first-child{color:#64748b;font-weight:800}.meta-row strong{text-align:right}
+  .card-actions{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:9px;padding-top:15px}.card-actions .btn{width:100%}
+  .empty{border:1px dashed #cbd5e1;border-radius:22px;padding:28px;text-align:center;color:#64748b;background:#f8fafc;font-weight:800;grid-column:1/-1}.empty strong{display:block;color:#0f172a;font-size:18px;margin-bottom:5px}
+  .loading{grid-column:1/-1;text-align:center;padding:30px;color:#64748b;font-weight:900}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0f172a;color:#fff;border-radius:16px;padding:12px 16px;box-shadow:var(--shadow);z-index:30;display:none;font-weight:850;max-width:min(92vw,680px);text-align:center}.toast.show{display:block}
+
+  .modal{position:fixed;inset:0;background:rgba(15,23,42,.58);display:none;place-items:center;z-index:40;padding:18px}.modal.open{display:grid}.modal-card{background:#fff;border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.32);width:min(560px,94vw);overflow:hidden}.modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.modal-head h3{margin:0;font-size:22px;font-weight:1000}.modal-body{padding:18px 20px}.modal-actions{display:flex;gap:10px;justify-content:flex-end;padding:16px 20px;border-top:1px solid var(--line);flex-wrap:wrap}.x{background:#f1f5f9;color:#0f172a;border:0;border-radius:12px;padding:8px 11px;font-weight:1000;cursor:pointer}
+
+  @media(max-width:1200px){.publicos-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.filters{grid-template-columns:1fr 1fr 1fr}.filters .field:first-child{grid-column:1/-1}.filters .btn{grid-column:1/-1}.hero-grid{grid-template-columns:1fr}.auth-card{min-width:0}}
+  @media(max-width:760px){.page{width:100%;padding:0 0 24px}.hero,.shell{border-radius:0}.stats{grid-template-columns:repeat(2,1fr);padding:0 12px}.filters{grid-template-columns:1fr;padding:14px}.content{padding:14px}.publicos-grid{grid-template-columns:1fr}.titlebar{padding:18px 14px}.hero{padding:22px 16px}.card-actions{grid-template-columns:1fr}.auth-card{width:100%}}
 </style>
 </head>
 <body>
 <div class="page">
-<header class="topbar"><div class="container topbar-row"><a class="brand" href="index.html"><span class="brand-mark">🏆</span><span class="brand-text"><strong>Portal SimonSports</strong><span>Bolões esportivos</span></span></a><div class="top-actions"><span id="roleBox" class="role-pill">USUÁRIO</span><span id="userBox" class="user-pill">Você não está logado</span><button id="btnLoginTop" class="btn light mini" type="button">Entrar com Google</button><button id="btnLogoutTop" class="btn outline mini" type="button" style="display:none">Sair</button></div></div></header>
-<section class="hero"><div class="container hero-grid"><div><span class="tag">🏆 Bolões públicos oficiais</span><h1>Bolões disponíveis para participação</h1><p>Escolha um bolão público, veja se a pontuação é com peso ou sem peso e participe com entrada automática pelo login Google.</p><div class="hero-actions"><button id="btnLoginHero" class="btn primary" type="button">Entrar com Google</button><a class="btn outline" href="bolao.html">Meu painel</a><a class="btn outline" href="index.html">Página inicial</a></div></div><aside class="login-card"><h3 id="loginCardTitle">Visitante</h3><p id="loginCardText">Entre com Google para participar automaticamente.</p><div class="clock" id="clock">--/--/---- --:--:--</div><button id="btnLoginCard" class="btn blue block" type="button">Entrar com Google</button></aside></div></section>
-<div class="container"><section class="stats"><article class="stat"><div class="n" id="stTotal">0</div><div class="t">Públicos ativos</div></article><article class="stat"><div class="n" id="stComPeso">0</div><div class="t">Com peso</div></article><article class="stat"><div class="n" id="stSemPeso">0</div><div class="t">Sem peso</div></article><article class="stat"><div class="n" id="stMeus">0</div><div class="t">Você participa</div></article></section><section class="shell"><div class="titlebar"><div><h2>Explorar bolões públicos</h2><p>Entrada automática, jogos dos campeonatos, datas e evolução por jogos finalizados.</p><div id="sourceLine" class="source-line" style="display:none"></div></div><button class="btn dark" id="btnAtualizar" type="button">Atualizar</button></div><div class="filters"><div class="field"><label>Buscar bolão</label><input id="fBusca" type="search" placeholder="Nome, criador ou campeonato..."></div><div class="field"><label>Campeonato</label><select id="fCamp"><option value="">Todos</option></select></div><div class="field"><label>Pontuação</label><select id="fPeso"><option value="">Com peso/Sem peso</option><option value="COM_PESO">Com peso</option><option value="SEM_PESO">Sem peso</option></select></div><div class="field"><label>Status</label><select id="fStatus"><option value="">Todos</option><option value="EM_ANDAMENTO">Em andamento</option><option value="A_INICIAR">A iniciar</option><option value="FINALIZADO">Finalizado</option></select></div><button class="btn light" id="btnLimpar" type="button">Limpar</button></div><div class="content"><div class="publicos-grid" id="publicosGrid"></div></div></section></div>
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <span class="kicker">🏆 Portal SimonSports • Bolões públicos</span>
+        <h1>Bolões públicos disponíveis</h1>
+        <p>Entre em bolões abertos criados pela comunidade. Clique em entrar, faça login com Google e participe automaticamente.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="bolao.html">Meu painel</a>
+          <a class="btn ghost" href="index.html">Página inicial</a>
+        </div>
+      </div>
+      <div class="auth-card">
+        <div class="who"><strong id="nick">Visitante</strong><span id="authSub">Entre com Google para participar automaticamente</span></div>
+        <button class="btn blue block" id="btnLogin">Entrar com Google</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><div class="n" id="stTotal">0</div><div class="t">Públicos ativos</div></div>
+    <div class="stat"><div class="n" id="stComPeso">0</div><div class="t">Com peso</div></div>
+    <div class="stat"><div class="n" id="stSemPeso">0</div><div class="t">Sem peso</div></div>
+    <div class="stat"><div class="n" id="stMeus">0</div><div class="t">Você participa</div></div>
+  </section>
+
+  <section class="shell">
+    <div class="titlebar">
+      <div>
+        <h2>Explorar bolões públicos</h2>
+        <p>Cards em 3 colunas no desktop, entrada automática para bolões públicos e visual adaptado para celular.</p>
+      </div>
+      <button class="btn dark" id="btnAtualizar">Atualizar</button>
+    </div>
+
+    <div class="filters">
+      <div class="field"><label>Buscar bolão</label><input id="fBusca" type="search" placeholder="Nome, criador ou campeonato..."></div>
+      <div class="field"><label>Campeonato</label><select id="fCamp"><option value="">Todos</option></select></div>
+      <div class="field"><label>Pontuação</label><select id="fPeso"><option value="">Com peso/Sem peso</option><option value="COM_PESO">Com peso</option><option value="SEM_PESO">Sem peso</option></select></div>
+      <div class="field"><label>Status</label><select id="fStatus"><option value="ATIVO">Ativos</option></select></div>
+      <button class="btn light" id="btnLimpar">Limpar</button>
+    </div>
+
+    <div class="content">
+      <div class="publicos-grid" id="publicosGrid"><div class="loading">Carregando bolões públicos...</div></div>
+    </div>
+  </section>
 </div>
-<div class="modal" id="detalheModal" aria-hidden="true"><div class="modal-card"><div class="modal-head"><h3 id="detTitulo">Detalhes do bolão</h3><button class="x" id="detFechar" type="button">Fechar</button></div><div class="modal-body" id="detBody"></div><div class="modal-actions"><button class="btn light" id="detCompartilhar" type="button">Compartilhar</button><button class="btn light" id="detAbrir" type="button">Abrir painel</button><button class="btn primary" id="detEntrar" type="button">Participar deste bolão</button></div></div></div><div class="toast" id="toast"></div>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<div class="modal" id="detalheModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="detTitulo">Detalhes do bolão</h3><button class="x" id="detFechar">Fechar</button></div>
+    <div class="modal-body" id="detBody"></div>
+    <div class="modal-actions"><button class="btn light" id="detAbrir">Abrir painel</button><button class="btn primary" id="detEntrar">Entrar no bolão</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-const API_BASE="https://script.google.com/macros/s/AKfycbxbFTg0YODAo1oSX6OQe4HPbMnkrMsXQP93oJsTj4ilhA2fTiZgxk-4qKv1XPiNyyaC/exec";const firebaseConfig={apiKey:"AIzaSyA8tO_E2s6R9bYnEW6_5skqCUrBSVLLKkw",authDomain:"pss-bolao-esportivo.firebaseapp.com",projectId:"pss-bolao-esportivo",storageBucket:"pss-bolao-esportivo.firebasestorage.app",messagingSenderId:"575209475526",appId:"1:575209475526:web:7d2d1efa2d9fd8b600f6c7"};firebase.initializeApp(firebaseConfig);const auth=firebase.auth(),db=firebase.firestore(),provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});auth.useDeviceLanguage();auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.warn);
-const $=s=>document.querySelector(s),state={uid:'GUEST',nome:'Visitante',email:'',foto:'',publicos:[],filtrados:[],meusIds:new Set(),detalhe:null,pendingEnter:null,fonte:'fallback'};const CAMP={CUP:{label:'Copa do Mundo',short:'CUP',ordem:10},BRA:{label:'Brasileirão',short:'BRA',ordem:20},SUP:{label:'Super Bolão',short:'SUP',ordem:30},ENG:{label:'Premier League',short:'ENG',ordem:40},ESP:{label:'Campeonato Espanhol',short:'ESP',ordem:50},ITA:{label:'Campeonato Italiano',short:'ITA',ordem:60},FRA:{label:'Campeonato Francês',short:'FRA',ordem:70}};
-const FALLBACK_PUBLICOS=[];
-function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}function ctrl(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase()}function norm(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()}function fmt(n){return Math.max(0,Math.round(Number(n||0))).toLocaleString('pt-BR')}function p2(n){return String(n).padStart(2,'0')}function tick(){const d=new Date();$('#clock').textContent=`${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}`;}setInterval(tick,1000);tick();function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),3200)}
-function campCode(v){const s=ctrl(v);if(CAMP[s])return s;if(s==='BR')return'BRA';if(s.includes('COPA')||s.includes('WORLD'))return'CUP';if(s.includes('BRASILE'))return'BRA';if(s.includes('PREMIER')||s.includes('INGL'))return'ENG';if(s.includes('ESPAN'))return'ESP';if(s.includes('ITAL'))return'ITA';if(s.includes('FRANC'))return'FRA';if(s.includes('SUPER'))return'SUP';return s||''}function campRaw(b){return campCode(b?.campeonatoSigla||b?.camp||b?.sigla||b?.campeonato||'')}function campLabel(c){const code=campCode(c);return CAMP[code]?.label||code||'Sem campeonato'}function parseDate(v){if(!v)return null;if(v&&typeof v.toDate==='function')return v.toDate();if(v instanceof Date)return isNaN(v)?null:v;const s=String(v).trim();let m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);const d=new Date(s);return isNaN(d)?null:d}function dateLabel(v){const d=parseDate(v);return d?`${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()}`:'—'}function periodo(b){return `${dateLabel(b.dataInicio||b.inicio||b.temporadaInicio)} até ${dateLabel(b.dataFim||b.fim||b.temporadaFim)}`}
-function pesoModo(b){const texto=ctrl([b.pontuacaoModo,b.modoPontuacao,b.tipoPontuacao,b.regraPontuacao,b.peso,b.pesoRodada,b.usaPesoRodada,b.comPeso,b.pontuacaoComPeso].filter(x=>x!==undefined&&x!==null).join(' '));if(b.usaPesoRodada===true||b.comPeso===true||b.pontuacaoComPeso===true)return'COM_PESO';if(texto.includes('SEM_PESO')||texto.includes('SEM PESO')||texto.includes('NORMAL'))return'SEM_PESO';if(texto.includes('COM_PESO')||texto.includes('COM PESO')||texto.includes('PESO')||texto.includes('PONDER'))return'COM_PESO';return'SEM_PESO'}function pesoLabel(b){return pesoModo(b)==='COM_PESO'?'Com peso':'Sem peso'}function numBolao(b,keys){for(const k of keys){const v=b&&b[k];if(v!==undefined&&v!==null&&v!==''){const n=Number(String(v).replace(/[^0-9,.-]/g,'').replace(',','.'));if(Number.isFinite(n))return Math.max(0,Math.round(n));}}return null}function totalJogos(b){const n=numBolao(b,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos','qtdPartidas','totalPartidas']);return n!==null?n:0}function finalizados(b){const n=numBolao(b,['jogosFinalizados','qtdFinalizados','finalizados','jogosEncerrados','jogosAvaliados','qtdJogosFinalizados','partidasFinalizadas']);return n!==null?n:0}function realizados(b){const n=numBolao(b,['jogosRealizados','realizados','jogosIniciados','jogosAvaliados','partidasRealizadas']);return n!==null?n:finalizados(b)}function statusBolao(b){const total=totalJogos(b),fin=finalizados(b),rea=realizados(b),ini=parseDate(b.dataInicio||b.inicio||b.temporadaInicio),fim=parseDate(b.dataFim||b.fim||b.temporadaFim),hoje=new Date(),declarado=ctrl(b.statusCampeonato||b.statusCompeticao||b.situacaoCampeonato||b.faseStatus||'');if(total&&fin>=total)return{key:'FINALIZADO',label:'Finalizado',cls:'status-finalizado',ordem:3};if(declarado.includes('FINAL'))return{key:'FINALIZADO',label:'Finalizado',cls:'status-finalizado',ordem:3};if(declarado.includes('INICIAR')||declarado.includes('A INICIAR'))return{key:'A_INICIAR',label:'A iniciar',cls:'status-iniciar',ordem:2};if(declarado.includes('ANDAMENTO')||declarado.includes('AO VIVO'))return{key:'EM_ANDAMENTO',label:'Em andamento',cls:'status-andamento',ordem:1};if(ini&&hoje<ini)return{key:'A_INICIAR',label:'A iniciar',cls:'status-iniciar',ordem:2};if(rea>0)return{key:'EM_ANDAMENTO',label:'Em andamento',cls:'status-andamento',ordem:1};if(fim&&hoje>fim)return{key:'FINALIZADO',label:'Finalizado',cls:'status-finalizado',ordem:3};return{key:'EM_ANDAMENTO',label:'Em andamento',cls:'status-andamento',ordem:1}}function progresso(b){const total=totalJogos(b),baseFeitos=Math.max(finalizados(b),realizados(b));const fin=total?Math.min(total,baseFeitos):baseFeitos;const pct=total?Math.round(fin/total*100):0;const texto=total?`${fmt(fin)}/${fmt(total)} jogos finalizados`:'Aguardando total da fonte';return{total,fin,realizados:fin,pct,texto}}function participantes(b){const n=numBolao(b,['qtdParticipantes','participantes','totalParticipantes','participantesTotal','inscritos','qtdInscritos']);return fmt(Math.max(1,n||0))}function logoHtml(b,cls){const code=campRaw(b),src=b.logoCampeonato||b.logoCampeonatoUrl||b.logoUrl||b.logo||'';const fallback=`<span class="logo-fallback camp-${esc(code)}">${esc(CAMP[code]?.short||code)}</span>`;return `<div class="${cls}">${src?`<img src="${esc(src)}" alt="${esc(campLabel(code))}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="logo-fallback camp-${esc(code)}" style="display:none">${esc(CAMP[code]?.short||code)}</span>`:fallback}</div>`}
-function isPublicoAtivo(b){const t=ctrl(b.tipo||b.tipoBolao||b.visibilidade||b.acesso||b.categoria||''),st=ctrl(b.status||b.statusBolao||b.situacao||'ATIVO');const oculto=b.excluido===true||b.deletado===true||b.arquivado===true||b.ativo===false||['INATIVO','CANCELADO','EXCLUIDO','ARQUIVADO'].includes(st);return !oculto&&(b.publico===true||b.publicado===true||b.publicoOficial===true||t==='PUBLICO'||t==='PÚBLICO'||t==='OFICIAL')}function unwrap(j){if(Array.isArray(j))return j;const ks=['publicos','boloesPublicos','boloes_publicos','boloes','items','rows','dados','data','result','resultados'];for(const k of ks){if(Array.isArray(j?.[k]))return j[k]}for(const k of ks){if(j?.[k]&&typeof j[k]==='object'){const a=unwrap(j[k]);if(a.length)return a}}if(j&&typeof j==='object'){for(const v of Object.values(j)){if(Array.isArray(v)&&v.some(x=>x&&typeof x==='object'))return v}for(const v of Object.values(j)){if(v&&typeof v==='object'){const a=unwrap(v);if(a.length)return a}}}return []}
-function cacheRead(){try{const a=JSON.parse(localStorage.getItem('PSS_PUBLICOS_CACHE')||'[]');return Array.isArray(a)&&a.length?a:[]}catch(e){return[]}}function cacheWrite(a){try{localStorage.setItem('PSS_PUBLICOS_CACHE',JSON.stringify(a.slice(0,80)))}catch(e){}}
-function startList(){state.publicos=[];state.fonte='carregando';montarFiltroCampeonatos();atualizarStats([]);renderPublicos([]);setFonte('', '')}
-function setFonte(txt,cls){const el=$('#sourceLine'); if(el){el.textContent=''; el.style.display='none'; el.className='source-line';}}function montarFiltroCampeonatos(){const atual=$('#fCamp').value;const camps=[...new Set(state.publicos.map(campRaw))].sort((a,b)=>campLabel(a).localeCompare(campLabel(b),'pt-BR'));$('#fCamp').innerHTML='<option value="">Todos</option>'+camps.map(c=>`<option value="${esc(c)}">${esc(campLabel(c))}</option>`).join('');if(camps.includes(atual))$('#fCamp').value=atual;const url=new URLSearchParams(location.search),camp=campCode(url.get('campeonato')||url.get('camp')||'');if(camp&&camps.includes(camp))$('#fCamp').value=camp}
-function atualizarStats(list){$('#stTotal').textContent=fmt(list.length);$('#stComPeso').textContent=fmt(list.filter(b=>pesoModo(b)==='COM_PESO').length);$('#stSemPeso').textContent=fmt(list.filter(b=>pesoModo(b)==='SEM_PESO').length);$('#stMeus').textContent=fmt(list.filter(b=>state.meusIds.has(b.id)).length)}function aplicarFiltros(){const q=norm($('#fBusca').value),camp=$('#fCamp').value,peso=$('#fPeso').value,st=$('#fStatus').value;let list=state.publicos.slice();if(q)list=list.filter(b=>norm(`${b.nome||b.titulo||''} ${b.criadorNome||''} ${campLabel(campRaw(b))} ${b.descricao||''}`).includes(q));if(camp)list=list.filter(b=>campRaw(b)===camp);if(peso)list=list.filter(b=>pesoModo(b)===peso);if(st)list=list.filter(b=>statusBolao(b).key===st);list.sort((a,b)=>statusBolao(a).ordem-statusBolao(b).ordem||campRaw(a).localeCompare(campRaw(b))||pesoModo(a).localeCompare(pesoModo(b)));state.filtrados=list;renderPublicos(list);atualizarStats(list)}function renderPublicos(list){const grid=$('#publicosGrid');if(!list.length){grid.innerHTML='<div class="empty"><strong>Nenhum bolão recebido da fonte neste momento.</strong>A página não usa bolões fixos. Clique em Atualizar ou rode a criação/atualização oficial se a fonte ainda não publicou os dados.</div>';return}grid.innerHTML=list.map(b=>{const st=statusBolao(b),p=progresso(b),ja=state.meusIds.has(b.id);return `<article class="bolao-card"><div class="bolao-card-top">${logoHtml(b,'bolao-logo')}<div><div class="badges"><span class="badge ${st.cls}">${esc(st.label)}</span><span class="badge purple">Público</span><span class="badge ${pesoModo(b)==='COM_PESO'?'yellow':'gray'}">Pontuação: ${esc(pesoLabel(b))}</span>${ja?'<span class="badge green">Você participa</span>':''}</div><h3>${esc(b.nome||b.titulo||'Bolão público')}</h3></div></div><div class="bolao-desc">${esc(b.descricao||'Bolão público oficial do Portal SimonSports com entrada automática, ranking e palpites.')}</div><div class="date-line"><span>Período</span><strong>${esc(periodo(b))}</strong></div><div class="progress-box"><div class="progress-top"><span>Progresso</span><strong>${esc(p.texto)} • ${p.pct}%</strong></div><div class="progress-track"><div class="progress-fill" style="width:${p.pct}%"></div></div><div class="progress-note">Progresso por jogos finalizados.</div></div><div class="meta-list"><div class="meta-row"><span>Campeonato</span><strong>${esc(campLabel(campRaw(b)))}</strong></div><div class="meta-row"><span>Criador</span><strong>${esc(b.criadorNome||'Portal SimonSports')}</strong></div><div class="meta-row"><span>Participantes</span><strong>${esc(participantes(b))}</strong></div></div><div class="card-actions"><button class="btn light mini" data-detail="${esc(b.id)}" type="button">Ver detalhes</button><button class="btn primary mini" data-enter="${esc(b.id)}" type="button">${ja?'Abrir':'Entrar'}</button></div></article>`}).join('');grid.querySelectorAll('[data-detail]').forEach(btn=>btn.onclick=()=>abrirDetalhes(btn.dataset.detail));grid.querySelectorAll('[data-enter]').forEach(btn=>btn.onclick=()=>entrarOuAbrir(btn.dataset.enter))}
-function abrirDetalhes(id){const b=state.publicos.find(x=>x.id===id);if(!b)return;state.detalhe=b;const st=statusBolao(b),p=progresso(b);$('#detTitulo').textContent=b.nome||b.titulo||'Detalhes do bolão';$('#detEntrar').textContent=state.meusIds.has(id)?'Abrir painel':'Participar deste bolão';$('#detBody').innerHTML=`<div class="det-hero">${logoHtml(b,'det-logo')}<div><div class="badges"><span class="badge ${st.cls}">${esc(st.label)}</span><span class="badge purple">Público</span><span class="badge ${pesoModo(b)==='COM_PESO'?'yellow':'gray'}">Pontuação: ${esc(pesoLabel(b))}</span><span class="badge gray">Entrada automática</span></div><p class="det-desc">${esc(b.descricao||'Bolão público oficial com entrada automática, ranking e palpites no Portal SimonSports.')}</p></div></div><div class="date-line"><span>Período</span><strong>${esc(periodo(b))}</strong></div><div class="det-summary-grid"><div class="det-metric"><strong>${esc(participantes(b))}</strong><span>Participantes</span></div><div class="det-metric"><strong>${esc(pesoLabel(b))}</strong><span>Pontuação</span></div><div class="det-metric"><strong>${esc(p.texto)}</strong><span>Progresso</span></div></div>`;$('#detalheModal').classList.add('open')}
-function apiJsonp(action){return new Promise((resolve,reject)=>{const cb='PSS_PUBLICOS_CB_'+Date.now()+'_'+Math.random().toString(36).slice(2),s=document.createElement('script');let done=false;const oldCallback=window.callback;function finish(ok,val){if(done)return;done=true;try{delete window[cb]}catch(e){window[cb]=undefined}if(window.callback===handler)window.callback=oldCallback;if(s.parentNode)s.parentNode.removeChild(s);ok?resolve(val):reject(val)}function handler(d){finish(true,d||{})}window[cb]=handler;window.callback=handler;s.onerror=()=>finish(false,new Error('Falha JSONP '+action));s.src=`${API_BASE}?a=${encodeURIComponent(action)}&action=${encodeURIComponent(action)}&uid=GUEST&callback=${encodeURIComponent(cb)}&_=${Date.now()}`;document.head.appendChild(s);setTimeout(()=>finish(false,new Error('Timeout JSONP '+action)),4500)})}async function api(action){try{return await apiJsonp(action)}catch(e){const r=await fetch(`${API_BASE}?a=${encodeURIComponent(action)}&action=${encodeURIComponent(action)}&uid=GUEST&_=${Date.now()}`,{cache:'no-store',credentials:'omit'});if(!r.ok)throw new Error('HTTP '+r.status);const txt=await r.text();try{return JSON.parse(txt)}catch(_){const m=txt.match(/^[\s\w$.]+\((.*)\);?\s*$/s);return m?JSON.parse(m[1]):{}}}}
-async function syncPublicos(){if(syncPublicos._busy)return;syncPublicos._busy=true;try{const map=new Map();const actions=['publicos','boloesPublicos','boloes_publicos','listar_publicos','vitrine_publica','listarBoloesPublicos','getPublicBoloes','boloes','listarBoloes','home'];for(const a of actions){try{unwrap(await api(a)).forEach((b,i)=>{const item={id:b.id||b.codigo||b.codigoConvite||('API_'+a+'_'+i),...b};if(isPublicoAtivo(item))map.set(item.id,item)})}catch(e){}}try{const q=await db.collection('boloes').where('publico','==',true).limit(300).get();q.docs.forEach(d=>{const item={id:d.id,...d.data()};if(isPublicoAtivo(item))map.set(item.id,item)})}catch(e){}try{const q=await db.collection('boloes').where('tipo','==','PUBLICO').limit(300).get();q.docs.forEach(d=>{const item={id:d.id,...d.data()};if(isPublicoAtivo(item))map.set(item.id,item)})}catch(e){}try{const q=await db.collection('boloes').limit(600).get();q.docs.forEach(d=>{const item={id:d.id,...d.data()};if(isPublicoAtivo(item))map.set(item.id,item)})}catch(e){}const arr=Array.from(map.values());if(arr.length){state.publicos=arr;state.fonte='online';montarFiltroCampeonatos();aplicarFiltros();setFonte('', '')}else{state.publicos=[];state.fonte='sem_fonte';montarFiltroCampeonatos();aplicarFiltros();setFonte('', '')}}finally{syncPublicos._busy=false}}async function carregarMeusIds(){state.meusIds=new Set();if(state.uid==='GUEST')return;try{const qs=await db.collection('usuarios').doc(state.uid).collection('meusBoloes').get();qs.docs.forEach(d=>state.meusIds.add(d.id))}catch(e){}}
-function erroAuth(e){const c=String(e?.code||''),m=String(e?.message||'');if(c.includes('popup-closed'))return'Login cancelado.';if(c.includes('popup-blocked'))return'O navegador bloqueou a janela do Google.';if(c.includes('unauthorized-domain'))return'Domínio não autorizado no Firebase Auth.';return m||c||'Erro no login.'}async function loginGoogle(){try{try{await auth.signInWithPopup(provider)}catch(e){if(String(e?.code||'').includes('popup-closed'))throw e;await auth.signInWithRedirect(provider)}}catch(e){toast('Falha no login: '+erroAuth(e))}}async function ensureUser(user){if(!user)return;const ref=db.collection('usuarios').doc(user.uid),snap=await ref.get(),old=snap.exists?(snap.data()||{}):{};await ref.set({uid:user.uid,nome:user.displayName||user.email||old.nome||'Usuário',email:user.email||old.email||'',foto:user.photoURL||old.foto||'',ativo:old.ativo===false?false:true,status:old.status||'ATIVO',perfil:old.perfil||old.perfilGlobal||'USUARIO',perfilGlobal:old.perfilGlobal||old.perfil||'USUARIO',ultimoLoginEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})}
-async function entrarOuAbrir(id){if(state.meusIds.has(id)){location.href=`bolao.html?bolao=${encodeURIComponent(id)}`;return}if(state.uid==='GUEST'){state.pendingEnter=id;sessionStorage.setItem('PSS_PUBLICO_PENDING_BOLAO',id);toast('Entre com Google para participar automaticamente.');await loginGoogle();return}await entrarBolaoPublico(id)}async function entrarBolaoPublico(id){const ref=db.collection('boloes').doc(id),snap=await ref.get();if(!snap.exists){location.href=`bolao.html?bolao=${encodeURIComponent(id)}`;return}const b={id:snap.id,...snap.data()};if(!isPublicoAtivo(b)){toast('Este bolão não está disponível para entrada automática.');return}const part={uid:state.uid,nome:state.nome,email:state.email,foto:state.foto,papel:'PARTICIPANTE',status:'APROVADO',ativo:true,criadoEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()};await ref.collection('participantes').doc(state.uid).set(part,{merge:true});await db.collection('usuarios').doc(state.uid).collection('meusBoloes').doc(id).set({...b,minhaParticipacao:part,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});state.meusIds.add(id);toast('Entrada aprovada automaticamente. Abrindo o bolão...');setTimeout(()=>location.href=`bolao.html?bolao=${encodeURIComponent(id)}`,650)}
-auth.getRedirectResult().catch(e=>toast('Falha ao concluir login: '+erroAuth(e)));auth.onAuthStateChanged(async user=>{if(user){state.uid=user.uid;state.nome=user.displayName||user.email||'Usuário';state.email=user.email||'';state.foto=user.photoURL||'';$('#userBox').textContent='Olá, '+state.nome;$('#loginCardTitle').textContent=state.nome;$('#loginCardText').textContent=state.email||'Logado';$('#btnLoginTop').style.display='none';$('#btnLogoutTop').style.display='inline-flex';$('#roleBox').style.display='inline-flex';$('#btnLoginHero').textContent='Abrir painel';$('#btnLoginCard').textContent='Abrir painel';try{await ensureUser(user)}catch(e){}await carregarMeusIds();aplicarFiltros();const pending=state.pendingEnter||sessionStorage.getItem('PSS_PUBLICO_PENDING_BOLAO');if(pending){state.pendingEnter=null;sessionStorage.removeItem('PSS_PUBLICO_PENDING_BOLAO');await entrarBolaoPublico(pending).catch(e=>toast('Erro ao entrar: '+e.message))}}else{state.uid='GUEST';state.nome='Visitante';state.email='';state.foto='';state.meusIds=new Set();$('#userBox').textContent='Você não está logado';$('#loginCardTitle').textContent='Visitante';$('#loginCardText').textContent='Entre com Google para participar automaticamente.';$('#btnLoginTop').style.display='inline-flex';$('#btnLogoutTop').style.display='none';$('#roleBox').style.display='none';$('#btnLoginHero').textContent='Entrar com Google';$('#btnLoginCard').textContent='Entrar com Google';aplicarFiltros()}});
-$('#btnLoginTop').onclick=loginGoogle;$('#btnLoginHero').onclick=()=>state.uid==='GUEST'?loginGoogle():location.href='bolao.html';$('#btnLoginCard').onclick=()=>state.uid==='GUEST'?loginGoogle():location.href='bolao.html';$('#btnLogoutTop').onclick=()=>auth.signOut();$('#btnAtualizar').onclick=()=>syncPublicos();$('#btnLimpar').onclick=()=>{$('#fBusca').value='';$('#fCamp').value='';$('#fPeso').value='';$('#fStatus').value='';aplicarFiltros()};['#fBusca','#fCamp','#fPeso','#fStatus'].forEach(sel=>$(sel).addEventListener(sel==='#fBusca'?'input':'change',aplicarFiltros));$('#detFechar').onclick=()=>$('#detalheModal').classList.remove('open');$('#detAbrir').onclick=()=>state.detalhe&&(location.href=`bolao.html?bolao=${encodeURIComponent(state.detalhe.id)}`);$('#detEntrar').onclick=()=>state.detalhe&&entrarOuAbrir(state.detalhe.id);$('#detCompartilhar').onclick=async()=>{if(!state.detalhe)return;const url=`${location.origin}${location.pathname}?bolao=${encodeURIComponent(state.detalhe.id)}`;try{if(navigator.share)await navigator.share({title:state.detalhe.nome||'Bolão público',text:'Portal SimonSports',url});else{await navigator.clipboard.writeText(url);toast('Link copiado.')}}catch(e){}};$('#detalheModal').addEventListener('click',e=>{if(e.target.id==='detalheModal')$('#detalheModal').classList.remove('open')});
-startList();syncPublicos();setInterval(syncPublicos,60000);
+  const firebaseConfig = {
+    apiKey: "AIzaSyA8tO_E2s6R9bYnEW6_5skqCUrBSVLLKkw",
+    authDomain: "pss-bolao-esportivo.firebaseapp.com",
+    projectId: "pss-bolao-esportivo",
+    storageBucket: "pss-bolao-esportivo.firebasestorage.app",
+    messagingSenderId: "575209475526",
+    appId: "1:575209475526:web:7d2d1efa2d9fd8b600f6c7"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const provider = new firebase.auth.GoogleAuthProvider();
+  const db = firebase.firestore();
+
+  const $ = s => document.querySelector(s);
+  const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', publicos:[], filtrados:[], meusIds:new Set(), detalhe:null, pendingEnter:null };
+
+  function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),3600); }
+  function esc(v){ return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+  function norm(v){ return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
+  function safeId(v){ return String(v||'').trim().replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,80) || ('BOLAO_'+Date.now()); }
+  function campLabel(c){ const m={CUP:'Copa do Mundo',BR:'Brasileirão',BRA:'Brasileirão',LIB:'Libertadores',UCL:'Champions League'}; return m[String(c||'').toUpperCase()] || c || 'Campeonato'; }
+  function pesoModo(b){ return (b?.usaPesoRodada===true || b?.pontuacaoModo==='COM_PESO') ? 'COM_PESO' : 'SEM_PESO'; }
+  function pesoLabel(b){ return pesoModo(b)==='COM_PESO' ? 'Com peso' : 'Sem peso'; }
+  function formatoLabel(b){
+    const f=String(b?.modoBolao || b?.formatoBolao || 'CAMPEONATO').toUpperCase();
+    if(f==='RODADA') return 'Bolão rápido / 1 rodada';
+    if(f==='SEMANA') return 'Bolão rápido / 1 semana';
+    if(f==='PERSONALIZADO') return 'Personalizado';
+    return 'Campeonato completo';
+  }
+  function participantesLabel(b){ return b?.qtdParticipantes || b?.participantes || b?.totalParticipantes || '—'; }
+  function proximaLabel(b){ return b?.proximaRodada ? `${b.proximaRodada}ª Rodada` : (b?.rodadaInicial ? `${b.rodadaInicial}ª Rodada` : formatoLabel(b)); }
+
+  async function ensureUser(user){
+    if(!user) return;
+    const ref=db.collection('usuarios').doc(user.uid);
+    const payload={uid:user.uid,nome:user.displayName||user.email||'Usuário',email:user.email||'',foto:user.photoURL||'',ativo:true,status:'ATIVO',perfilGlobal:'USUARIO',ultimoLoginEm:firebase.firestore.FieldValue.serverTimestamp()};
+    const snap=await ref.get();
+    if(!snap.exists) payload.criadoEm=firebase.firestore.FieldValue.serverTimestamp();
+    await ref.set(payload,{merge:true});
+  }
+
+  async function carregarMeusIds(){
+    state.meusIds = new Set();
+    if(state.uid==='GUEST') return;
+    try{
+      const qs=await db.collection('usuarios').doc(state.uid).collection('meusBoloes').get();
+      qs.docs.forEach(d=>state.meusIds.add(d.id));
+    }catch(e){ console.warn('meusBoloes indisponível:', e); }
+  }
+
+  async function carregarPublicos(){
+    $('#publicosGrid').innerHTML='<div class="loading">Carregando bolões públicos...</div>';
+    try{
+      const qs=await db.collection('boloes').where('ativo','==',true).where('publico','==',true).limit(120).get();
+      state.publicos=qs.docs.map(d=>({id:d.id,...d.data()})).filter(b=>b.excluido!==true && b.ativo!==false && (b.publico===true || b.tipo==='PUBLICO'));
+    }catch(e){
+      console.warn(e);
+      $('#publicosGrid').innerHTML=`<div class="empty"><strong>Não foi possível carregar os bolões públicos.</strong>Verifique as regras do Firestore e tente novamente.<br><br>${esc(e.message)}</div>`;
+      return;
+    }
+    montarFiltroCampeonatos();
+    aplicarFiltros();
+  }
+
+  function montarFiltroCampeonatos(){
+    const sel=$('#fCamp');
+    const atual=sel.value;
+    const camps=[...new Set(state.publicos.map(b=>String(b.campeonato||b.camp||'CUP')).filter(Boolean))].sort((a,b)=>campLabel(a).localeCompare(campLabel(b),'pt-BR'));
+    sel.innerHTML='<option value="">Todos</option>'+camps.map(c=>`<option value="${esc(c)}">${esc(campLabel(c))}</option>`).join('');
+    sel.value=atual;
+  }
+
+  function atualizarStats(list){
+    $('#stTotal').textContent=list.length;
+    $('#stComPeso').textContent=list.filter(b=>pesoModo(b)==='COM_PESO').length;
+    $('#stSemPeso').textContent=list.filter(b=>pesoModo(b)==='SEM_PESO').length;
+    $('#stMeus').textContent=list.filter(b=>state.meusIds.has(b.id)).length;
+  }
+
+  function aplicarFiltros(){
+    const q=norm($('#fBusca').value);
+    const camp=$('#fCamp').value;
+    const peso=$('#fPeso').value;
+    let list=state.publicos.slice();
+    if(q){
+      list=list.filter(b=>norm(`${b.nome||b.titulo||''} ${b.criadorNome||''} ${campLabel(b.campeonato||b.camp||'')} ${b.descricao||''}`).includes(q));
+    }
+    if(camp) list=list.filter(b=>String(b.campeonato||b.camp||'')===camp);
+    if(peso) list=list.filter(b=>pesoModo(b)===peso);
+    state.filtrados=list;
+    renderPublicos(list);
+    atualizarStats(list);
+  }
+
+  function renderPublicos(list){
+    const grid=$('#publicosGrid');
+    if(!list.length){
+      grid.innerHTML='<div class="empty"><strong>Nenhum bolão público encontrado.</strong>Altere os filtros ou volte mais tarde.</div>';
+      return;
+    }
+    grid.innerHTML=list.map(b=>{
+      const ja=state.meusIds.has(b.id);
+      const nome=b.nome||b.titulo||'Bolão sem nome';
+      const camp=b.campeonato||b.camp||'CUP';
+      return `<article class="bolao-card">
+        <h3>${esc(nome)}</h3>
+        <div class="badges">
+          <span class="badge green">Público</span>
+          <span class="badge ${pesoModo(b)==='COM_PESO'?'yellow':'gray'}">${esc(pesoLabel(b))}</span>
+          <span class="badge gray">Ativo</span>
+          ${ja?'<span class="badge green">Você participa</span>':''}
+        </div>
+        <div class="meta-list">
+          <div class="meta-row"><span>Campeonato</span><strong>${esc(campLabel(camp))}</strong></div>
+          <div class="meta-row"><span>Criador</span><strong>${esc(b.criadorNome||'Portal SimonSports')}</strong></div>
+          <div class="meta-row"><span>Participantes</span><strong>${esc(participantesLabel(b))}</strong></div>
+          <div class="meta-row"><span>${String(b.modoBolao||b.formatoBolao||'CAMPEONATO').toUpperCase()==='CAMPEONATO'?'Próxima':'Tipo'}</span><strong>${esc(proximaLabel(b))}</strong></div>
+        </div>
+        <div class="card-actions">
+          <button class="btn light mini" data-detail="${esc(b.id)}">Detalhes</button>
+          <button class="btn primary mini" data-enter="${esc(b.id)}">${ja?'Abrir':'Entrar'}</button>
+        </div>
+      </article>`;
+    }).join('');
+    grid.querySelectorAll('[data-detail]').forEach(btn=>btn.onclick=()=>abrirDetalhes(btn.dataset.detail));
+    grid.querySelectorAll('[data-enter]').forEach(btn=>btn.onclick=()=>entrarOuAbrir(btn.dataset.enter));
+  }
+
+  function abrirDetalhes(id){
+    const b=state.publicos.find(x=>x.id===id); if(!b) return;
+    state.detalhe=b;
+    $('#detTitulo').textContent=b.nome||b.titulo||'Detalhes do bolão';
+    $('#detBody').innerHTML=`<div class="meta-list">
+      <div class="meta-row"><span>Campeonato</span><strong>${esc(campLabel(b.campeonato||b.camp||'CUP'))}</strong></div>
+      <div class="meta-row"><span>Entrada</span><strong>Automática</strong></div>
+      <div class="meta-row"><span>Pontuação</span><strong>${esc(pesoLabel(b))}</strong></div>
+      <div class="meta-row"><span>Formato</span><strong>${esc(formatoLabel(b))}</strong></div>
+      <div class="meta-row"><span>Participantes</span><strong>${esc(participantesLabel(b))}</strong></div>
+      <div class="meta-row"><span>Criador</span><strong>${esc(b.criadorNome||'Portal SimonSports')}</strong></div>
+    </div>${b.descricao?`<p style="margin:14px 0 0;color:#475569;font-weight:750">${esc(b.descricao)}</p>`:''}`;
+    $('#detalheModal').classList.add('open');
+  }
+  function fecharDetalhes(){ $('#detalheModal').classList.remove('open'); }
+
+  async function entrarOuAbrir(id){
+    if(state.meusIds.has(id)){ location.href=`bolao.html?bolao=${encodeURIComponent(id)}`; return; }
+    if(state.uid==='GUEST'){
+      state.pendingEnter=id;
+      sessionStorage.setItem('PSS_PUBLICO_PENDING_BOLAO', id);
+      toast('Entre com Google para participar automaticamente.');
+      try{ if(/Mobi|Android/i.test(navigator.userAgent)) await auth.signInWithRedirect(provider); else await auth.signInWithPopup(provider); }
+      catch(e){ toast('Falha no login: '+e.message); }
+      return;
+    }
+    await entrarBolaoPublico(id);
+  }
+
+  async function entrarBolaoPublico(id){
+    const ref=db.collection('boloes').doc(id);
+    const snap=await ref.get();
+    if(!snap.exists){ toast('Bolão não encontrado.'); return; }
+    const b={id:snap.id,...snap.data()};
+    if(!(b.ativo===true && b.excluido!==true && (b.publico===true || b.tipo==='PUBLICO'))){ toast('Este bolão não está disponível para entrada automática.'); return; }
+    const part={uid:state.uid,nome:state.nome,email:state.email,foto:state.foto,papel:'PARTICIPANTE',status:'APROVADO',ativo:true,criadoEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()};
+    await ref.collection('participantes').doc(state.uid).set(part,{merge:true});
+    await db.collection('usuarios').doc(state.uid).collection('meusBoloes').doc(id).set({...b,minhaParticipacao:part,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    state.meusIds.add(id);
+    toast('Entrada aprovada automaticamente. Abrindo o bolão...');
+    setTimeout(()=>{ location.href=`bolao.html?bolao=${encodeURIComponent(id)}`; },700);
+  }
+
+  auth.onAuthStateChanged(async user=>{
+    if(user){
+      state.uid=user.uid; state.nome=user.displayName||user.email||'Usuário'; state.email=user.email||''; state.foto=user.photoURL||'';
+      $('#nick').textContent=state.nome; $('#authSub').textContent=state.email||'Logado'; $('#btnLogin').textContent='Sair';
+      try{ await ensureUser(user); }catch(e){ console.warn(e); toast('Login OK, mas falhou ao sincronizar cadastro: '+e.message); }
+      await carregarMeusIds();
+      await carregarPublicos();
+      const pending=state.pendingEnter || sessionStorage.getItem('PSS_PUBLICO_PENDING_BOLAO');
+      if(pending){ state.pendingEnter=null; sessionStorage.removeItem('PSS_PUBLICO_PENDING_BOLAO'); await entrarBolaoPublico(pending).catch(e=>toast('Erro ao entrar no bolão: '+e.message)); }
+    }else{
+      state.uid='GUEST'; state.nome='Visitante'; state.email=''; state.foto=''; state.meusIds=new Set();
+      $('#nick').textContent='Visitante'; $('#authSub').textContent='Entre com Google para participar automaticamente'; $('#btnLogin').textContent='Entrar com Google';
+      await carregarPublicos();
+    }
+  });
+
+  $('#btnLogin').onclick=async()=>{
+    if(state.uid==='GUEST'){
+      try{ if(/Mobi|Android/i.test(navigator.userAgent)) await auth.signInWithRedirect(provider); else await auth.signInWithPopup(provider); }
+      catch(e){ toast('Falha no login: '+e.message); }
+    }else{ await auth.signOut(); toast('Você saiu.'); }
+  };
+  $('#btnAtualizar').onclick=()=>carregarPublicos();
+  $('#btnLimpar').onclick=()=>{ $('#fBusca').value=''; $('#fCamp').value=''; $('#fPeso').value=''; aplicarFiltros(); };
+  ['#fBusca','#fCamp','#fPeso','#fStatus'].forEach(sel=>$(sel).addEventListener(sel==='#fBusca'?'input':'change', aplicarFiltros));
+  $('#detFechar').onclick=fecharDetalhes;
+  $('#detAbrir').onclick=()=>{ if(state.detalhe) location.href=`bolao.html?bolao=${encodeURIComponent(state.detalhe.id)}`; };
+  $('#detEntrar').onclick=()=>{ if(state.detalhe) entrarOuAbrir(state.detalhe.id); };
+  $('#detalheModal').addEventListener('click',e=>{ if(e.target.id==='detalheModal') fecharDetalhes(); });
 </script>
 </body>
 </html>
-
