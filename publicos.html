@@ -1,867 +1,154 @@
 <!doctype html>
-<!-- V012_PUBLICOS_SEM_AGUARDANDO_JOGOS_FINALIZADOS_PLACAR_VS_FIX -->
-<!-- V011_PUBLICOS_PROGRESSO_REAL_JOGOS_FINALIZADOS_HOME_SYNC -->
-<!-- V010_PUBLICOS_DATAS_FALLBACK_PLANILHA_FIRESTORE_ORDEM_STATUS -->
-<!-- V008_PUBLICOS_FILTROS_URL_CAMPEONATO_PESO_OFICIAIS -->
-<!-- V007_PUBLICOS_QUERY_PUBLICO_TIPO_PUBLICO_E_DETALHES -->
+<!-- V013_PUBLICOS_CORRIGIDO_FIRESTORE_FALLBACK_STATUS_PROGRESSO_LINKS_2026-06-28 -->
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bolões públicos | Portal SimonSports</title>
-<meta name="description" content="Explore bolões públicos do Portal SimonSports. Entre com Google e participe automaticamente.">
+<meta name="description" content="Explore bolões públicos oficiais do Portal SimonSports. Entre com Google e participe automaticamente.">
+<meta name="theme-color" content="#061121">
 <style>
   :root{
-    --bg:#f5f7fb;
-    --panel:#ffffff;
-    --text:#0f172a;
-    --muted:#64748b;
-    --line:#e2e8f0;
-    --soft:#f8fafc;
-    --dark:#0b1222;
-    --dark2:#101b33;
-    --green:#10b981;
-    --green2:#059669;
-    --blue:#2563eb;
-    --yellow:#f59e0b;
-    --red:#ef4444;
-    --shadow:0 18px 46px rgba(15,23,42,.10);
-    --radius:22px;
+    --bg:#f4f7fb;--panel:#ffffff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;--soft:#f8fafc;
+    --dark:#061121;--dark2:#0b152b;--green:#16a34a;--green2:#0f7a38;--blue:#0ea5e9;--yellow:#f59e0b;--red:#ef4444;
+    --shadow:0 18px 46px rgba(15,23,42,.10);--radius:24px;
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.45}
-  a{color:inherit;text-decoration:none}
-  button,input,select{font:inherit}
-  .page{width:min(96vw,1560px);margin:0 auto;padding:18px 0 36px}
-
-  .hero{
-    background:linear-gradient(135deg,#07111f 0%,#0b1f3f 54%,#073a2c 100%);
-    color:#fff;border-radius:28px;padding:26px;box-shadow:var(--shadow);overflow:hidden;position:relative
-  }
-  .hero:after{content:"";position:absolute;right:-90px;top:-90px;width:260px;height:260px;border-radius:999px;background:rgba(16,185,129,.22);filter:blur(4px)}
-  .hero-grid{display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center;position:relative;z-index:1}
-  .kicker{display:inline-flex;gap:8px;align-items:center;padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);font-size:13px;font-weight:900;color:#d7ffe9}
-  h1{margin:12px 0 8px;font-size:clamp(28px,4vw,48px);letter-spacing:-.055em;line-height:1.05}
-  .hero p{margin:0;color:#cbd5e1;max-width:760px;font-weight:650}
-  .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-  .auth-card{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:14px;min-width:320px;backdrop-filter:blur(10px)}
-  .who{display:flex;flex-direction:column;gap:2px;margin-bottom:12px}.who strong{font-size:16px}.who span{font-size:13px;color:#cbd5e1}
-
-  .btn{border:0;border-radius:14px;padding:11px 14px;font-weight:1000;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;transition:.15s transform,.15s filter,.15s box-shadow;white-space:nowrap}
-  .btn:hover{transform:translateY(-1px);filter:brightness(1.02)}
-  .btn.primary{background:linear-gradient(135deg,var(--green),var(--green2));color:#052e26;box-shadow:0 12px 28px rgba(16,185,129,.24)}
-  .btn.blue{background:#dbeafe;color:#1e3a8a}.btn.dark{background:#111827;color:#fff}.btn.ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.18)}
-  .btn.light{background:#fff;color:#0f172a;border:1px solid var(--line)}.btn.mini{padding:8px 11px;min-height:36px;border-radius:12px;font-size:13px}.btn.block{width:100%}
-
-  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:16px 0}
-  .stat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center;box-shadow:0 10px 28px rgba(15,23,42,.05)}
-  .stat .n{font-size:28px;font-weight:1000;letter-spacing:-.04em;color:#0f172a}.stat .t{color:var(--muted);font-size:13px;font-weight:850;margin-top:3px}
-
-  .shell{background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}
-  .titlebar{padding:22px 24px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;background:linear-gradient(180deg,#fff,#fbfdff)}
-  .titlebar h2{margin:0;font-size:26px;font-weight:1000;letter-spacing:-.04em;color:#0f172a}.titlebar p{margin:6px 0 0;color:var(--muted);font-weight:700;max-width:900px}
-  .filters{display:grid;grid-template-columns:1.4fr 1fr 1fr .8fr auto;gap:10px;padding:16px 24px;border-bottom:1px solid var(--line);background:#f8fafc}
-  .field{display:flex;flex-direction:column;gap:5px}.field label{font-size:12px;font-weight:950;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
-  input,select{width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 12px;color:#0f172a;outline:none;font-weight:750;min-height:43px}
-  input:focus,select:focus{border-color:#60a5fa;box-shadow:0 0 0 4px rgba(96,165,250,.16)}
-
-  .content{padding:22px 24px 26px}
-  .publicos-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
-  .bolao-card{border:1px solid var(--line);border-radius:22px;background:#fff;box-shadow:0 10px 26px rgba(15,23,42,.06);padding:17px;display:flex;flex-direction:column;min-height:292px;position:relative;overflow:hidden}
-  .bolao-card:before{content:"";position:absolute;left:0;top:0;right:0;height:5px;background:linear-gradient(90deg,#10b981,#2563eb)}
-  .bolao-card-top{display:grid;grid-template-columns:68px 1fr;gap:13px;align-items:start;margin-top:3px}
-  .bolao-logo{width:68px;height:68px;border-radius:18px;border:1px solid #e2e8f0;background:linear-gradient(135deg,#ecfdf5,#eff6ff);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:30px;flex:0 0 auto}
-  .bolao-logo img{width:100%;height:100%;object-fit:contain;display:block;padding:8px;background:#fff}
-  .bolao-card h3{margin:2px 0 8px;font-size:20px;font-weight:1000;letter-spacing:-.025em;color:#0f172a;line-height:1.14}
-  .bolao-desc{margin:8px 0 13px;color:#64748b;font-size:13px;font-weight:800;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:1000;border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8}.badge.green{background:#ecfdf5;border-color:#bbf7d0;color:#047857}.badge.yellow{background:#fffbeb;border-color:#fde68a;color:#a16207}.badge.gray{background:#f1f5f9;border-color:#e2e8f0;color:#334155}.badge.purple{background:#f3e8ff;border-color:#ddd6fe;color:#6d28d9}
-  .badge.status-andamento{background:#dcfce7;border-color:#86efac;color:#166534}
-  .badge.status-iniciar{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
-  .badge.status-finalizado{background:#e2e8f0;border-color:#cbd5e1;color:#334155}
-  .bolao-logo,.det-logo{position:relative}
-  .logo-fallback{width:100%;height:100%;display:grid;place-items:center;border-radius:inherit;font-size:17px;font-weight:1000;letter-spacing:-.03em;color:#fff;text-align:center;padding:4px;background:linear-gradient(135deg,#0f172a,#2563eb)}
-  .bolao-logo .logo-fallback{font-size:15px}
-  .det-logo .logo-fallback{font-size:20px}
-  .logo-fallback.camp-CUP{background:linear-gradient(135deg,#0f766e,#22c55e)}
-  .logo-fallback.camp-BRA{background:linear-gradient(135deg,#15803d,#fde047);color:#052e16}
-  .logo-fallback.camp-ENG{background:linear-gradient(135deg,#7f1d1d,#ef4444)}
-  .logo-fallback.camp-ESP{background:linear-gradient(135deg,#b91c1c,#facc15);color:#111827}
-  .logo-fallback.camp-ITA{background:linear-gradient(135deg,#166534,#ffffff,#dc2626);color:#111827;border:1px solid #dbe3ef}
-  .logo-fallback.camp-FRA{background:linear-gradient(135deg,#1d4ed8,#ffffff,#dc2626);color:#111827;border:1px solid #dbe3ef}
-  .logo-fallback.camp-SUP{background:linear-gradient(135deg,#4c1d95,#f59e0b)}
-  .date-line{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:10px 0 12px;padding:9px 10px;border:1px solid #e2e8f0;border-radius:14px;background:#fbfdff;color:#334155;font-size:12px;font-weight:900}
-  .date-line span{color:#64748b;text-transform:uppercase;letter-spacing:.04em;font-size:10px;font-weight:1000}
-  .progress-box{margin:10px 0 12px}
-  .progress-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px;color:#475569;font-size:12px;font-weight:950}
-  .progress-top strong{text-align:right;line-height:1.25}
-  .progress-track{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden}
-  .progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#10b981,#2563eb);width:0%}
-  .progress-note{margin-top:6px;color:#64748b;font-size:11px;font-weight:850}
-
-  .meta-list{display:grid;gap:9px;margin-top:2px;color:#334155;font-weight:800;font-size:14px}.meta-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px dashed #e2e8f0;padding-bottom:7px}.meta-row span:first-child{color:#64748b;font-weight:800}.meta-row strong{text-align:right}
-  .card-actions{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:9px;padding-top:15px}.card-actions .btn{width:100%}
-  .empty{border:1px dashed #cbd5e1;border-radius:22px;padding:28px;text-align:center;color:#64748b;background:#f8fafc;font-weight:800;grid-column:1/-1}.empty strong{display:block;color:#0f172a;font-size:18px;margin-bottom:5px}
-  .loading{grid-column:1/-1;text-align:center;padding:30px;color:#64748b;font-weight:900}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0f172a;color:#fff;border-radius:16px;padding:12px 16px;box-shadow:var(--shadow);z-index:30;display:none;font-weight:850;max-width:min(92vw,680px);text-align:center}.toast.show{display:block}
-
-  .modal{position:fixed;inset:0;background:rgba(15,23,42,.58);display:none;place-items:center;z-index:40;padding:18px}.modal.open{display:grid}.modal-card{background:#fff;border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.32);width:min(760px,94vw);overflow:hidden;max-height:92vh;display:flex;flex-direction:column}.modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.modal-head h3{margin:0;font-size:22px;font-weight:1000}.modal-body{padding:18px 20px;overflow:auto}.modal-actions{display:flex;gap:10px;justify-content:flex-end;padding:16px 20px;border-top:1px solid var(--line);flex-wrap:wrap}.x{background:#f1f5f9;color:#0f172a;border:0;border-radius:12px;padding:8px 11px;font-weight:1000;cursor:pointer}
-  .det-hero{display:grid;grid-template-columns:92px 1fr;gap:16px;align-items:center;margin-bottom:16px}.det-logo{width:92px;height:92px;border-radius:24px;border:1px solid #e2e8f0;background:linear-gradient(135deg,#ecfdf5,#eff6ff);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:40px}.det-logo img{width:100%;height:100%;object-fit:contain;display:block;padding:10px;background:#fff}.det-desc{margin:8px 0 0;color:#475569;font-weight:750;line-height:1.45}.det-box{margin-top:14px;border:1px solid #e2e8f0;border-radius:18px;background:#f8fafc;padding:14px}.det-box h4{margin:0 0 8px;font-size:15px;font-weight:1000;color:#0f172a}.det-box ul{margin:0;padding-left:18px;color:#475569;font-weight:750}.det-box li{margin:4px 0}.det-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.det-metric{background:#fff;border:1px solid #e2e8f0;border-radius:16px;text-align:center;padding:12px}.det-metric strong{display:block;font-size:20px;font-weight:1000}.det-metric span{display:block;margin-top:4px;color:#64748b;font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.04em}
-  @media(max-width:760px){.det-hero{grid-template-columns:1fr}.det-summary-grid{grid-template-columns:1fr}}
-
-  @media(max-width:1200px){.publicos-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.filters{grid-template-columns:1fr 1fr 1fr}.filters .field:first-child{grid-column:1/-1}.filters .btn{grid-column:1/-1}.hero-grid{grid-template-columns:1fr}.auth-card{min-width:0}}
-  @media(max-width:760px){.page{width:100%;padding:0 0 24px}.hero,.shell{border-radius:0}.stats{grid-template-columns:repeat(2,1fr);padding:0 12px}.filters{grid-template-columns:1fr;padding:14px}.content{padding:14px}.publicos-grid{grid-template-columns:1fr}.titlebar{padding:18px 14px}.hero{padding:22px 16px}.card-actions{grid-template-columns:1fr}.auth-card{width:100%}.progress-top{align-items:flex-start}.date-line,.meta-row{align-items:flex-start;flex-direction:column;gap:4px}.date-line strong,.meta-row strong{text-align:left}}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.45;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}button,input,select{font:inherit}button{cursor:pointer}
+  .page{min-height:100vh}.container{width:min(94vw,1240px);margin:0 auto}
+  .topbar{position:sticky;top:0;z-index:30;background:rgba(6,17,33,.96);border-bottom:1px solid rgba(148,163,184,.16);backdrop-filter:blur(14px);color:#fff}
+  .topbar-row{min-height:66px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:1000;min-width:0}.brand-mark{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#0f7a38,#38bdf8);box-shadow:0 12px 26px rgba(14,165,233,.20);flex:0 0 auto}.brand-text{display:flex;flex-direction:column;line-height:1.08;min-width:0}.brand-text strong{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.brand-text span{font-size:10px;color:#a7b4c8;font-weight:950;letter-spacing:.08em;text-transform:uppercase}
+  .top-actions{display:flex;align-items:center;gap:9px;justify-content:flex-end}.user-pill{max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#cbd5e1;font-size:13px;font-weight:850}.role-pill{display:none;min-height:28px;padding:5px 10px;border-radius:999px;background:rgba(56,189,248,.12);color:#bae6fd;border:1px solid rgba(186,230,253,.22);font-size:11px;font-weight:1000;letter-spacing:.05em;text-transform:uppercase}
+  .btn{border:0;border-radius:14px;min-height:42px;padding:10px 14px;font-weight:1000;background:#e8eef6;color:#0f172a;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;white-space:nowrap;transition:transform .12s ease,filter .12s ease}.btn:hover{transform:translateY(-1px);filter:brightness(.99)}.btn.primary{background:linear-gradient(135deg,#16a34a,#22c55e);color:#052111;box-shadow:0 12px 28px rgba(34,197,94,.24)}.btn.dark{background:#071126;color:#fff}.btn.blue{background:#0ea5e9;color:#052033}.btn.light{background:#fff;color:#0f172a;border:1px solid var(--line)}.btn.outline{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.30);color:#fff}.btn.mini{min-height:34px;padding:8px 11px;border-radius:11px;font-size:12px}.btn.block{width:100%}.btn:disabled{opacity:.58;cursor:not-allowed;transform:none}
+  .hero{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(circle at 82% 12%,rgba(34,197,94,.28),transparent 34%),linear-gradient(118deg,#061121 0%,#0b152b 56%,#07321f 100%);color:#fff;border-bottom:1px solid rgba(255,255,255,.10)}
+  .hero:after{content:"";position:absolute;right:-120px;bottom:-170px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(250,204,21,.15),rgba(34,197,94,.10) 44%,transparent 70%);z-index:-1}
+  .hero-grid{min-height:330px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.72fr);gap:34px;align-items:center;padding:42px 0 52px}.hero h1{margin:14px 0 12px;max-width:790px;font-size:clamp(32px,5vw,56px);line-height:1.02;font-weight:1000;letter-spacing:-.045em}.hero p{margin:0 0 20px;max-width:720px;color:#dce8f5;font-size:clamp(16px,2vw,19px);font-weight:750}.hero-actions{display:flex;gap:12px;flex-wrap:wrap}.tag{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:7px 12px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.17);color:#dff7ef;font-size:12px;font-weight:1000;letter-spacing:.03em;text-transform:uppercase}
+  .login-card{background:rgba(3,10,21,.58);border:1px solid rgba(255,255,255,.18);border-radius:28px;padding:18px;box-shadow:0 26px 70px rgba(0,0,0,.34);backdrop-filter:blur(12px)}.login-card h3{margin:0 0 8px;font-size:20px}.login-card p{font-size:13px;margin:0 0 14px;color:#bed0e5}.clock{display:inline-flex;justify-content:center;min-width:178px;background:#38bdf8;color:#031724;border-radius:999px;padding:8px 12px;font-weight:1000;box-shadow:0 4px 0 rgba(0,0,0,.16);margin-bottom:12px}
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:-34px;position:relative;z-index:3}.stat{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px 14px;box-shadow:0 10px 26px rgba(15,23,42,.06);min-height:98px;display:grid;place-items:center;text-align:center;align-content:center}.stat .n{font-size:32px;font-weight:1000;line-height:1;color:#0f172a}.stat .t{font-size:11px;color:#64748b;font-weight:1000;margin-top:8px;text-transform:uppercase;letter-spacing:.06em}
+  .shell{margin:32px 0 50px;background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}.titlebar{padding:22px 24px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;background:linear-gradient(180deg,#fff,#fbfdff)}.titlebar h2{margin:0;font-size:clamp(24px,3vw,34px);font-weight:1000;letter-spacing:-.04em}.titlebar p{margin:6px 0 0;color:var(--muted);font-weight:750;max-width:850px}
+  .filters{display:grid;grid-template-columns:1.4fr 1fr 1fr .8fr auto;gap:10px;padding:16px 24px;border-bottom:1px solid var(--line);background:#f8fafc}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:12px;font-weight:950;color:#64748b;text-transform:uppercase;letter-spacing:.05em}input,select{width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 12px;color:#0f172a;outline:none;font-weight:800;min-height:43px}input:focus,select:focus{border-color:#60a5fa;box-shadow:0 0 0 4px rgba(96,165,250,.16)}
+  .content{padding:22px 24px 26px}.publicos-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}.bolao-card{border:1px solid var(--line);border-radius:22px;background:#fff;box-shadow:0 10px 26px rgba(15,23,42,.06);padding:17px;display:flex;flex-direction:column;min-height:292px;position:relative;overflow:hidden}.bolao-card:before{content:"";position:absolute;left:0;top:0;right:0;height:5px;background:linear-gradient(90deg,#10b981,#2563eb)}.bolao-card-top{display:grid;grid-template-columns:68px 1fr;gap:13px;align-items:start;margin-top:3px}.bolao-logo{width:68px;height:68px;border-radius:18px;border:1px solid #e2e8f0;background:linear-gradient(135deg,#ecfdf5,#eff6ff);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:30px;flex:0 0 auto}.bolao-logo img{width:100%;height:100%;object-fit:contain;display:block;padding:8px;background:#fff}.bolao-card h3{margin:2px 0 8px;font-size:20px;font-weight:1000;letter-spacing:-.025em;color:#0f172a;line-height:1.14}.bolao-desc{margin:8px 0 13px;color:#64748b;font-size:13px;font-weight:800;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:1000;border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8;text-transform:uppercase;letter-spacing:.03em}.badge.green{background:#ecfdf5;border-color:#bbf7d0;color:#047857}.badge.yellow{background:#fffbeb;border-color:#fde68a;color:#a16207}.badge.gray{background:#f1f5f9;border-color:#e2e8f0;color:#334155}.badge.purple{background:#f3e8ff;border-color:#ddd6fe;color:#6d28d9}.badge.status-andamento{background:#dcfce7;border-color:#86efac;color:#166534}.badge.status-iniciar{background:#fff7ed;border-color:#fed7aa;color:#9a3412}.badge.status-finalizado{background:#e2e8f0;border-color:#cbd5e1;color:#334155}
+  .logo-fallback{width:100%;height:100%;display:grid;place-items:center;border-radius:inherit;font-size:15px;font-weight:1000;letter-spacing:-.03em;color:#fff;text-align:center;padding:4px;background:linear-gradient(135deg,#0f172a,#2563eb)}.logo-fallback.camp-CUP{background:linear-gradient(135deg,#0f766e,#22c55e)}.logo-fallback.camp-BRA{background:linear-gradient(135deg,#15803d,#fde047);color:#052e16}.logo-fallback.camp-ENG{background:linear-gradient(135deg,#7f1d1d,#ef4444)}.logo-fallback.camp-ESP{background:linear-gradient(135deg,#b91c1c,#facc15);color:#111827}.logo-fallback.camp-ITA{background:linear-gradient(135deg,#166534,#ffffff,#dc2626);color:#111827;border:1px solid #dbe3ef}.logo-fallback.camp-FRA{background:linear-gradient(135deg,#1d4ed8,#ffffff,#dc2626);color:#111827;border:1px solid #dbe3ef}.logo-fallback.camp-SUP{background:linear-gradient(135deg,#4c1d95,#f59e0b)}
+  .date-line{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:10px 0 12px;padding:9px 10px;border:1px solid #e2e8f0;border-radius:14px;background:#fbfdff;color:#334155;font-size:12px;font-weight:900}.date-line span{color:#64748b;text-transform:uppercase;letter-spacing:.04em;font-size:10px;font-weight:1000}.progress-box{margin:10px 0 12px}.progress-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px;color:#475569;font-size:12px;font-weight:950}.progress-top strong{text-align:right;line-height:1.25}.progress-track{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden}.progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#10b981,#2563eb);width:0%}.progress-note{margin-top:6px;color:#64748b;font-size:11px;font-weight:850}.meta-list{display:grid;gap:9px;margin-top:2px;color:#334155;font-weight:800;font-size:14px}.meta-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px dashed #e2e8f0;padding-bottom:7px}.meta-row span:first-child{color:#64748b;font-weight:800}.meta-row strong{text-align:right}.card-actions{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:9px;padding-top:15px}.card-actions .btn{width:100%}.empty{border:1px dashed #cbd5e1;border-radius:22px;padding:28px;text-align:center;color:#64748b;background:#f8fafc;font-weight:800;grid-column:1/-1}.empty strong{display:block;color:#0f172a;font-size:18px;margin-bottom:5px}.loading{grid-column:1/-1;text-align:center;padding:30px;color:#64748b;font-weight:900}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0f172a;color:#fff;border-radius:16px;padding:12px 16px;box-shadow:var(--shadow);z-index:999;display:none;font-weight:850;max-width:min(92vw,680px);text-align:center}.toast.show{display:block}
+  .modal{position:fixed;inset:0;background:rgba(15,23,42,.58);display:none;place-items:center;z-index:80;padding:18px}.modal.open{display:grid}.modal-card{background:#fff;border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.32);width:min(760px,94vw);overflow:hidden;max-height:92vh;display:flex;flex-direction:column}.modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.modal-head h3{margin:0;font-size:22px;font-weight:1000}.modal-body{padding:18px 20px;overflow:auto}.modal-actions{display:flex;gap:10px;justify-content:flex-end;padding:16px 20px;border-top:1px solid var(--line);flex-wrap:wrap}.x{background:#f1f5f9;color:#0f172a;border:0;border-radius:12px;padding:8px 11px;font-weight:1000;cursor:pointer}.det-hero{display:grid;grid-template-columns:92px 1fr;gap:16px;align-items:center;margin-bottom:16px}.det-logo{width:92px;height:92px;border-radius:24px;border:1px solid #e2e8f0;background:linear-gradient(135deg,#ecfdf5,#eff6ff);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:40px}.det-logo img{width:100%;height:100%;object-fit:contain;display:block;padding:10px;background:#fff}.det-desc{margin:8px 0 0;color:#475569;font-weight:750;line-height:1.45}.det-box{margin-top:14px;border:1px solid #e2e8f0;border-radius:18px;background:#f8fafc;padding:14px}.det-box h4{margin:0 0 8px;font-size:15px;font-weight:1000;color:#0f172a}.det-box ul{margin:0;padding-left:18px;color:#475569;font-weight:750}.det-box li{margin:4px 0}.det-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.det-metric{background:#fff;border:1px solid #e2e8f0;border-radius:16px;text-align:center;padding:12px}.det-metric strong{display:block;font-size:20px;font-weight:1000}.det-metric span{display:block;margin-top:4px;color:#64748b;font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.04em}
+  @media(max-width:1120px){.publicos-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.filters{grid-template-columns:1fr 1fr}.filters .field:first-child{grid-column:1/-1}.filters .btn{grid-column:1/-1}.hero-grid{grid-template-columns:1fr}.login-card{max-width:560px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:700px){.container{width:min(92vw,1240px)}.topbar-row{min-height:auto;padding:10px 0;align-items:flex-start;flex-direction:column}.top-actions{width:100%;justify-content:space-between;flex-wrap:wrap}.user-pill{width:100%;max-width:100%;order:3}.hero-grid{padding:34px 0 46px}.hero h1{font-size:38px}.hero-actions .btn{width:100%}.stats{margin-top:-24px}.shell{border-radius:0;margin-left:calc((100vw - 100%) / -2);margin-right:calc((100vw - 100%) / -2)}.filters{grid-template-columns:1fr;padding:14px}.content{padding:14px}.publicos-grid{grid-template-columns:1fr}.titlebar{padding:18px 14px}.card-actions{grid-template-columns:1fr}.date-line,.meta-row{align-items:flex-start;flex-direction:column;gap:4px}.date-line strong,.meta-row strong{text-align:left}.det-hero,.det-summary-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="page">
+  <header class="topbar">
+    <div class="container topbar-row">
+      <a class="brand" href="index.html" aria-label="Portal SimonSports">
+        <span class="brand-mark">🏆</span>
+        <span class="brand-text"><strong>Portal SimonSports</strong><span>Bolões esportivos</span></span>
+      </a>
+      <div class="top-actions">
+        <span id="roleBox" class="role-pill">USUÁRIO</span>
+        <span id="userBox" class="user-pill">Você não está logado</span>
+        <button id="btnLoginTop" class="btn light mini" type="button">Entrar com Google</button>
+        <button id="btnLogoutTop" class="btn outline mini" type="button" style="display:none">Sair</button>
+      </div>
+    </div>
+  </header>
   <section class="hero">
-    <div class="hero-grid">
+    <div class="container hero-grid">
       <div>
-        <span class="kicker">🏆 Portal SimonSports • Bolões públicos</span>
-        <h1>Bolões públicos disponíveis</h1>
-        <p>Entre nos bolões oficiais públicos do Portal SimonSports. Escolha o campeonato, veja o andamento real por jogos finalizados e participe automaticamente com login Google.</p>
+        <span class="tag">🏆 Bolões públicos oficiais</span>
+        <h1>Bolões disponíveis para participação</h1>
+        <p>Explore os bolões públicos oficiais do Portal SimonSports. Veja status, período, progresso real por jogos finalizados e entre automaticamente com login Google.</p>
         <div class="hero-actions">
-          <a class="btn primary" href="bolao.html">Meu painel</a>
-          <a class="btn ghost" href="index.html">Página inicial</a>
+          <button class="btn primary" id="btnLoginHero" type="button">Entrar com Google</button>
+          <a class="btn outline" href="bolao.html">Meu painel</a>
+          <a class="btn outline" href="index.html">Página inicial</a>
         </div>
       </div>
-      <div class="auth-card">
-        <div class="who"><strong id="nick">Visitante</strong><span id="authSub">Entre com Google para participar automaticamente</span></div>
-        <button class="btn blue block" id="btnLogin">Entrar com Google</button>
+      <aside class="login-card">
+        <h3 id="loginCardTitle">Visitante</h3>
+        <p id="loginCardText">Entre com Google para participar automaticamente.</p>
+        <div class="clock" id="clock">--/--/---- --:--</div>
+        <button class="btn blue block" id="btnLoginCard" type="button">Entrar com Google</button>
+      </aside>
+    </div>
+  </section>
+  <div class="container">
+    <section class="stats" aria-label="Estatísticas dos bolões públicos">
+      <article class="stat"><strong class="n" id="stTotal">0</strong><span class="t">Públicos ativos</span></article>
+      <article class="stat"><strong class="n" id="stComPeso">0</strong><span class="t">Com peso</span></article>
+      <article class="stat"><strong class="n" id="stSemPeso">0</strong><span class="t">Sem peso</span></article>
+      <article class="stat"><strong class="n" id="stMeus">0</strong><span class="t">Você participa</span></article>
+    </section>
+    <section class="shell">
+      <div class="titlebar">
+        <div>
+          <h2>Explorar bolões públicos</h2>
+          <p>Entrada automática, logos dos campeonatos, datas e barra de evolução por jogos finalizados.</p>
+        </div>
+        <button class="btn dark" id="btnAtualizar" type="button">Atualizar</button>
       </div>
-    </div>
-  </section>
-
-  <section class="stats">
-    <div class="stat"><div class="n" id="stTotal">0</div><div class="t">Públicos ativos</div></div>
-    <div class="stat"><div class="n" id="stComPeso">0</div><div class="t">Com peso</div></div>
-    <div class="stat"><div class="n" id="stSemPeso">0</div><div class="t">Sem peso</div></div>
-    <div class="stat"><div class="n" id="stMeus">0</div><div class="t">Você participa</div></div>
-  </section>
-
-  <section class="shell">
-    <div class="titlebar">
-      <div>
-        <h2>Explorar bolões públicos</h2>
-        <p>Entrada automática, logos dos campeonatos, datas, barra de evolução por jogos finalizados e ordem por status real.</p>
+      <div class="filters">
+        <div class="field"><label>Buscar bolão</label><input id="fBusca" type="search" placeholder="Nome, criador ou campeonato..."></div>
+        <div class="field"><label>Campeonato</label><select id="fCamp"><option value="">Todos</option></select></div>
+        <div class="field"><label>Pontuação</label><select id="fPeso"><option value="">Com peso/Sem peso</option><option value="COM_PESO">Com peso</option><option value="SEM_PESO">Sem peso</option></select></div>
+        <div class="field"><label>Status</label><select id="fStatus"><option value="">Todos</option><option value="EM_ANDAMENTO">Em andamento</option><option value="A_INICIAR">A iniciar</option><option value="FINALIZADO">Finalizado</option></select></div>
+        <button class="btn light" id="btnLimpar" type="button">Limpar</button>
       </div>
-      <button class="btn dark" id="btnAtualizar">Atualizar</button>
-    </div>
-
-    <div class="filters">
-      <div class="field"><label>Buscar bolão</label><input id="fBusca" type="search" placeholder="Nome, criador ou campeonato..."></div>
-      <div class="field"><label>Campeonato</label><select id="fCamp"><option value="">Todos</option></select></div>
-      <div class="field"><label>Pontuação</label><select id="fPeso"><option value="">Com peso/Sem peso</option><option value="COM_PESO">Com peso</option><option value="SEM_PESO">Sem peso</option></select></div>
-      <div class="field"><label>Status</label><select id="fStatus">
-        <option value="">Todos</option>
-        <option value="EM_ANDAMENTO">Em andamento</option>
-        <option value="A_INICIAR">A iniciar</option>
-        <option value="FINALIZADO">Finalizado</option>
-      </select></div>
-      <button class="btn light" id="btnLimpar">Limpar</button>
-    </div>
-
-    <div class="content">
-      <div class="publicos-grid" id="publicosGrid"><div class="loading">Carregando bolões públicos...</div></div>
-    </div>
-  </section>
-</div>
-
-<div class="modal" id="detalheModal" aria-hidden="true">
-  <div class="modal-card">
-    <div class="modal-head"><h3 id="detTitulo">Detalhes do bolão</h3><button class="x" id="detFechar">Fechar</button></div>
-    <div class="modal-body" id="detBody"></div>
-    <div class="modal-actions"><button class="btn light" id="detCompartilhar">Compartilhar</button><button class="btn light" id="detAbrir">Abrir painel</button><button class="btn primary" id="detEntrar">Participar deste bolão</button></div>
+      <div class="content"><div class="publicos-grid" id="publicosGrid"><div class="loading">Carregando bolões públicos...</div></div></div>
+    </section>
   </div>
 </div>
-
+<div class="modal" id="detalheModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="detTitulo">Detalhes do bolão</h3><button class="x" id="detFechar" type="button">Fechar</button></div>
+    <div class="modal-body" id="detBody"></div>
+    <div class="modal-actions"><button class="btn light" id="detCompartilhar" type="button">Compartilhar</button><button class="btn light" id="detAbrir" type="button">Abrir painel</button><button class="btn primary" id="detEntrar" type="button">Participar deste bolão</button></div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
-
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyA8tO_E2s6R9bYnEW6_5skqCUrBSVLLKkw",
-    authDomain: "pss-bolao-esportivo.firebaseapp.com",
-    projectId: "pss-bolao-esportivo",
-    storageBucket: "pss-bolao-esportivo.firebasestorage.app",
-    messagingSenderId: "575209475526",
-    appId: "1:575209475526:web:7d2d1efa2d9fd8b600f6c7"
-  };
+  const API_BASE='https://script.google.com/macros/s/AKfycbxbFTg0YODAo1oSX6OQe4HPbMnkrMsXQP93oJsTj4ilhA2fTiZgxk-4qKv1XPiNyyaC/exec';
+  const firebaseConfig={apiKey:'AIzaSyA8tO_E2s6R9bYnEW6_5skqCUrBSVLLKkw',authDomain:'pss-bolao-esportivo.firebaseapp.com',projectId:'pss-bolao-esportivo',storageBucket:'pss-bolao-esportivo.firebasestorage.app',messagingSenderId:'575209475526',appId:'1:575209475526:web:7d2d1efa2d9fd8b600f6c7'};
   firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: 'select_account' });
-  auth.useDeviceLanguage();
-  const AUTH_LOCAL_READY = auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e=>{
-    console.warn('Falha ao definir persistência local do login:', e);
-  });
-  const db = firebase.firestore();
-  const API_BASE = "https://script.google.com/macros/s/AKfycbxbFTg0YODAo1oSX6OQe4HPbMnkrMsXQP93oJsTj4ilhA2fTiZgxk-4qKv1XPiNyyaC/exec";
-
-  const $ = s => document.querySelector(s);
-  const URL_PARAMS = new URLSearchParams(location.search);
-  const state = {
-    uid:'GUEST', nome:'Visitante', email:'', foto:'',
-    publicos:[], filtrados:[], meusIds:new Set(), detalhe:null, pendingEnter:null,
-    urlFiltersApplied:false, catalogoCamp:{}
-  };
-  function normalizeCampParam(v){ const s=String(v||'').trim().toUpperCase(); if(s==='BR') return 'BRA'; return s; }
-
-  function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),3600); }
-  function esc(v){ return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
-  function norm(v){ return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
-  function safeId(v){ return String(v||'').trim().replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,80) || ('BOLAO_'+Date.now()); }
-  const CAMP_INFO = {
-    CUP:{label:'Copa do Mundo',short:'CUP',logo:'assets/logos/campeonatos/copa-do-mundo.png',ordem:10,inicio:'2026-06-11',fim:'2026-07-19',qtdJogos:104,status:'Em andamento'},
-    BRA:{label:'Brasileirão',short:'BRA',logo:'assets/logos/campeonatos/brasileirao.png',ordem:20,inicio:'2026-02-01',fim:'2026-12-01',qtdJogos:380,status:'Em andamento'},
-    ENG:{label:'Premier League',short:'ENG',logo:'assets/logos/campeonatos/premier-league.png',ordem:30,inicio:'2025-08-15',fim:'2026-05-24',qtdJogos:380,status:'Finalizado'},
-    ESP:{label:'Campeonato Espanhol',short:'ESP',logo:'assets/logos/campeonatos/campeonato-espanhol.png',ordem:40,inicio:'2025-08-15',fim:'2026-05-24',qtdJogos:380,status:'Finalizado'},
-    ITA:{label:'Campeonato Italiano',short:'ITA',logo:'assets/logos/campeonatos/campeonato-italiano.png',ordem:50,inicio:'2026-08-22',fim:'2027-05-29',qtdJogos:380,status:'A iniciar'},
-    FRA:{label:'Campeonato Francês',short:'FRA',logo:'assets/logos/campeonatos/campeonato-frances.png',ordem:60,inicio:'2025-08-15',fim:'2026-05-17',qtdJogos:306,status:'Finalizado'},
-    SUP:{label:'Super Bolão',short:'SUP',logo:'assets/logos/campeonatos/super-bolao.png',ordem:70,inicio:'2025-08-15',fim:'2027-05-29',qtdJogos:1930,status:'Em andamento'},
-    LIB:{label:'Libertadores',short:'LIB',logo:'assets/logos/campeonatos/libertadores.png',ordem:80,inicio:'',fim:'',qtdJogos:0,status:''},
-    UCL:{label:'Champions League',short:'UCL',logo:'assets/logos/campeonatos/champions-league.png',ordem:90,inicio:'',fim:'',qtdJogos:0,status:''}
-  };
-  function campCode(v){
-    const raw=String(v||'').trim();
-    const up=raw.toUpperCase();
-    if(CAMP_INFO[up]) return up;
-    const n=norm(raw);
-    if(n.includes('copa') || n.includes('mundo')) return 'CUP';
-    if(n.includes('brasile')) return 'BRA';
-    if(n.includes('premier') || n.includes('ingl')) return 'ENG';
-    if(n.includes('espan') || n.includes('liga')) return 'ESP';
-    if(n.includes('ital')) return 'ITA';
-    if(n.includes('franc') || n.includes('ligue')) return 'FRA';
-    if(n.includes('super')) return 'SUP';
-    if(n.includes('libert')) return 'LIB';
-    if(n.includes('champions') || n.includes('ucla')) return 'UCL';
-    if(up==='BR') return 'BRA';
-    return up || 'CUP';
-  }
-  function campRaw(b){ return campCode(b?.campeonatoSigla || b?.camp || b?.sigla || b?.campeonato || 'CUP'); }
-  function infoCamp(c){
-    const code=campCode(c);
-    return { ...(CAMP_INFO[code] || {label:code,short:code,ordem:999,qtdJogos:0}), ...(state.catalogoCamp[code] || {}) };
-  }
-  function campLabel(c){ const code=campCode(c); return infoCamp(code)?.label || code || 'Campeonato'; }
-  function pesoModo(b){ return (b?.usaPesoRodada===true || b?.pontuacaoModo==='COM_PESO') ? 'COM_PESO' : 'SEM_PESO'; }
-  function pesoLabel(b){ return pesoModo(b)==='COM_PESO' ? 'Com peso' : 'Sem peso'; }
-  function formatoLabel(b){
-    const f=String(b?.modoBolao || b?.formatoBolao || 'CAMPEONATO').toUpperCase();
-    if(f==='RODADA') return 'Bolão rápido / 1 rodada';
-    if(f==='SEMANA') return 'Bolão rápido / 1 semana';
-    if(f==='PERSONALIZADO') return 'Personalizado';
-    return 'Campeonato completo';
-  }
-  function participantesLabel(b){ return b?.qtdParticipantes || b?.participantes || b?.totalParticipantes || '—'; }
-  function proximaLabel(b){ return b?.proximaRodada ? `${b.proximaRodada}ª Rodada` : (b?.rodadaInicial ? `${b.rodadaInicial}ª Rodada` : formatoLabel(b)); }
-  function pickFirst(b, keys){
-    for(const k of keys){
-      if(b && b[k] !== undefined && b[k] !== null && b[k] !== '') return b[k];
-    }
-    return '';
-  }
-  function numValor(v){
-    if(v === '' || v === null || v === undefined) return null;
-    if(typeof v === 'string') v = v.replace(/[^0-9,.-]/g,'').replace(',','.');
-    const n=Number(v);
-    return Number.isFinite(n) ? n : null;
-  }
-  function numCampo(b, keys){ return numValor(pickFirst(b,keys)); }
-  function logoCampeonatoSrc(b){
-    const camp=campRaw(b);
-    const info=infoCamp(camp);
-    return String(
-      b?.logoCampeonato ||
-      b?.logoCampeonatoUrl ||
-      b?.logoUrl ||
-      b?.imagemUrl ||
-      b?.logo ||
-      b?.imagem ||
-      info?.logo ||
-      ''
-    ).trim();
-  }
-  function logoBolaoHtml(b, cls){
-    const camp=campRaw(b);
-    const info=infoCamp(camp) || {short:camp||'🏆'};
-    const src=logoCampeonatoSrc(b);
-    const fallback=`<span class="logo-fallback camp-${esc(camp)}">${esc(info.short || camp || '🏆')}</span>`;
-    if(src){
-      return `<div class="${cls}" title="${esc(campLabel(camp))}"><img src="${esc(src)}" alt="${esc(campLabel(camp))}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><span class="logo-fallback camp-${esc(camp)}" style="display:none">${esc(info.short || camp || '🏆')}</span></div>`;
-    }
-    return `<div class="${cls}" title="${esc(campLabel(camp))}">${fallback}</div>`;
-  }
-  function parseDateValue(v){
-    if(!v) return null;
-    if(v && typeof v.toDate==='function') return v.toDate();
-    if(v instanceof Date) return isNaN(v) ? null : v;
-    if(typeof v === 'number'){
-      if(v > 20000 && v < 80000) return new Date(Math.round((v - 25569) * 86400 * 1000));
-      const d=new Date(v);
-      return isNaN(d) ? null : d;
-    }
-    const s=String(v).trim();
-    let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
-    if(m){
-      let y=Number(m[3]);
-      if(y<100) y += 2000;
-      return new Date(y, Number(m[2])-1, Number(m[1]));
-    }
-    m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if(m) return new Date(Number(m[1]), Number(m[2])-1, Number(m[3]));
-    const d=new Date(s);
-    return isNaN(d) ? null : d;
-  }
-  function inicioBolao(b){
-    const direto=parseDateValue(pickFirst(b,['dataInicio','inicio','dtInicio','data_inicio','temporadaInicio','inicioCampeonato']));
-    if(direto) return direto;
-    return parseDateValue(infoCamp(campRaw(b)).inicio);
-  }
-  function fimBolao(b){
-    const direto=parseDateValue(pickFirst(b,['dataFim','fim','dtFim','data_fim','temporadaFim','fimCampeonato']));
-    if(direto) return direto;
-    return parseDateValue(infoCamp(campRaw(b)).fim);
-  }
-  function dataLabel(v){
-    const d=parseDateValue(v);
-    if(!d) return '—';
-    return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
-  }
-  function periodoLabel(b){
-    const ini=inicioBolao(b);
-    const fim=fimBolao(b);
-    if(!ini && !fim) return 'Datas não informadas';
-    return `${ini?dataLabel(ini):'—'} até ${fim?dataLabel(fim):'—'}`;
-  }
-  function totalJogosBolao(b){
-    const direto=numCampo(b,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos','totalPartidas','qtdPartidas']);
-    if(direto !== null) return Math.max(0, Math.round(direto));
-
-    const lista=jogosArrayBolao(b);
-    if(lista.length) return lista.length;
-
-    const info=infoCamp(campRaw(b));
-    const n=numValor(info.totalJogos ?? info.qtdJogos ?? info.jogosTotal ?? info.total_jogos);
-    return n !== null ? Math.max(0, Math.round(n)) : 0;
-  }
-  function normalizaPlacarTexto(v){
-    return String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();
-  }
-  function valorEhVS(v){
-    const s=normalizaPlacarTexto(v).replace(/\s+/g,'');
-    if(!s) return true;
-    return ['VS','V.S.','X','-','--','—','–','A-DEFINIR','ADEFINIR','NAOINICIADO','NAO-INICIADO','PENDENTE'].includes(s);
-  }
-  function placarNumeroValido(v){
-    if(v === '' || v === null || v === undefined) return null;
-    if(typeof v === 'string' && valorEhVS(v)) return null;
-    const n=Number(String(v).replace(/[^0-9,.-]/g,'').replace(',','.'));
-    return Number.isFinite(n) && n >= 0 ? n : null;
-  }
-  function placarPorTexto(v){
-    const s=String(v ?? '').trim();
-    if(!s || valorEhVS(s)) return null;
-    const m=s.match(/(\d+)\s*(?:x|X|×|-|–|—|:)\s*(\d+)/);
-    if(!m) return null;
-    const gm=Number(m[1]), gv=Number(m[2]);
-    return Number.isFinite(gm) && Number.isFinite(gv) ? {gm,gv} : null;
-  }
-  function placarDoJogo(j){
-    if(!j || typeof j !== 'object') return null;
-    const mand=pickFirst(j,[
-      'placarMandante','golsMandante','mandante_gols','homeScore','scoreHome','resultadoMandante',
-      'gols_mandante_oficial','gols_mandante','placar_mandante','gm','home_score','mandantePlacar'
-    ]);
-    const vis=pickFirst(j,[
-      'placarVisitante','golsVisitante','visitante_gols','awayScore','scoreAway','resultadoVisitante',
-      'gols_visitante_oficial','gols_visitante','placar_visitante','gv','away_score','visitantePlacar'
-    ]);
-    const gm=placarNumeroValido(mand), gv=placarNumeroValido(vis);
-    if(gm !== null && gv !== null) return {gm,gv};
-
-    const texto=pickFirst(j,['placar','resultado','score','resultadoFinal','placarFinal','fullTime','ft','res','placar_oficial']);
-    return placarPorTexto(texto);
-  }
-  function jogoTemResultadoValido(j){
-    if(!j || typeof j !== 'object') return false;
-    if(placarDoJogo(j)) return true;
-
-    const st=normalizaPlacarTexto(pickFirst(j,['status','situacao','estado','fase','statusJogo']));
-    if(['FINALIZADO','ENCERRADO','FECHADO','FIM','FT','FULLTIME','FULL TIME'].includes(st)) return true;
-    if(st.includes('FINAL') || st.includes('ENCERR') || st === 'FECHADO') return true;
-    if(st.includes('CANCEL') || st.includes('ADIAD') || st.includes('SUSP')) return false;
-
-    const texto=pickFirst(j,['placar','resultado','score','resultadoFinal','placarFinal']);
-    return !!texto && !valorEhVS(texto) && !!String(texto).match(/\d/);
-  }
-  function jogosArrayBolao(b){
-    const possiveis=['jogos','partidas','matches','fixtures','calendario','listaJogos','jogosLista','partidasLista'];
-    for(const k of possiveis){
-      const v=b?.[k];
-      if(Array.isArray(v)) return v;
-      if(v && typeof v === 'object') return Object.values(v);
-    }
-    return [];
-  }
-  function jogosFinalizadosBolao(b){
-    const direto=numCampo(b,[
-      'jogosFinalizados','qtdFinalizados','qtd_jogos_finalizados','finalizados','jogosEncerrados','jogosRealizados',
-      'jogosAvaliados','qtdJogosAvaliados','totalJogosAvaliados','jogosComResultado','qtdComResultado','partidasFinalizadas'
-    ]);
-    if(direto !== null) return Math.max(0, Math.round(direto));
-
-    const lista=jogosArrayBolao(b);
-    if(lista.length) return lista.filter(jogoTemResultadoValido).length;
-
-    const info=infoCamp(campRaw(b));
-    const n=numValor(info.jogosFinalizados ?? info.qtdFinalizados ?? info.finalizados ?? info.jogosEncerrados ?? info.jogosAvaliados ?? info.jogosComResultado);
-    return n !== null ? Math.max(0, Math.round(n)) : null;
-  }
-  function statusPorLabelRaw(b){
-    const raw=norm(pickFirst(b,['statusCampeonato','statusCompeticao','statusCalendario','faseStatus','andamento']) || (infoCamp(campRaw(b))?.status || ''));
-    if(raw.includes('final')) return {key:'FINALIZADO',label:'Finalizado',classe:'status-finalizado',ordem:3};
-    if(raw.includes('iniciar') || raw.includes('a comecar') || raw.includes('a começar')) return {key:'A_INICIAR',label:'A iniciar',classe:'status-iniciar',ordem:2};
-    if(raw.includes('andamento') || raw.includes('ao vivo')) return {key:'EM_ANDAMENTO',label:'Em andamento',classe:'status-andamento',ordem:1};
-    return null;
-  }
-  function statusCompeticao(b){
-    const total=totalJogosBolao(b);
-    const feitos=jogosFinalizadosBolao(b);
-    if(total > 0 && feitos !== null){
-      if(feitos >= total) return {key:'FINALIZADO',label:'Finalizado',classe:'status-finalizado',ordem:3};
-      if(feitos > 0) return {key:'EM_ANDAMENTO',label:'Em andamento',classe:'status-andamento',ordem:1};
-    }
-
-    const ini=inicioBolao(b), fim=fimBolao(b);
-    const hoje=new Date();
-    const hojeDia=new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate());
-    if(ini){
-      const iniDia=new Date(ini.getFullYear(),ini.getMonth(),ini.getDate());
-      if(hojeDia < iniDia) return {key:'A_INICIAR',label:'A iniciar',classe:'status-iniciar',ordem:2};
-    }
-    if(fim){
-      const fimDia=new Date(fim.getFullYear(),fim.getMonth(),fim.getDate());
-      if(hojeDia > fimDia) return {key:'FINALIZADO',label:'Finalizado',classe:'status-finalizado',ordem:3};
-    }
-
-    const raw=statusPorLabelRaw(b);
-    if(raw) return raw;
-
-    return {key:'EM_ANDAMENTO',label:'Em andamento',classe:'status-andamento',ordem:1};
-  }
-  function calcularProgresso(b){
-    const total=totalJogosBolao(b);
-    const feitosRaw=jogosFinalizadosBolao(b);
-    const st=statusCompeticao(b);
-
-    if(total > 0){
-      let feitos = feitosRaw;
-      if(feitos === null){
-        if(st.key === 'FINALIZADO') feitos = total;
-        else feitos = 0;
-      }
-      feitos = Math.max(0, Math.min(total, Math.round(feitos)));
-      const pct=Math.max(0,Math.min(100,Math.round((feitos/total)*100)));
-      const nota = feitos > 0
-        ? 'Progresso calculado por jogos finalizados'
-        : (st.key === 'A_INICIAR' ? 'Campeonato ainda não iniciou' : 'Nenhum jogo finalizado registrado até o momento');
-      return {pct, feitos, total, texto:`${feitos}/${total} jogos finalizados • ${pct}%`, nota};
-    }
-
-    if(st.key==='FINALIZADO') return {pct:100,feitos:null,total:null,texto:'Finalizado',nota:'Campeonato finalizado'};
-    if(st.key==='A_INICIAR') return {pct:0,feitos:null,total:null,texto:'A iniciar',nota:'Aguardando cadastro dos jogos'};
-    return {pct:0,feitos:null,total:null,texto:'Sem total de jogos informado',nota:'Cadastre total de jogos para calcular o progresso'};
-  }
-  function progressoHtml(b){
-    const p=calcularProgresso(b);
-    return `<div class="progress-box"><div class="progress-top"><span>Progresso</span><strong>${esc(p.texto)}</strong></div><div class="progress-track"><div class="progress-fill" style="width:${p.pct}%"></div></div><div class="progress-note">${esc(p.nota)}</div></div>`;
-  }
-  function ordenaPeso(b){ return pesoModo(b)==='COM_PESO' ? 1 : 2; }
-  function ordenarPublicos(list){
-    return (list||[]).slice().sort((a,b)=>{
-      const sa=statusCompeticao(a), sb=statusCompeticao(b);
-      if(sa.ordem !== sb.ordem) return sa.ordem - sb.ordem;
-      const ca=campRaw(a), cb=campRaw(b);
-      const oa=infoCamp(ca)?.ordem || 999, ob=infoCamp(cb)?.ordem || 999;
-      if(oa !== ob) return oa - ob;
-      if(ordenaPeso(a) !== ordenaPeso(b)) return ordenaPeso(a) - ordenaPeso(b);
-      return String(a.nome||a.titulo||'').localeCompare(String(b.nome||b.titulo||''),'pt-BR');
-    });
-  }
-  function resumoParticipantes(b){ return Number(b?.qtdParticipantes || b?.participantes || b?.totalParticipantes || 0) || 0; }
-  function shareUrl(id){ return location.origin + location.pathname.replace(/publicos\.html$/,'') + 'publicos.html?bolao=' + encodeURIComponent(id); }
-  async function compartilharBolao(b){
-    if(!b) return;
-    const url=shareUrl(b.id);
-    const texto=`🏆 ${b.nome||b.titulo||'Bolão público'}\nPortal SimonSports\nEntre no bolão público:`;
-    try{
-      if(navigator.share){ await navigator.share({title:b.nome||'Bolão público',text:texto,url}); }
-      else{ await navigator.clipboard.writeText(texto+'\n'+url); toast('Link copiado para compartilhar.'); }
-    }catch(e){
-      try{ await navigator.clipboard.writeText(texto+'\n'+url); toast('Link copiado para compartilhar.'); }catch(_){ toast('Não foi possível compartilhar.'); }
-    }
-  }
-
-  function mensagemErroAuth(e){
-    const code = String((e && e.code) || '');
-    const msg = String((e && e.message) || '');
-    if(code.includes('unauthorized-domain')) return 'Domínio não autorizado no Firebase Auth. Inclua bolao.portalsimonsports.com em Authorized domains.';
-    if(code.includes('popup-blocked')) return 'O navegador bloqueou a janela do Google. Vou tentar por redirecionamento.';
-    if(code.includes('popup-closed')) return 'Login cancelado ou janela do Google fechada antes de concluir.';
-    if(code.includes('network-request-failed')) return 'Falha de rede ao autenticar com Google.';
-    return msg || code || 'Erro desconhecido no login.';
-  }
-
-  async function concluirLoginRedirectPendente(){
-    try{
-      await AUTH_LOCAL_READY;
-      const r = await auth.getRedirectResult();
-      if(r && r.user){ toast('Login realizado com sucesso.'); }
-    }catch(e){
-      console.warn('Falha ao concluir retorno do login Google:', e);
-      toast('Falha ao concluir login: '+mensagemErroAuth(e));
-    }
-  }
-
-  async function loginGoogleSeguro(){
-    await AUTH_LOCAL_READY;
-    const btn = $('#btnLogin');
-    const textoOriginal = btn ? btn.textContent : '';
-    if(btn){ btn.disabled = true; btn.textContent = 'Abrindo Google...'; }
-    try{
-      try{
-        await auth.signInWithPopup(provider);
-      }catch(ePopup){
-        const code = String((ePopup && ePopup.code) || '');
-        console.warn('Login por popup falhou, tentando redirect:', ePopup);
-        if(code.includes('popup-closed')) throw ePopup;
-        await auth.signInWithRedirect(provider);
-      }
-    }catch(e){
-      console.warn('Falha no login Google:', e);
-      toast('Falha no login: '+mensagemErroAuth(e));
-      if(btn && state.uid === 'GUEST'){ btn.disabled = false; btn.textContent = textoOriginal || 'Entrar com Google'; }
-      return;
-    }
-    if(btn && state.uid === 'GUEST'){
-      btn.disabled = false;
-      btn.textContent = textoOriginal || 'Entrar com Google';
-    }
-  }
-
-  concluirLoginRedirectPendente();
-
-  async function ensureUser(user){
-    if(!user) return;
-    const ref=db.collection('usuarios').doc(user.uid);
-    const snap=await ref.get();
-    const atual=snap.exists ? (snap.data() || {}) : {};
-    const perfilGlobalAtual=atual.perfilGlobal || 'USUARIO';
-    const perfilAtual=atual.perfil || perfilGlobalAtual || 'USUARIO';
-    const payload={
-      uid:user.uid,
-      nome:user.displayName||user.email||atual.nome||'Usuário',
-      email:user.email||atual.email||'',
-      foto:user.photoURL||atual.foto||'',
-      ativo:atual.ativo === false ? false : true,
-      status:atual.status || 'ATIVO',
-      perfil:perfilAtual,
-      perfilGlobal:perfilGlobalAtual,
-      ultimoLoginEm:firebase.firestore.FieldValue.serverTimestamp()
-    };
-    if(!snap.exists) payload.criadoEm=firebase.firestore.FieldValue.serverTimestamp();
-    await ref.set(payload,{merge:true});
-  }
-
-  async function carregarMeusIds(){
-    state.meusIds = new Set();
-    if(state.uid==='GUEST') return;
-    try{
-      const qs=await db.collection('usuarios').doc(state.uid).collection('meusBoloes').get();
-      qs.docs.forEach(d=>state.meusIds.add(d.id));
-    }catch(e){ console.warn('meusBoloes indisponível:', e); }
-  }
-
-  async function carregarCatalogoCampeonatos(){
-    try{
-      const r = await fetch(`${API_BASE}?action=catalog&_=${Date.now()}`, {cache:'no-store'});
-      if(!r.ok) throw new Error(`HTTP ${r.status}`);
-      const j = await r.json().catch(()=>({}));
-      const arr = Array.isArray(j) ? j : (Array.isArray(j?.data) ? j.data : (Array.isArray(j?.dados) ? j.dados : []));
-      const mapa={};
-      arr.forEach(c=>{
-        const code=campCode(c.sigla || c.camp || c.campeonatoSigla || c.nome || c.campeonato);
-        mapa[code]={
-          label:String(c.nome || c.label || c.campeonato || CAMP_INFO[code]?.label || code).trim(),
-          short:String(c.sigla || c.short || code).trim().toUpperCase(),
-          logo:String(c.logoCampeonato || c.logoCampeonatoUrl || c.logoUrl || c.imagemUrl || c.logo || CAMP_INFO[code]?.logo || '').trim(),
-          ordem:numValor(c.ordem) ?? CAMP_INFO[code]?.ordem ?? 999,
-          inicio:c.inicio || c.dataInicio || c.temporadaInicio || c.inicioCampeonato || CAMP_INFO[code]?.inicio || '',
-          fim:c.fim || c.dataFim || c.temporadaFim || c.fimCampeonato || CAMP_INFO[code]?.fim || '',
-          qtdJogos:numValor(c.qtdJogos ?? c.totalJogos ?? c.jogosTotal ?? c.total_jogos) ?? CAMP_INFO[code]?.qtdJogos ?? 0,
-          jogosFinalizados:numValor(c.jogosFinalizados ?? c.qtdFinalizados ?? c.finalizados ?? c.jogosEncerrados ?? c.jogosAvaliados ?? c.jogosComResultado),
-          status:c.status || c.statusCampeonato || c.statusCompeticao || CAMP_INFO[code]?.status || ''
-        };
-      });
-      state.catalogoCamp = mapa;
-    }catch(e){
-      console.warn('Catálogo de campeonatos indisponível; usando fallback local:', e);
-      state.catalogoCamp = {};
-    }
-  }
-
-  function enriquecerBolaoComCatalogo(b){
-    const camp=campRaw(b);
-    const info=infoCamp(camp);
-    const out={...b};
-    if(!out.logoCampeonato && info.logo) out.logoCampeonato = info.logo;
-    if(!out.dataInicio && !out.inicio && info.inicio) out.inicioCampeonato = info.inicio;
-    if(!out.dataFim && !out.fim && info.fim) out.fimCampeonato = info.fim;
-    if(numCampo(out,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos']) === null && info.qtdJogos) out.totalJogos = info.qtdJogos;
-    if(numCampo(out,['jogosFinalizados','qtdFinalizados','qtd_jogos_finalizados','finalizados','jogosEncerrados','jogosRealizados','jogosAvaliados']) === null && info.jogosFinalizados !== null && info.jogosFinalizados !== undefined) out.jogosFinalizados = info.jogosFinalizados;
-    if(!out.statusCampeonato && info.status) out.statusCampeonato = info.status;
-    return out;
-  }
-
-  async function carregarPublicos(){
-    $('#publicosGrid').innerHTML='<div class="loading">Carregando bolões públicos...</div>';
-    try{
-      await carregarCatalogoCampeonatos();
-      const mapa = new Map();
-
-      async function incluirConsulta(q){
-        const qs = await q.limit(120).get();
-        qs.docs.forEach(d => {
-          const b = enriquecerBolaoComCatalogo({ id:d.id, ...d.data() });
-          if(b.excluido !== true && b.ativo !== false && (b.publico === true || b.tipo === 'PUBLICO')){
-            mapa.set(d.id, b);
-          }
-        });
-      }
-
-      await incluirConsulta(
-        db.collection('boloes')
-          .where('ativo','==',true)
-          .where('publico','==',true)
-          .where('excluido','==',false)
-      );
-
-      await incluirConsulta(
-        db.collection('boloes')
-          .where('ativo','==',true)
-          .where('tipo','==','PUBLICO')
-          .where('excluido','==',false)
-      );
-
-      state.publicos = ordenarPublicos(Array.from(mapa.values()));
-    }catch(e){
-      console.warn(e);
-      $('#publicosGrid').innerHTML=`<div class="empty"><strong>Não foi possível carregar os bolões públicos.</strong>Verifique as regras públicas, o campo excluido:false e se o índice solicitado pelo Firestore foi criado quando aparecer link de índice.<br><br>${esc(e.message)}</div>`;
-      return;
-    }
-    montarFiltroCampeonatos();
-    aplicarFiltros();
-    const alvo=new URLSearchParams(location.search).get('bolao');
-    if(alvo && state.publicos.some(b=>b.id===alvo)) abrirDetalhes(alvo);
-  }
-
-  function montarFiltroCampeonatos(){
-    const sel=$('#fCamp');
-    const atual=sel.value;
-    const camps=[...new Set(state.publicos.map(b=>campRaw(b) || 'CUP').filter(Boolean))].sort((a,b)=>campLabel(a).localeCompare(campLabel(b),'pt-BR'));
-    sel.innerHTML='<option value="">Todos</option>'+camps.map(c=>`<option value="${esc(c)}">${esc(campLabel(c))}</option>`).join('');
-    sel.value=atual;
-    if(!state.urlFiltersApplied){
-      const campUrl = normalizeCampParam(URL_PARAMS.get('campeonato') || URL_PARAMS.get('camp'));
-      const pesoUrl = String(URL_PARAMS.get('peso') || '').trim().toUpperCase();
-      const statusUrl = String(URL_PARAMS.get('status') || '').trim().toUpperCase();
-      const buscaUrl = String(URL_PARAMS.get('busca') || '').trim();
-      if(campUrl && [...sel.options].some(o=>o.value===campUrl)) sel.value = campUrl;
-      if(pesoUrl && ['COM_PESO','SEM_PESO'].includes(pesoUrl)) $('#fPeso').value = pesoUrl;
-      if(statusUrl && ['EM_ANDAMENTO','A_INICIAR','FINALIZADO'].includes(statusUrl)) $('#fStatus').value = statusUrl;
-      if(buscaUrl) $('#fBusca').value = buscaUrl;
-      state.urlFiltersApplied = true;
-    }
-  }
-
-  function atualizarStats(list){
-    $('#stTotal').textContent=list.length;
-    $('#stComPeso').textContent=list.filter(b=>pesoModo(b)==='COM_PESO').length;
-    $('#stSemPeso').textContent=list.filter(b=>pesoModo(b)==='SEM_PESO').length;
-    $('#stMeus').textContent=list.filter(b=>state.meusIds.has(b.id)).length;
-  }
-
-  function aplicarFiltros(){
-    const q=norm($('#fBusca').value);
-    const camp=$('#fCamp').value;
-    const peso=$('#fPeso').value;
-    const statusFiltro=$('#fStatus').value;
-    let list=state.publicos.slice();
-    if(q){
-      list=list.filter(b=>norm(`${b.nome||b.titulo||''} ${b.criadorNome||''} ${campLabel(campRaw(b))} ${b.descricao||''} ${statusCompeticao(b).label}`).includes(q));
-    }
-    if(camp) list=list.filter(b=>String(campRaw(b))===camp);
-    if(peso) list=list.filter(b=>pesoModo(b)===peso);
-    if(statusFiltro) list=list.filter(b=>statusCompeticao(b).key===statusFiltro);
-    state.filtrados=ordenarPublicos(list);
-    renderPublicos(state.filtrados);
-    atualizarStats(state.filtrados);
-  }
-
-  function renderPublicos(list){
-    const grid=$('#publicosGrid');
-    if(!list.length){
-      grid.innerHTML='<div class="empty"><strong>Nenhum bolão público encontrado.</strong>Altere os filtros ou volte mais tarde.</div>';
-      return;
-    }
-    grid.innerHTML=list.map(b=>{
-      const ja=state.meusIds.has(b.id);
-      const nome=b.nome||b.titulo||'Bolão sem nome';
-      const camp=campRaw(b) || 'CUP';
-      const desc=String(b.descricao||'Bolão público oficial do Portal SimonSports com entrada automática, ranking e palpites.').trim();
-      const st=statusCompeticao(b);
-      return `<article class="bolao-card">
-        <div class="bolao-card-top">
-          ${logoBolaoHtml(b,'bolao-logo')}
-          <div>
-            <div class="badges">
-              <span class="badge ${st.classe}">${esc(st.label)}</span>
-              <span class="badge purple">Público</span>
-              <span class="badge ${pesoModo(b)==='COM_PESO'?'yellow':'gray'}">${esc(pesoLabel(b))}</span>
-              ${ja?'<span class="badge green">Você participa</span>':''}
-            </div>
-            <h3>${esc(nome)}</h3>
-          </div>
-        </div>
-        <div class="bolao-desc">${esc(desc)}</div>
-        <div class="date-line"><span>Período</span><strong>${esc(periodoLabel(b))}</strong></div>
-        ${progressoHtml(b)}
-        <div class="meta-list">
-          <div class="meta-row"><span>Campeonato</span><strong>${esc(campLabel(camp))}</strong></div>
-          <div class="meta-row"><span>Criador</span><strong>${esc(b.criadorNome||'Portal SimonSports')}</strong></div>
-          <div class="meta-row"><span>Participantes</span><strong>${esc(participantesLabel(b))}</strong></div>
-          <div class="meta-row"><span>${String(b.modoBolao||b.formatoBolao||'CAMPEONATO').toUpperCase()==='CAMPEONATO'?'Próxima':'Tipo'}</span><strong>${esc(proximaLabel(b))}</strong></div>
-        </div>
-        <div class="card-actions">
-          <button class="btn light mini" data-detail="${esc(b.id)}">Ver detalhes</button>
-          <button class="btn primary mini" data-enter="${esc(b.id)}">${ja?'Abrir':'Entrar'}</button>
-        </div>
-      </article>`;
-    }).join('');
-    grid.querySelectorAll('[data-detail]').forEach(btn=>btn.onclick=()=>abrirDetalhes(btn.dataset.detail));
-    grid.querySelectorAll('[data-enter]').forEach(btn=>btn.onclick=()=>entrarOuAbrir(btn.dataset.enter));
-  }
-
-  function abrirDetalhes(id){
-    const b=state.publicos.find(x=>x.id===id); if(!b) return;
-    state.detalhe=b;
-    const nome=b.nome||b.titulo||'Detalhes do bolão';
-    const ja=state.meusIds.has(b.id);
-    const st=statusCompeticao(b);
-    const prog=calcularProgresso(b);
-    $('#detTitulo').textContent=nome;
-    $('#detEntrar').textContent=ja?'Abrir painel':'Participar deste bolão';
-    $('#detBody').innerHTML=`
-      <div class="det-hero">
-        ${logoBolaoHtml(b,'det-logo')}
-        <div>
-          <div class="badges">
-            <span class="badge ${st.classe}">${esc(st.label)}</span>
-            <span class="badge purple">Público</span>
-            <span class="badge ${pesoModo(b)==='COM_PESO'?'yellow':'gray'}">${esc(pesoLabel(b))}</span>
-            <span class="badge gray">Entrada automática</span>
-          </div>
-          <p class="det-desc">${esc(b.descricao || 'Bolão público oficial com entrada automática, ranking e palpites no Portal SimonSports.')}</p>
-        </div>
-      </div>
-      <div class="date-line"><span>Período</span><strong>${esc(periodoLabel(b))}</strong></div>
-      ${progressoHtml(b)}
-      <div class="meta-list">
-        <div class="meta-row"><span>Campeonato</span><strong>${esc(campLabel(campRaw(b) || 'CUP'))}</strong></div>
-        <div class="meta-row"><span>Status</span><strong>${esc(st.label)}</strong></div>
-        <div class="meta-row"><span>Formato</span><strong>${esc(formatoLabel(b))}</strong></div>
-        <div class="meta-row"><span>Próxima/Tipo</span><strong>${esc(proximaLabel(b))}</strong></div>
-        <div class="meta-row"><span>Criador</span><strong>${esc(b.criadorNome||'Portal SimonSports')}</strong></div>
-      </div>
-      <div class="det-summary-grid">
-        <div class="det-metric"><strong>${esc(participantesLabel(b))}</strong><span>Participantes</span></div>
-        <div class="det-metric"><strong>${esc(pesoLabel(b))}</strong><span>Pontuação</span></div>
-        <div class="det-metric"><strong>${esc(prog.texto)}</strong><span>Progresso</span></div>
-      </div>
-      <div class="det-box">
-        <h4>Regras do bolão</h4>
-        <ul>
-          <li>Entrada automática para usuário logado com Google.</li>
-          <li>Palpites permitidos até o horário de início de cada jogo.</li>
-          <li>Ranking atualizado conforme os resultados e o regulamento de pontuação.</li>
-        </ul>
-      </div>`;
-    $('#detalheModal').classList.add('open');
-  }
-  function fecharDetalhes(){ $('#detalheModal').classList.remove('open'); }
-
-  async function entrarOuAbrir(id){
-    if(state.meusIds.has(id)){ location.href=`bolao.html?bolao=${encodeURIComponent(id)}`; return; }
-    if(state.uid==='GUEST'){
-      state.pendingEnter=id;
-      sessionStorage.setItem('PSS_PUBLICO_PENDING_BOLAO', id);
-      toast('Entre com Google para participar automaticamente.');
-      await loginGoogleSeguro();
-      return;
-    }
-    await entrarBolaoPublico(id);
-  }
-
-  async function entrarBolaoPublico(id){
-    const ref=db.collection('boloes').doc(id);
-    const snap=await ref.get();
-    if(!snap.exists){ toast('Bolão não encontrado.'); return; }
-    const b={id:snap.id,...snap.data()};
-    if(!(b.ativo===true && b.excluido!==true && (b.publico===true || b.tipo==='PUBLICO'))){ toast('Este bolão não está disponível para entrada automática.'); return; }
-    const part={uid:state.uid,nome:state.nome,email:state.email,foto:state.foto,papel:'PARTICIPANTE',status:'APROVADO',ativo:true,criadoEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()};
-    await ref.collection('participantes').doc(state.uid).set(part,{merge:true});
-    await db.collection('usuarios').doc(state.uid).collection('meusBoloes').doc(id).set({...b,minhaParticipacao:part,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-    state.meusIds.add(id);
-    toast('Entrada aprovada automaticamente. Abrindo o bolão...');
-    setTimeout(()=>{ location.href=`bolao.html?bolao=${encodeURIComponent(id)}`; },700);
-  }
-
-  auth.onAuthStateChanged(async user=>{
-    if(user){
-      state.uid=user.uid; state.nome=user.displayName||user.email||'Usuário'; state.email=user.email||''; state.foto=user.photoURL||'';
-      $('#nick').textContent=state.nome; $('#authSub').textContent=state.email||'Logado'; $('#btnLogin').textContent='Sair';
-      try{ await ensureUser(user); }catch(e){ console.warn(e); toast('Login OK, mas falhou ao sincronizar cadastro: '+e.message); }
-      await carregarMeusIds();
-      await carregarPublicos();
-      const pending=state.pendingEnter || sessionStorage.getItem('PSS_PUBLICO_PENDING_BOLAO');
-      if(pending){ state.pendingEnter=null; sessionStorage.removeItem('PSS_PUBLICO_PENDING_BOLAO'); await entrarBolaoPublico(pending).catch(e=>toast('Erro ao entrar no bolão: '+e.message)); }
-    }else{
-      state.uid='GUEST'; state.nome='Visitante'; state.email=''; state.foto=''; state.meusIds=new Set();
-      $('#nick').textContent='Visitante'; $('#authSub').textContent='Entre com Google para participar automaticamente'; $('#btnLogin').textContent='Entrar com Google';
-      await carregarPublicos();
-    }
-  });
-
-  $('#btnLogin').onclick=async()=>{
-    if(state.uid==='GUEST'){
-      await loginGoogleSeguro();
-    }else{
-      await auth.signOut();
-      toast('Você saiu.');
-    }
-  };
-  $('#btnAtualizar').onclick=()=>carregarPublicos();
-  $('#btnLimpar').onclick=()=>{ $('#fBusca').value=''; $('#fCamp').value=''; $('#fPeso').value=''; $('#fStatus').value=''; aplicarFiltros(); };
-  ['#fBusca','#fCamp','#fPeso','#fStatus'].forEach(sel=>$(sel).addEventListener(sel==='#fBusca'?'input':'change', aplicarFiltros));
-  $('#detFechar').onclick=fecharDetalhes;
-  $('#detCompartilhar').onclick=()=>{ if(state.detalhe) compartilharBolao(state.detalhe); };
-  $('#detAbrir').onclick=()=>{ if(state.detalhe) location.href=`bolao.html?bolao=${encodeURIComponent(state.detalhe.id)}`; };
-  $('#detEntrar').onclick=()=>{ if(state.detalhe) entrarOuAbrir(state.detalhe.id); };
-  $('#detalheModal').addEventListener('click',e=>{ if(e.target.id==='detalheModal') fecharDetalhes(); });
+  const auth=firebase.auth(),db=firebase.firestore(),provider=new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({prompt:'select_account'});auth.useDeviceLanguage();
+  const AUTH_LOCAL_READY=auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.warn);
+  const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+  const URL_PARAMS=new URLSearchParams(location.search);
+  const state={uid:'GUEST',nome:'Visitante',email:'',foto:'',admin:false,publicos:[],filtrados:[],meusIds:new Set(),detalhe:null,catalogo:{},urlFiltersApplied:false,pendingEnter:null};
+  const CAMP_INFO={CUP:{label:'Copa do Mundo',short:'CUP',logo:'assets/logos/campeonatos/copa-do-mundo.png',ordem:10,inicio:'2026-06-11',fim:'2026-07-19',qtdJogos:104,status:'Em andamento'},BRA:{label:'Brasileirão',short:'BRA',logo:'assets/logos/campeonatos/brasileirao.png',ordem:20,inicio:'2026-02-01',fim:'2026-12-01',qtdJogos:380,status:'Em andamento'},ENG:{label:'Premier League',short:'ENG',logo:'assets/logos/campeonatos/premier-league.png',ordem:30,inicio:'2025-08-15',fim:'2026-05-24',qtdJogos:380,status:'Finalizado'},ESP:{label:'Campeonato Espanhol',short:'ESP',logo:'assets/logos/campeonatos/campeonato-espanhol.png',ordem:40,inicio:'2025-08-15',fim:'2026-05-24',qtdJogos:380,status:'Finalizado'},ITA:{label:'Campeonato Italiano',short:'ITA',logo:'assets/logos/campeonatos/campeonato-italiano.png',ordem:50,inicio:'2026-08-22',fim:'2027-05-29',qtdJogos:380,status:'A iniciar'},FRA:{label:'Campeonato Francês',short:'FRA',logo:'assets/logos/campeonatos/campeonato-frances.png',ordem:60,inicio:'2025-08-15',fim:'2026-05-17',qtdJogos:306,status:'Finalizado'},SUP:{label:'Super Bolão',short:'SUP',logo:'assets/logos/campeonatos/super-bolao.png',ordem:70,inicio:'2025-08-15',fim:'2027-05-29',qtdJogos:1826,status:'Em andamento'},LIB:{label:'Libertadores',short:'LIB',logo:'assets/logos/campeonatos/libertadores.png',ordem:80,inicio:'',fim:'',qtdJogos:0,status:''},UCL:{label:'Champions League',short:'UCL',logo:'assets/logos/campeonatos/champions-league.png',ordem:90,inicio:'',fim:'',qtdJogos:0,status:''}};
+  function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}function norm(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()}function ctrl(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase()}function fmt(n){const x=Number(n||0);return Number.isFinite(x)?Math.max(0,Math.round(x)).toLocaleString('pt-BR'):'0'}function p2(n){return String(n).padStart(2,'0')}function tick(){const d=new Date();$('#clock').textContent=`${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}`;}setInterval(tick,1000);tick();
+  function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),3600)}
+  function campCode(v){const raw=String(v||'').trim(),up=raw.toUpperCase();if(CAMP_INFO[up])return up;const n=norm(raw);if(n.includes('copa')||n.includes('mundo'))return 'CUP';if(n.includes('brasile'))return 'BRA';if(n.includes('premier')||n.includes('ingl'))return 'ENG';if(n.includes('espan')||n.includes('liga'))return 'ESP';if(n.includes('ital'))return 'ITA';if(n.includes('franc')||n.includes('ligue'))return 'FRA';if(n.includes('super'))return 'SUP';if(n.includes('libert'))return 'LIB';if(n.includes('champions'))return 'UCL';if(up==='BR')return 'BRA';return up||'CUP'}
+  function campRaw(b){return campCode(b?.campeonatoSigla||b?.camp||b?.sigla||b?.campeonato||'CUP')}function infoCamp(c){const code=campCode(c);return {...(CAMP_INFO[code]||{label:code,short:code,ordem:999,qtdJogos:0}),...(state.catalogo[code]||{})}}function campLabel(c){return infoCamp(c)?.label||campCode(c)||'Campeonato'}function pick(b,keys){for(const k of keys){if(b&&b[k]!==undefined&&b[k]!==null&&b[k]!=='')return b[k]}return ''}function numValor(v){if(v===''||v===null||v===undefined)return null;if(typeof v==='string')v=v.replace(/[^0-9,.-]/g,'').replace(',','.');const n=Number(v);return Number.isFinite(n)?n:null}function numCampo(b,keys){return numValor(pick(b,keys))}
+  function parseDateValue(v){if(!v)return null;if(v&&typeof v.toDate==='function')return v.toDate();if(v instanceof Date)return isNaN(v)?null:v;if(typeof v==='number'){if(v>20000&&v<80000)return new Date(Math.round((v-25569)*86400*1000));const d=new Date(v);return isNaN(d)?null:d}const s=String(v).trim();let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);if(m){let y=Number(m[3]);if(y<100)y+=2000;return new Date(y,Number(m[2])-1,Number(m[1]))}m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return new Date(Number(m[1]),Number(m[2])-1,Number(m[3]));const d=new Date(s);return isNaN(d)?null:d}function dataLabel(v){const d=parseDateValue(v);return d?`${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()}`:'—'}function inicioBolao(b){return parseDateValue(pick(b,['dataInicio','inicio','dtInicio','data_inicio','temporadaInicio','inicioCampeonato']))||parseDateValue(infoCamp(campRaw(b)).inicio)}function fimBolao(b){return parseDateValue(pick(b,['dataFim','fim','dtFim','data_fim','temporadaFim','fimCampeonato']))||parseDateValue(infoCamp(campRaw(b)).fim)}function periodoLabel(b){const i=inicioBolao(b),f=fimBolao(b);return(!i&&!f)?'Datas não informadas':`${i?dataLabel(i):'—'} até ${f?dataLabel(f):'—'}`}
+  function jogosArray(b){for(const k of ['jogos','partidas','matches','fixtures','calendario','listaJogos','jogosLista','partidasLista']){const v=b?.[k];if(Array.isArray(v))return v;if(v&&typeof v==='object')return Object.values(v)}return[]}function valorEhVS(v){const s=ctrl(v).replace(/\s+/g,'');return !s||['VS','V.S.','X','-','--','—','–','A-DEFINIR','ADEFINIR','PENDENTE'].includes(s)}function placarNumero(v){if(v===0||v==='0')return 0;if(v===undefined||v===null||String(v).trim()==='')return null;if(typeof v==='string'&&valorEhVS(v))return null;const n=Number(String(v).replace(/[^0-9,.-]/g,'').replace(',','.'));return Number.isFinite(n)&&n>=0?n:null}function placarTexto(v){const s=String(v??'').trim();if(!s||valorEhVS(s))return null;const m=s.match(/(\d+)\s*(?:x|X|×|-|–|—|:)\s*(\d+)/);return m?{gm:Number(m[1]),gv:Number(m[2])}:null}function placarDoJogo(j){if(!j||typeof j!=='object')return null;const gm=placarNumero(pick(j,['placarMandante','golsMandante','mandante_gols','homeScore','scoreHome','resultadoMandante','gols_mandante_oficial','gols_mandante','placar_mandante','gm','home_score','mandantePlacar']));const gv=placarNumero(pick(j,['placarVisitante','golsVisitante','visitante_gols','awayScore','scoreAway','resultadoVisitante','gols_visitante_oficial','gols_visitante','placar_visitante','gv','away_score','visitantePlacar']));if(gm!==null&&gv!==null)return{gm,gv};return placarTexto(pick(j,['placar','resultado','score','resultadoFinal','placarFinal','fullTime','ft','res','placar_oficial']))}function jogoFinalizado(j){if(placarDoJogo(j))return true;const st=ctrl(pick(j,['status','situacao','estado','fase','statusJogo']));if(st.includes('FINAL')||st.includes('ENCERR')||st==='FECHADO'||st==='FT'||st==='FIM')return true;if(st.includes('CANCEL')||st.includes('ADIAD')||st.includes('SUSP'))return false;const texto=pick(j,['placar','resultado','score','resultadoFinal','placarFinal']);return !!texto&&!valorEhVS(texto)&&/\d/.test(String(texto))}
+  function totalJogosBolao(b){const n=numCampo(b,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos','totalPartidas','qtdPartidas']);if(n!==null)return Math.max(0,Math.round(n));const arr=jogosArray(b);if(arr.length)return arr.length;const info=infoCamp(campRaw(b));return Math.max(0,Math.round(numValor(info.totalJogos??info.qtdJogos??info.jogosTotal??info.total_jogos)||0))}function finalizadosBolao(b){const n=numCampo(b,['jogosFinalizados','qtdFinalizados','qtd_jogos_finalizados','finalizados','jogosEncerrados','jogosRealizados','jogosAvaliados','qtdJogosAvaliados','totalJogosAvaliados','jogosComResultado','qtdComResultado','partidasFinalizadas']);if(n!==null)return Math.max(0,Math.round(n));const arr=jogosArray(b);if(arr.length)return arr.filter(jogoFinalizado).length;const info=infoCamp(campRaw(b));const x=numValor(info.jogosFinalizados??info.qtdFinalizados??info.finalizados??info.jogosEncerrados??info.jogosAvaliados??info.jogosComResultado);return x!==null?Math.max(0,Math.round(x)):null}
+  function statusCompeticao(b){const total=totalJogosBolao(b),feitos=finalizadosBolao(b);if(total>0&&feitos!==null){if(feitos>=total)return{key:'FINALIZADO',label:'Finalizado',classe:'status-finalizado',ordem:3};if(feitos>0)return{key:'EM_ANDAMENTO',label:'Em andamento',classe:'status-andamento',ordem:1}}const i=inicioBolao(b),f=fimBolao(b),h=new Date(),hd=new Date(h.getFullYear(),h.getMonth(),h.getDate());if(i&&hd<new Date(i.getFullYear(),i.getMonth(),i.getDate()))return{key:'A_INICIAR',label:'A iniciar',classe:'status-iniciar',ordem:2};if(f&&hd>new Date(f.getFullYear(),f.getMonth(),f.getDate()))return{key:'FINALIZADO',label:'Finalizado',classe:'status-finalizado',ordem:3};const raw=norm(pick(b,['statusCampeonato','statusCompeticao','statusCalendario','faseStatus','andamento'])||infoCamp(campRaw(b)).status||'');if(raw.includes('final'))return{key:'FINALIZADO',label:'Finalizado',classe:'status-finalizado',ordem:3};if(raw.includes('iniciar')||raw.includes('comecar')||raw.includes('começar'))return{key:'A_INICIAR',label:'A iniciar',classe:'status-iniciar',ordem:2};return{key:'EM_ANDAMENTO',label:'Em andamento',classe:'status-andamento',ordem:1}}
+  function progresso(b){const total=totalJogosBolao(b),raw=finalizadosBolao(b),st=statusCompeticao(b);if(total>0){let feitos=raw;if(feitos===null)feitos=st.key==='FINALIZADO'?total:0;feitos=Math.max(0,Math.min(total,Math.round(feitos)));const pct=Math.round((feitos/total)*100);return{pct,feitos,total,texto:`${fmt(feitos)}/${fmt(total)} jogos finalizados • ${pct}%`,nota:feitos>0?'Progresso calculado por jogos finalizados':(st.key==='A_INICIAR'?'Campeonato ainda não iniciou':'Nenhum jogo finalizado registrado até o momento')}}return{pct:0,feitos:0,total:0,texto:'Sem total de jogos informado',nota:'Cadastre total de jogos para calcular o progresso'}}
+  function logoHtml(b,cls){const camp=campRaw(b),info=infoCamp(camp),src=String(b.logoCampeonato||b.logoCampeonatoUrl||b.logoUrl||b.imagemUrl||b.logo||b.imagem||info.logo||'').trim(),fallback=`<span class="logo-fallback camp-${esc(camp)}">${esc(info.short||camp||'🏆')}</span>`;if(src)return`<div class="${cls}" title="${esc(campLabel(camp))}"><img src="${esc(src)}" alt="${esc(campLabel(camp))}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><span class="logo-fallback camp-${esc(camp)}" style="display:none">${esc(info.short||camp||'🏆')}</span></div>`;return`<div class="${cls}" title="${esc(campLabel(camp))}">${fallback}</div>`}function pesoModo(b){return(b.usaPesoRodada===true||b.pontuacaoModo==='COM_PESO')?'COM_PESO':'SEM_PESO'}function pesoLabel(b){return pesoModo(b)==='COM_PESO'?'Com peso':'Sem peso'}function formatoLabel(b){const f=String(b.modoBolao||b.formatoBolao||'CAMPEONATO').toUpperCase();return f==='RODADA'?'Bolão rápido / 1 rodada':f==='SEMANA'?'Bolão rápido / 1 semana':f==='PERSONALIZADO'?'Personalizado':'Campeonato completo'}function participantesLabel(b){return b.qtdParticipantes||b.participantes||b.totalParticipantes||'—'}function proximaLabel(b){return b.proximaRodada?`${b.proximaRodada}ª Rodada`:(b.rodadaInicial?`${b.rodadaInicial}ª Rodada`:formatoLabel(b))}
+  function isPublicoAtivo(b){const tipo=ctrl(b.tipo||b.tipoBolao||b.visibilidade||b.acesso||b.categoria||'');const st=ctrl(b.status||b.statusBolao||b.situacao||'ATIVO');const oculto=b.excluido===true||b.deletado===true||b.arquivado===true||b.ativo===false||['INATIVO','CANCELADO','EXCLUIDO','ARQUIVADO'].includes(st);return !oculto&&(b.publico===true||b.publicado===true||b.publicoOficial===true||tipo==='PUBLICO'||tipo==='PÚBLICO'||tipo==='OFICIAL')}
+  function enriquecer(b){const camp=campRaw(b),info=infoCamp(camp),out={...b};if(!out.logoCampeonato&&info.logo)out.logoCampeonato=info.logo;if(!out.dataInicio&&!out.inicio&&info.inicio)out.inicioCampeonato=info.inicio;if(!out.dataFim&&!out.fim&&info.fim)out.fimCampeonato=info.fim;if(numCampo(out,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos'])===null&&info.qtdJogos)out.totalJogos=info.qtdJogos;if(numCampo(out,['jogosFinalizados','qtdFinalizados','finalizados','jogosEncerrados','jogosRealizados','jogosAvaliados'])===null&&info.jogosFinalizados!==null&&info.jogosFinalizados!==undefined)out.jogosFinalizados=info.jogosFinalizados;if(!out.statusCampeonato&&info.status)out.statusCampeonato=info.status;return out}
+  function ordenar(list){return list.slice().sort((a,b)=>{const sa=statusCompeticao(a),sb=statusCompeticao(b);if(sa.ordem!==sb.ordem)return sa.ordem-sb.ordem;const oa=infoCamp(campRaw(a)).ordem||999,ob=infoCamp(campRaw(b)).ordem||999;if(oa!==ob)return oa-ob;return String(a.nome||a.titulo||'').localeCompare(String(b.nome||b.titulo||''),'pt-BR')})}
+  function unwrap(j){if(Array.isArray(j))return j;for(const k of ['data','dados','result','items','rows','catalogo','campeonatos','boloes','publicos'])if(Array.isArray(j?.[k]))return j[k];return[]}async function api(action,params=''){const qs=params?`&${params}`:'';const r=await fetch(`${API_BASE}?a=${encodeURIComponent(action)}&action=${encodeURIComponent(action)}${qs}&_=${Date.now()}`,{cache:'no-store'});if(!r.ok)throw new Error(`HTTP ${r.status}`);return await r.json().catch(()=>({}))}
+  async function carregarCatalogo(){try{let best=[];for(const a of ['catalog','catalogo','campeonatos']){try{const arr=unwrap(await api(a));if(arr.length>best.length)best=arr}catch(e){}}const mapa={};best.forEach(c=>{const code=campCode(c.sigla||c.camp||c.campeonatoSigla||c.nome||c.campeonato);mapa[code]={label:String(c.nome||c.label||c.campeonato||CAMP_INFO[code]?.label||code).trim(),short:String(c.sigla||c.short||code).trim().toUpperCase(),logo:String(c.logoCampeonato||c.logoCampeonatoUrl||c.logoUrl||c.imagemUrl||c.logo||CAMP_INFO[code]?.logo||'').trim(),ordem:numValor(c.ordem)??CAMP_INFO[code]?.ordem??999,inicio:c.inicio||c.dataInicio||c.temporadaInicio||c.inicioCampeonato||CAMP_INFO[code]?.inicio||'',fim:c.fim||c.dataFim||c.temporadaFim||c.fimCampeonato||CAMP_INFO[code]?.fim||'',qtdJogos:numValor(c.qtdJogos??c.totalJogos??c.jogosTotal??c.total_jogos)??CAMP_INFO[code]?.qtdJogos??0,jogosFinalizados:numValor(c.jogosFinalizados??c.qtdFinalizados??c.finalizados??c.jogosEncerrados??c.jogosAvaliados??c.jogosComResultado),status:c.status||c.statusCampeonato||c.statusCompeticao||CAMP_INFO[code]?.status||''}});state.catalogo=mapa}catch(e){console.warn('Catálogo indisponível:',e);state.catalogo={}}}
+  async function carregarMeusIds(){state.meusIds=new Set();if(state.uid==='GUEST')return;try{const q=await db.collection('usuarios').doc(state.uid).collection('meusBoloes').get();q.docs.forEach(d=>state.meusIds.add(d.id))}catch(e){console.warn('meusBoloes:',e)}}
+  async function carregarPublicos(){const grid=$('#publicosGrid');grid.innerHTML='<div class="loading">Carregando bolões públicos...</div>';await carregarCatalogo();const map=new Map();function add(id,data){const b=enriquecer({id,...data});if(isPublicoAtivo(b))map.set(id,b)}for(const action of ['publicos','boloesPublicos','boloes_publicos','listar_publicos','vitrine_publica']){try{unwrap(await api(action)).forEach((b,i)=>add(b.id||b.codigo||b.codigoConvite||`API_${action}_${i}`,b))}catch(e){console.warn(action,e)}}async function query(q){try{const r=await q.limit(300).get();r.docs.forEach(d=>add(d.id,d.data()))}catch(e){console.warn('Firestore query:',e.message)}}await query(db.collection('boloes').where('publico','==',true));await query(db.collection('boloes').where('tipo','==','PUBLICO'));await query(db.collection('boloes'));
+    state.publicos=ordenar(Array.from(map.values()));montarFiltroCampeonatos();aplicarFiltros();const alvo=URL_PARAMS.get('bolao');if(alvo&&state.publicos.some(b=>b.id===alvo))abrirDetalhes(alvo)}
+  function montarFiltroCampeonatos(){const sel=$('#fCamp'),atual=sel.value,camps=[...new Set(state.publicos.map(b=>campRaw(b)).filter(Boolean))].sort((a,b)=>campLabel(a).localeCompare(campLabel(b),'pt-BR'));sel.innerHTML='<option value="">Todos</option>'+camps.map(c=>`<option value="${esc(c)}">${esc(campLabel(c))}</option>`).join('');sel.value=atual;if(!state.urlFiltersApplied){const cu=campCode(URL_PARAMS.get('campeonato')||URL_PARAMS.get('camp')||'');if(cu&&[...sel.options].some(o=>o.value===cu))sel.value=cu;const peso=String(URL_PARAMS.get('peso')||'').toUpperCase();if(['COM_PESO','SEM_PESO'].includes(peso))$('#fPeso').value=peso;const st=String(URL_PARAMS.get('status')||'').toUpperCase();if(['EM_ANDAMENTO','A_INICIAR','FINALIZADO'].includes(st))$('#fStatus').value=st;const busca=String(URL_PARAMS.get('busca')||'').trim();if(busca)$('#fBusca').value=busca;state.urlFiltersApplied=true}}
+  function atualizarStats(list){$('#stTotal').textContent=fmt(list.length);$('#stComPeso').textContent=fmt(list.filter(b=>pesoModo(b)==='COM_PESO').length);$('#stSemPeso').textContent=fmt(list.filter(b=>pesoModo(b)==='SEM_PESO').length);$('#stMeus').textContent=fmt(list.filter(b=>state.meusIds.has(b.id)).length)}function aplicarFiltros(){const q=norm($('#fBusca').value),camp=$('#fCamp').value,peso=$('#fPeso').value,st=$('#fStatus').value;let list=state.publicos.slice();if(q)list=list.filter(b=>norm(`${b.nome||b.titulo||''} ${b.criadorNome||''} ${campLabel(campRaw(b))} ${b.descricao||''} ${statusCompeticao(b).label}`).includes(q));if(camp)list=list.filter(b=>campRaw(b)===camp);if(peso)list=list.filter(b=>pesoModo(b)===peso);if(st)list=list.filter(b=>statusCompeticao(b).key===st);state.filtrados=ordenar(list);renderPublicos(state.filtrados);atualizarStats(state.filtrados)}
+  function progressoHtml(b){const p=progresso(b);return`<div class="progress-box"><div class="progress-top"><span>Progresso</span><strong>${esc(p.texto)}</strong></div><div class="progress-track"><div class="progress-fill" style="width:${p.pct}%"></div></div><div class="progress-note">${esc(p.nota)}</div></div>`}function renderPublicos(list){const grid=$('#publicosGrid');if(!list.length){grid.innerHTML='<div class="empty"><strong>Nenhum bolão público encontrado.</strong>Altere os filtros ou volte mais tarde.</div>';return}grid.innerHTML=list.map(b=>{const ja=state.meusIds.has(b.id),nome=b.nome||b.titulo||'Bolão sem nome',camp=campRaw(b),desc=String(b.descricao||'Bolão público oficial do Portal SimonSports com entrada automática, ranking e palpites.').trim(),st=statusCompeticao(b);return`<article class="bolao-card"><div class="bolao-card-top">${logoHtml(b,'bolao-logo')}<div><div class="badges"><span class="badge ${st.classe}">${esc(st.label)}</span><span class="badge purple">Público</span><span class="badge ${pesoModo(b)==='COM_PESO'?'yellow':'gray'}">${esc(pesoLabel(b))}</span>${ja?'<span class="badge green">Você participa</span>':''}</div><h3>${esc(nome)}</h3></div></div><div class="bolao-desc">${esc(desc)}</div><div class="date-line"><span>Período</span><strong>${esc(periodoLabel(b))}</strong></div>${progressoHtml(b)}<div class="meta-list"><div class="meta-row"><span>Campeonato</span><strong>${esc(campLabel(camp))}</strong></div><div class="meta-row"><span>Criador</span><strong>${esc(b.criadorNome||'Portal SimonSports')}</strong></div><div class="meta-row"><span>Participantes</span><strong>${esc(participantesLabel(b))}</strong></div><div class="meta-row"><span>Tipo</span><strong>${esc(proximaLabel(b))}</strong></div></div><div class="card-actions"><button class="btn light mini" data-detail="${esc(b.id)}">Ver detalhes</button><button class="btn primary mini" data-enter="${esc(b.id)}">${ja?'Abrir':'Entrar'}</button></div></article>`}).join('');grid.querySelectorAll('[data-detail]').forEach(btn=>btn.onclick=()=>abrirDetalhes(btn.dataset.detail));grid.querySelectorAll('[data-enter]').forEach(btn=>btn.onclick=()=>entrarOuAbrir(btn.dataset.enter))}
+  function abrirDetalhes(id){const b=state.publicos.find(x=>x.id===id);if(!b)return;state.detalhe=b;const st=statusCompeticao(b),prog=progresso(b);$('#detTitulo').textContent=b.nome||b.titulo||'Detalhes do bolão';$('#detEntrar').textContent=state.meusIds.has(b.id)?'Abrir painel':'Participar deste bolão';$('#detBody').innerHTML=`<div class="det-hero">${logoHtml(b,'det-logo')}<div><div class="badges"><span class="badge ${st.classe}">${esc(st.label)}</span><span class="badge purple">Público</span><span class="badge ${pesoModo(b)==='COM_PESO'?'yellow':'gray'}">${esc(pesoLabel(b))}</span><span class="badge gray">Entrada automática</span></div><p class="det-desc">${esc(b.descricao||'Bolão público oficial com entrada automática, ranking e palpites no Portal SimonSports.')}</p></div></div><div class="date-line"><span>Período</span><strong>${esc(periodoLabel(b))}</strong></div>${progressoHtml(b)}<div class="meta-list"><div class="meta-row"><span>Campeonato</span><strong>${esc(campLabel(campRaw(b)))}</strong></div><div class="meta-row"><span>Status</span><strong>${esc(st.label)}</strong></div><div class="meta-row"><span>Formato</span><strong>${esc(formatoLabel(b))}</strong></div><div class="meta-row"><span>Criador</span><strong>${esc(b.criadorNome||'Portal SimonSports')}</strong></div></div><div class="det-summary-grid"><div class="det-metric"><strong>${esc(participantesLabel(b))}</strong><span>Participantes</span></div><div class="det-metric"><strong>${esc(pesoLabel(b))}</strong><span>Pontuação</span></div><div class="det-metric"><strong>${esc(prog.texto)}</strong><span>Progresso</span></div></div><div class="det-box"><h4>Regras do bolão</h4><ul><li>Entrada automática para usuário logado com Google.</li><li>Palpites permitidos até o horário de início de cada jogo.</li><li>Ranking atualizado conforme resultados e regulamento de pontuação.</li></ul></div>`;$('#detalheModal').classList.add('open')}
+  function fecharDetalhes(){$('#detalheModal').classList.remove('open')}function shareUrl(id){return `${location.origin}${location.pathname}?bolao=${encodeURIComponent(id)}`}async function compartilhar(b){const url=shareUrl(b.id),txt=`🏆 ${b.nome||b.titulo||'Bolão público'}\nPortal SimonSports\nEntre no bolão público:`;try{if(navigator.share)await navigator.share({title:b.nome||'Bolão público',text:txt,url});else{await navigator.clipboard.writeText(txt+'\n'+url);toast('Link copiado.')}}catch(e){try{await navigator.clipboard.writeText(txt+'\n'+url);toast('Link copiado.')}catch(_){toast('Não foi possível compartilhar.')}}}
+  async function entrarOuAbrir(id){if(state.meusIds.has(id)){location.href=`bolao.html?bolao=${encodeURIComponent(id)}`;return}if(state.uid==='GUEST'){state.pendingEnter=id;sessionStorage.setItem('PSS_PUBLICO_PENDING_BOLAO',id);toast('Entre com Google para participar automaticamente.');await loginGoogle();return}await entrarBolaoPublico(id)}async function entrarBolaoPublico(id){const ref=db.collection('boloes').doc(id),snap=await ref.get();if(!snap.exists){toast('Bolão não encontrado.');return}const b={id:snap.id,...snap.data()};if(!isPublicoAtivo(b)){toast('Este bolão não está disponível para entrada automática.');return}const part={uid:state.uid,nome:state.nome,email:state.email,foto:state.foto,papel:'PARTICIPANTE',status:'APROVADO',ativo:true,criadoEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()};await ref.collection('participantes').doc(state.uid).set(part,{merge:true});await db.collection('usuarios').doc(state.uid).collection('meusBoloes').doc(id).set({...b,minhaParticipacao:part,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});state.meusIds.add(id);toast('Entrada aprovada automaticamente. Abrindo o bolão...');setTimeout(()=>location.href=`bolao.html?bolao=${encodeURIComponent(id)}`,700)}
+  async function ensureUser(user){if(!user)return;const ref=db.collection('usuarios').doc(user.uid),snap=await ref.get(),old=snap.exists?(snap.data()||{}):{};const payload={uid:user.uid,nome:user.displayName||user.email||old.nome||'Usuário',email:user.email||old.email||'',foto:user.photoURL||old.foto||'',ativo:old.ativo===false?false:true,status:old.status||'ATIVO',perfil:old.perfil||old.perfilGlobal||'USUARIO',perfilGlobal:old.perfilGlobal||old.perfil||'USUARIO',ultimoLoginEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()};if(!snap.exists)payload.criadoEm=firebase.firestore.FieldValue.serverTimestamp();await ref.set(payload,{merge:true});state.admin=ctrl(payload.perfil)==='ADMIN'||ctrl(payload.perfilGlobal)==='ADMIN'}function erroAuth(e){const c=String(e?.code||''),m=String(e?.message||'');if(c.includes('unauthorized-domain'))return'Domínio não autorizado no Firebase Auth.';if(c.includes('popup-blocked'))return'O navegador bloqueou a janela do Google.';if(c.includes('popup-closed'))return'Login cancelado.';if(c.includes('network-request-failed'))return'Falha de rede no login.';return m||c||'Erro desconhecido no login.'}async function loginGoogle(){await AUTH_LOCAL_READY;try{try{await auth.signInWithPopup(provider)}catch(e){if(String(e?.code||'').includes('popup-closed'))throw e;await auth.signInWithRedirect(provider)}}catch(e){toast('Falha no login: '+erroAuth(e))}}
+  auth.getRedirectResult().catch(e=>toast('Falha ao concluir login: '+erroAuth(e)));auth.onAuthStateChanged(async user=>{if(user){state.uid=user.uid;state.nome=user.displayName||user.email||'Usuário';state.email=user.email||'';state.foto=user.photoURL||'';$('#userBox').textContent='Olá, '+state.nome;$('#loginCardTitle').textContent=state.nome;$('#loginCardText').textContent=state.email||'Logado';$('#btnLoginTop').style.display='none';$('#btnLogoutTop').style.display='inline-flex';$('#roleBox').style.display='inline-flex';$('#btnLoginHero').textContent='Abrir painel';$('#btnLoginCard').textContent='Abrir painel';try{await ensureUser(user)}catch(e){console.warn(e);toast('Login OK, mas falhou ao sincronizar cadastro.')}await carregarMeusIds();await carregarPublicos();const pending=state.pendingEnter||sessionStorage.getItem('PSS_PUBLICO_PENDING_BOLAO');if(pending){state.pendingEnter=null;sessionStorage.removeItem('PSS_PUBLICO_PENDING_BOLAO');await entrarBolaoPublico(pending).catch(e=>toast('Erro ao entrar: '+e.message))}}else{state.uid='GUEST';state.nome='Visitante';state.email='';state.foto='';state.admin=false;state.meusIds=new Set();$('#userBox').textContent='Você não está logado';$('#loginCardTitle').textContent='Visitante';$('#loginCardText').textContent='Entre com Google para participar automaticamente.';$('#btnLoginTop').style.display='inline-flex';$('#btnLogoutTop').style.display='none';$('#roleBox').style.display='none';$('#btnLoginHero').textContent='Entrar com Google';$('#btnLoginCard').textContent='Entrar com Google';await carregarPublicos()}});
+  $('#btnLoginTop').onclick=loginGoogle;$('#btnLoginHero').onclick=()=>state.uid==='GUEST'?loginGoogle():location.href='bolao.html';$('#btnLoginCard').onclick=()=>state.uid==='GUEST'?loginGoogle():location.href='bolao.html';$('#btnLogoutTop').onclick=()=>auth.signOut();$('#btnAtualizar').onclick=()=>carregarPublicos();$('#btnLimpar').onclick=()=>{$('#fBusca').value='';$('#fCamp').value='';$('#fPeso').value='';$('#fStatus').value='';aplicarFiltros()};['#fBusca','#fCamp','#fPeso','#fStatus'].forEach(sel=>$(sel).addEventListener(sel==='#fBusca'?'input':'change',aplicarFiltros));$('#detFechar').onclick=fecharDetalhes;$('#detCompartilhar').onclick=()=>state.detalhe&&compartilhar(state.detalhe);$('#detAbrir').onclick=()=>state.detalhe&&(location.href=`bolao.html?bolao=${encodeURIComponent(state.detalhe.id)}`);$('#detEntrar').onclick=()=>state.detalhe&&entrarOuAbrir(state.detalhe.id);$('#detalheModal').addEventListener('click',e=>{if(e.target.id==='detalheModal')fecharDetalhes()});
 </script>
 </body>
 </html>
