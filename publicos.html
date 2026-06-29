@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- V026_PUBLICOS_FIRESTORE_REGRAS_COMPATIVEIS_AUTO_REFRESH_2026-06-29 -->
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -193,16 +194,57 @@
     }catch(e){ console.warn('meusBoloes indisponível:', e); }
   }
 
-  async function carregarPublicos(){
-    $('#publicosGrid').innerHTML='<div class="loading">Carregando bolões públicos...</div>';
+  async function carregarPublicos(silencioso=false){
+    if(!silencioso){
+      $('#publicosGrid').innerHTML='<div class="loading">Carregando bolões públicos...</div>';
+    }
+
     try{
-      const qs=await db.collection('boloes').where('ativo','==',true).where('publico','==',true).limit(120).get();
-      state.publicos=qs.docs.map(d=>({id:d.id,...d.data()})).filter(b=>b.excluido!==true && b.ativo!==false && (b.publico===true || b.tipo==='PUBLICO'));
+      const mapa=new Map();
+      const consultas=[
+        db.collection('boloes')
+          .where('ativo','==',true)
+          .where('publico','==',true)
+          .where('excluido','==',false)
+          .limit(300)
+          .get(),
+        db.collection('boloes')
+          .where('ativo','==',true)
+          .where('tipo','==','PUBLICO')
+          .where('excluido','==',false)
+          .limit(300)
+          .get()
+      ];
+
+      const resultados=await Promise.allSettled(consultas);
+      let algumSucesso=false;
+      let primeiraFalha=null;
+
+      resultados.forEach(r=>{
+        if(r.status==='fulfilled'){
+          algumSucesso=true;
+          r.value.docs.forEach(d=>{
+            const item={id:d.id,...d.data()};
+            if(item.ativo===true && item.excluido!==true && (item.publico===true || item.tipo==='PUBLICO')){
+              mapa.set(item.id,item);
+            }
+          });
+        }else if(!primeiraFalha){
+          primeiraFalha=r.reason;
+        }
+      });
+
+      if(!algumSucesso && primeiraFalha){
+        throw primeiraFalha;
+      }
+
+      state.publicos=Array.from(mapa.values());
     }catch(e){
       console.warn(e);
-      $('#publicosGrid').innerHTML=`<div class="empty"><strong>Não foi possível carregar os bolões públicos.</strong>Verifique as regras do Firestore e tente novamente.<br><br>${esc(e.message)}</div>`;
+      $('#publicosGrid').innerHTML=`<div class="empty"><strong>Não foi possível carregar os bolões públicos.</strong>Verifique se os documentos em Firestore / boloes possuem ativo:true, publico:true ou tipo:"PUBLICO" e excluido:false.<br><br>${esc(e.message)}</div>`;
       return;
     }
+
     montarFiltroCampeonatos();
     aplicarFiltros();
   }
@@ -343,6 +385,9 @@
   $('#detAbrir').onclick=()=>{ if(state.detalhe) location.href=`bolao.html?bolao=${encodeURIComponent(state.detalhe.id)}`; };
   $('#detEntrar').onclick=()=>{ if(state.detalhe) entrarOuAbrir(state.detalhe.id); };
   $('#detalheModal').addEventListener('click',e=>{ if(e.target.id==='detalheModal') fecharDetalhes(); });
+
+  // Atualização automática da vitrine pública a cada 60 segundos.
+  setInterval(()=>carregarPublicos(true), 60000);
 </script>
 </body>
 </html>
