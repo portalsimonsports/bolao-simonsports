@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- V013_PUBLICOS_CORRIGIDO_FIRESTORE_FALLBACK_STATUS_PROGRESSO_LINKS_2026-06-28 -->
+<!-- V016_PUBLICOS_JSONP_API_PUBLICA_FIRESTORE_LOGIN_FIX_2026-06-29 -->
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -135,7 +135,52 @@
   function isPublicoAtivo(b){const tipo=ctrl(b.tipo||b.tipoBolao||b.visibilidade||b.acesso||b.categoria||'');const st=ctrl(b.status||b.statusBolao||b.situacao||'ATIVO');const oculto=b.excluido===true||b.deletado===true||b.arquivado===true||b.ativo===false||['INATIVO','CANCELADO','EXCLUIDO','ARQUIVADO'].includes(st);return !oculto&&(b.publico===true||b.publicado===true||b.publicoOficial===true||tipo==='PUBLICO'||tipo==='PÚBLICO'||tipo==='OFICIAL')}
   function enriquecer(b){const camp=campRaw(b),info=infoCamp(camp),out={...b};if(!out.logoCampeonato&&info.logo)out.logoCampeonato=info.logo;if(!out.dataInicio&&!out.inicio&&info.inicio)out.inicioCampeonato=info.inicio;if(!out.dataFim&&!out.fim&&info.fim)out.fimCampeonato=info.fim;if(numCampo(out,['totalJogos','qtdJogos','qtd_jogos','jogosTotal','total_jogos'])===null&&info.qtdJogos)out.totalJogos=info.qtdJogos;if(numCampo(out,['jogosFinalizados','qtdFinalizados','finalizados','jogosEncerrados','jogosRealizados','jogosAvaliados'])===null&&info.jogosFinalizados!==null&&info.jogosFinalizados!==undefined)out.jogosFinalizados=info.jogosFinalizados;if(!out.statusCampeonato&&info.status)out.statusCampeonato=info.status;return out}
   function ordenar(list){return list.slice().sort((a,b)=>{const sa=statusCompeticao(a),sb=statusCompeticao(b);if(sa.ordem!==sb.ordem)return sa.ordem-sb.ordem;const oa=infoCamp(campRaw(a)).ordem||999,ob=infoCamp(campRaw(b)).ordem||999;if(oa!==ob)return oa-ob;return String(a.nome||a.titulo||'').localeCompare(String(b.nome||b.titulo||''),'pt-BR')})}
-  function unwrap(j){if(Array.isArray(j))return j;for(const k of ['data','dados','result','items','rows','catalogo','campeonatos','boloes','publicos'])if(Array.isArray(j?.[k]))return j[k];return[]}async function api(action,params=''){const qs=params?`&${params}`:'';const r=await fetch(`${API_BASE}?a=${encodeURIComponent(action)}&action=${encodeURIComponent(action)}${qs}&_=${Date.now()}`,{cache:'no-store'});if(!r.ok)throw new Error(`HTTP ${r.status}`);return await r.json().catch(()=>({}))}
+  function unwrap(j){
+    if(Array.isArray(j))return j;
+    const prefer=['publicos','boloesPublicos','boloes_publicos','boloes','items','rows','dados','data','result','resultados','catalogo','campeonatos'];
+    for(const k of prefer){if(Array.isArray(j?.[k]))return j[k];}
+    for(const k of prefer){if(j?.[k]&&typeof j[k]==='object'){const arr=unwrap(j[k]);if(arr.length)return arr;}}
+    if(j&&typeof j==='object'){
+      for(const v of Object.values(j)){
+        if(Array.isArray(v)&&v.some(x=>x&&typeof x==='object'))return v;
+      }
+      for(const v of Object.values(j)){
+        if(v&&typeof v==='object'){
+          const arr=unwrap(v);
+          if(arr.length)return arr;
+        }
+      }
+    }
+    return [];
+  }
+  function apiJsonp(action,params=''){
+    return new Promise((resolve,reject)=>{
+      const cb='PSS_CB_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+      const qs=params?`&${params}`:'';
+      const s=document.createElement('script');
+      const done=(ok,val)=>{try{delete window[cb]}catch(_){window[cb]=undefined} if(s.parentNode)s.parentNode.removeChild(s); ok?resolve(val):reject(val)};
+      window[cb]=data=>done(true,data||{});
+      s.onerror=()=>done(false,new Error('Falha JSONP '+action));
+      s.src=`${API_BASE}?a=${encodeURIComponent(action)}&action=${encodeURIComponent(action)}${qs}&uid=${encodeURIComponent(state.uid||'GUEST')}&callback=${encodeURIComponent(cb)}&_=${Date.now()}`;
+      document.head.appendChild(s);
+      setTimeout(()=>done(false,new Error('Timeout JSONP '+action)),9000);
+    });
+  }
+  async function api(action,params=''){
+    try{return await apiJsonp(action,params)}catch(eJsonp){
+      const qs=params?`&${params}`:'';
+      try{
+        const r=await fetch(`${API_BASE}?a=${encodeURIComponent(action)}&action=${encodeURIComponent(action)}${qs}&uid=${encodeURIComponent(state.uid||'GUEST')}&_=${Date.now()}`,{cache:'no-store',credentials:'omit'});
+        if(!r.ok)throw new Error(`HTTP ${r.status}`);
+        const txt=await r.text();
+        try{return JSON.parse(txt)}catch(_){
+          const m=txt.match(/^[\s\w$.]+\((.*)\);?\s*$/s);
+          if(m)return JSON.parse(m[1]);
+          return {};
+        }
+      }catch(eFetch){throw eJsonp||eFetch}
+    }
+  }
   async function carregarCatalogo(){try{let best=[];for(const a of ['catalog','catalogo','campeonatos']){try{const arr=unwrap(await api(a));if(arr.length>best.length)best=arr}catch(e){}}const mapa={};best.forEach(c=>{const code=campCode(c.sigla||c.camp||c.campeonatoSigla||c.nome||c.campeonato);mapa[code]={label:String(c.nome||c.label||c.campeonato||CAMP_INFO[code]?.label||code).trim(),short:String(c.sigla||c.short||code).trim().toUpperCase(),logo:String(c.logoCampeonato||c.logoCampeonatoUrl||c.logoUrl||c.imagemUrl||c.logo||CAMP_INFO[code]?.logo||'').trim(),ordem:numValor(c.ordem)??CAMP_INFO[code]?.ordem??999,inicio:c.inicio||c.dataInicio||c.temporadaInicio||c.inicioCampeonato||CAMP_INFO[code]?.inicio||'',fim:c.fim||c.dataFim||c.temporadaFim||c.fimCampeonato||CAMP_INFO[code]?.fim||'',qtdJogos:numValor(c.qtdJogos??c.totalJogos??c.jogosTotal??c.total_jogos)??CAMP_INFO[code]?.qtdJogos??0,jogosFinalizados:numValor(c.jogosFinalizados??c.qtdFinalizados??c.finalizados??c.jogosEncerrados??c.jogosAvaliados??c.jogosComResultado),status:c.status||c.statusCampeonato||c.statusCompeticao||CAMP_INFO[code]?.status||''}});state.catalogo=mapa}catch(e){console.warn('Catálogo indisponível:',e);state.catalogo={}}}
   async function carregarMeusIds(){state.meusIds=new Set();if(state.uid==='GUEST')return;try{const q=await db.collection('usuarios').doc(state.uid).collection('meusBoloes').get();q.docs.forEach(d=>state.meusIds.add(d.id))}catch(e){console.warn('meusBoloes:',e)}}
   function timeoutPromise(ms,label){return new Promise((_,reject)=>setTimeout(()=>reject(new Error((label||'operação')+' demorou demais')),ms))}
@@ -158,7 +203,7 @@
         arr.forEach((b,i)=>add(b.id||b.codigo||b.codigoConvite||`API_${action}_${i}`,b));
       }catch(e){erros.push(action+': '+(e.message||e));console.warn(action,e)}
     }
-    for(const action of ['publicos','boloesPublicos','boloes_publicos','listar_publicos','vitrine_publica']) await tentarApi(action);
+    for(const action of ['publicos','boloesPublicos','boloes_publicos','listar_publicos','vitrine_publica','listarBoloesPublicos','getPublicBoloes','boloes','listarBoloes','home']) await tentarApi(action);
     async function tentarQuery(nome,q){
       try{
         const r=await limiteTempo(q.limit(400).get(),8000,nome);
@@ -175,7 +220,7 @@
     const alvo=URL_PARAMS.get('bolao');
     if(alvo&&state.publicos.some(b=>b.id===alvo))abrirDetalhes(alvo);
     if(!state.publicos.length && grid){
-      grid.innerHTML='<div class="empty"><strong>Nenhum bolão público foi carregado.</strong>Não deixei mais a tela presa em carregamento. Se existem bolões públicos no painel, o bloqueio está na leitura pública do Firestore/API ou nos campos usados para publicar o bolão. Verifique se o documento tem <b>ativo:true</b> e um destes campos: <b>publico:true</b>, <b>tipo:"PUBLICO"</b> ou <b>publicado:true</b>.</div>';
+      grid.innerHTML='<div class="empty"><strong>Nenhum bolão público foi carregado.</strong>A página tentou API pública por JSONP/fetch e Firestore. Se ainda aparecer vazio, o Apps Script precisa publicar a ação de bolões públicos ou as regras do Firestore precisam permitir leitura dos documentos públicos. Campos aceitos: <b>publico:true</b>, <b>tipo:"PUBLICO"</b>, <b>publicado:true</b>, com <b>ativo</b> diferente de false.</div>';
       atualizarStats([]);
     }
   }
