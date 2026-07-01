@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V052_RESTAURA_PLACARES_ANTERIORES_MANTEM_BANDEIRAS_2026-06-30 -->
+<!-- V053_ABERTURA_IMEDIATA_PRECARREGA_JOGOS_RANKING_PALPITES_PARTICIPANTES_2026-06-30 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -320,7 +320,7 @@
 
   const $ = s => document.querySelector(s);
   const $$ = s => Array.from(document.querySelectorAll(s));
-  const state = {uid:'GUEST',nome:'Visitante',email:'',foto:'',perfil:'USUARIO',perfilGlobal:'USUARIO',admin:false,bolao:null,meus:[],publicos:[],privados:[],catalogo:[],jogos:[],palpites:{},pa:null,progressoCache:{},currentCamp:'',currentRodada:'',proximosJogos:[]};
+  const state = {uid:'GUEST',nome:'Visitante',email:'',foto:'',perfil:'USUARIO',perfilGlobal:'USUARIO',admin:false,bolao:null,meus:[],publicos:[],privados:[],catalogo:[],jogos:[],palpites:{},pa:null,progressoCache:{},currentCamp:'',currentRodada:'',proximosJogos:[],loadToken:0};
   const autosaveTimers = {};
   const CATALOG_BASE_FALLBACK = [
     {sigla:'CUP',nome:'Copa do Mundo',ordem:10,ativo:true,publicado:true,inicio:'2026-06-11',fim:'2026-07-19',qtd_jogos:104,logo:''},
@@ -426,7 +426,25 @@
   $('#btnExplorarTopo').onclick=()=>setAppTab('publicos'); $('#btnCriarTopo').onclick=()=>{ if(state.admin) location.href='admin-oficiais.html'; else setAppTab('criar'); }; $('#btnAtualizar').onclick=()=>refreshAll();
 
   function renderSelected(){const d=$('#detailArea'); if(!state.bolao){$('#detailTitle').textContent='Detalhe do bolão'; $('#detailHint').textContent='Selecione um bolão para abrir o painel.'; $('#bolaoViews').style.display='none'; d.innerHTML='<div class="empty">Depois de selecionar um bolão, aparecem aqui jogos, progresso, ranking e palpites.</div>';return} const b=state.bolao,st=statusBolao(b),p=progressoBolao(b),camp=String(b.campeonato||b.camp||'CUP').toUpperCase(); $('#detailTitle').textContent=bolaoTitulo(b); $('#detailHint').textContent='Painel carregado'; $('#bolaoViews').style.display='block'; d.innerHTML=`<div class="selected-title"><h2>${esc(bolaoTitulo(b))}</h2><p>${esc(b.publico?'Bolão público':'Bolão privado')} • ${esc(campInfo(camp).nome||camp)} • ${esc(st.label)}</p><div class="badge-row"><span class="badge ${st.classe}">${st.label}</span><span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Entrada automática':'Aprovação do criador'}</span>${isAdminBolao(b)?'<span class="badge admin">Administrador</span>':''}</div></div><div class="metric-grid"><div class="metric"><strong>${esc(camp)}</strong><span>Campeonato</span></div><div class="metric"><strong>${esc(periodoCatalogo({...campInfo(camp),...b}))}</strong><span>Período</span></div><div class="metric"><strong>${esc(st.label)}</strong><span>Status</span></div><div class="metric"><strong>${p.pct}%</strong><span>Progresso</span></div><div class="metric"><strong>${formatNum(p.finalizados)}/${formatNum(p.total)}</strong><span>Jogos</span></div><div class="metric"><strong>${esc(modoBolaoLabel(b.modoBolao||b.formatoBolao))}</strong><span>Formato</span></div><div class="metric"><strong>${esc(recorteBolaoResumo(b))}</strong><span>Recorte</span></div></div><div class="progress"><div class="progress-top"><span>Progresso real do campeonato</span><span>${p.pct}%</span></div><div class="bar"><span style="width:${p.pct}%"></span></div><div class="progress-note">Calculado por jogos finalizados/realizados nos dados publicados.</div></div><div class="share-box">${esc(shareUrl(b.id))}</div><div class="card-actions"><button class="btn blue mini" id="btnCopyShare" type="button">Copiar convite</button><button class="btn dark mini" id="btnOpenGames" type="button">Carregar jogos</button><button class="btn ghost mini" id="btnOpenParticipants" type="button">Participantes</button></div>`; $('#btnCopyShare').onclick=()=>copiarConvite(b.id); $('#btnOpenGames').onclick=()=>{setView('jogos'); carregarJogos().catch(e=>toast('Erro ao carregar jogos: '+e.message));}; $('#btnOpenParticipants').onclick=()=>setView('participantes'); if($('#selCamp')){setSelectValue('#selCamp',camp,campInfo(camp).nome||camp); loadRodadas(camp).then(()=>setSelectValue('#selCamp',camp,campInfo(camp).nome||camp)).catch(()=>{})}}
-  function selectBolao(b){if(!b)return; state.bolao=b; state.jogos=[]; state.palpites={}; renderBoloes(); renderSelected(); setView('resumo'); toast('Bolão selecionado: '+bolaoTitulo(b)); const camp=String(b.campeonato||b.camp||'CUP').toUpperCase(); atualizarProgressoCampeonato(camp).catch(console.warn); carregarJogosAutomatico().catch(console.warn)}
+  function selectBolao(b){
+    if(!b)return;
+    state.loadToken=Date.now();
+    const token=state.loadToken;
+    state.bolao=b;
+    state.jogos=[];
+    state.palpites={};
+    state.proximosJogos=[];
+    renderBoloes();
+    renderSelected();
+    setView('resumo');
+    toast('Bolão selecionado: '+bolaoTitulo(b));
+    const camp=String(b.campeonato||b.camp||'CUP').toUpperCase();
+    atualizarProgressoCampeonato(camp).catch(console.warn);
+    carregarJogosAutomatico(token).catch(e=>{
+      console.warn(e);
+      if(token===state.loadToken)toast('Erro ao carregar painel: '+(e.message||e));
+    });
+  }
 
   function getNovoValorInformativo(){
     const ativo=$('#novoValorInformativoAtivo')?.value==='SIM';
@@ -707,12 +725,22 @@
     }
   }
 
-  async function carregarJogosAutomatico(){
+  async function carregarJogosAutomatico(token=state.loadToken){
     if(!state.bolao) return;
     const camp = String(state.bolao.campeonato || state.bolao.camp || 'CUP').toUpperCase();
+
+    if($('#detailHint')) $('#detailHint').textContent='Carregando painel...';
+    if($('#lista')) $('#lista').innerHTML='<div class="loading">Carregando jogos do bolão...</div>';
+    if($('#proxJogosResumo')) $('#proxJogosResumo').innerHTML='<div class="loading">Carregando próximos jogos do bolão...</div>';
+    if($('#rankingResumo')) $('#rankingResumo').innerHTML='<div class="loading">Carregando ranking...</div>';
+    if($('#rankingBody')) $('#rankingBody').innerHTML='<div class="loading">Carregando ranking...</div>';
+    if($('#palpitesBody')) $('#palpitesBody').innerHTML='<div class="loading">Carregando palpites liberados...</div>';
+    if($('#participantesBody')) $('#participantesBody').innerHTML='<div class="loading">Carregando participantes...</div>';
+
     setSelectValue('#selCamp', camp, campInfo(camp).nome || camp);
     try{
       await loadRodadas(camp);
+      if(token!==state.loadToken) return;
       setSelectValue('#selCamp', camp, campInfo(camp).nome || camp);
     }catch(e){
       console.warn('loadRodadas automático:', e.message || e);
@@ -725,11 +753,21 @@
       $('#selRod').value = existe ? alvo : ($('#selRod').options[0]?.value || alvo);
     }
 
-    await carregarProximosJogosBolao(camp);
-
+    // Primeiro carrega a rodada principal, para a tela não ficar parada no resumo.
     if($('#lista')){
       await carregarJogos();
+      if(token!==state.loadToken) return;
     }
+
+    // Depois completa o restante em segundo plano, sem travar a abertura do bolão.
+    await Promise.allSettled([
+      carregarProximosJogosBolao(camp),
+      carregarRanking(true),
+      carregarPalpitesTodos(),
+      carregarParticipantes()
+    ]);
+
+    if(token===state.loadToken && $('#detailHint')) $('#detailHint').textContent='Painel carregado';
   }
 
 
