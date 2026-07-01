@@ -1,13 +1,5 @@
 <!DOCTYPE html>
-<!-- V054_CORRECOES_PROGRESSO_CACHE_PA_TOKEN_2026-07-01
-     Mudanças desde V053:
-     1) TOTAL_RODADAS_CAMP: constante única (antes duplicada em loadRodadas / atualizarProgressoCampeonato / rodadasParaProximosJogos)
-     2) atualizarProgressoCampeonato: cache com TTL de 5min, evita loop de N chamadas ao Apps Script a cada abertura de bolão
-     3) gerarPalpite: corrigido ternário morto no perfil FAVORITOS (gv sempre virava 1)
-     4) carregarJogosAutomatico: removida chamada duplicada de carregarRanking(true)
-     5) carregarJogos: agora respeita loadToken após o await, evita race condition ao trocar de bolão rápido
-     6) salvarPalpite: comentário de alerta — trava de "jogo aberto" é só client-side, checar Firestore Rules
--->
+<!-- V054_API_BASE_CORRETA_PLACARES_COLUNAS_IJ_2026-07-01 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -102,23 +94,10 @@
   .tab{min-height:38px;padding:9px 12px;border-radius:12px}
   .detail{padding:16px}
 
-  @media(max-width:1040px){.hero-grid{grid-template-columns:1fr}.login-card{max-width:620px}.catalog-grid,.public-boloes-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.app-grid{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.tools{grid-template-columns:1fr 1fr}.tools .btn{width:100%}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}
-  /* V054-UX: no mobile, o painel "Detalhe do bolão" fica escondido até o usuário selecionar um bolão
-     (antes ficava sempre visível com placeholder vazio, espremendo a lista). Quando visível, aparece
-     ANTES da lista de bolões (order:-1), logo abaixo do card do usuário — não depois de rolar a lista toda. */
-  .main-panel{order:-1}.main-panel.empty-state{display:none}}
+  @media(max-width:1040px){.hero-grid{grid-template-columns:1fr}.login-card{max-width:620px}.catalog-grid,.public-boloes-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.app-grid{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.tools{grid-template-columns:1fr 1fr}.tools .btn{width:100%}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:660px){.container{width:min(92vw,1240px)}.topbar-row{min-height:auto;padding:10px 0;align-items:flex-start;flex-direction:column}.top-actions{width:100%;justify-content:space-between;flex-wrap:wrap}.user-pill{order:3;max-width:100%;width:100%}.hero-grid{padding:38px 0 50px}.hero h1{font-size:38px}.hero-actions .btn{width:100%}.login-card{display:none}.section{padding:38px 0}.section-head{display:block}.catalog-grid,.public-boloes-grid{grid-template-columns:1fr}.stats{margin-top:-22px;gap:10px}.stat{min-height:84px}.stat .n{font-size:27px}.app-card{border-radius:22px;padding:16px}.tabs{padding:10px}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.field-grid,.tools{grid-template-columns:1fr}.match-card{padding:13px;border-radius:18px}.match-table{grid-template-columns:minmax(0,1fr) 64px 76px;gap:7px;padding:10px}.team{font-size:14px}.match-foot{grid-template-columns:1fr auto}.autosave{grid-column:1/-1}.brand-text strong{max-width:210px}.modal-card{padding:16px}}
 
   @media(max-width:1040px){.app-grid.create-mode{grid-template-columns:1fr}.create-mode #sec-criar .field-grid.single{grid-template-columns:1fr 1fr}}
-  /* V054-UX: rodapé — antes ausente na bolao.html, presente nas demais páginas (index.html, publicos.html) */
-  .site-footer{background:var(--dark);color:#cbd5e1;padding:22px 0;margin-top:40px}
-  .site-footer .container{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
-  .site-footer strong{color:#fff;font-weight:1000}
-  .site-footer .footer-sub{font-size:12px;color:#94a3b8;font-weight:700;margin-top:2px}
-  .site-footer .footer-links{display:flex;gap:18px;flex-wrap:wrap}
-  .site-footer .footer-links a{color:#cbd5e1;font-weight:800;font-size:13px;text-decoration:none}
-  .site-footer .footer-links a:hover{color:#fff;text-decoration:underline}
-  @media(max-width:660px){.site-footer .container{flex-direction:column;align-items:flex-start;text-align:left}}
   @media(max-width:660px){.logged .hero{display:none}.app-grid.create-mode{grid-template-columns:1fr}.create-mode #sec-criar .field-grid.single,#sec-criar .create-subgrid{grid-template-columns:1fr}.app-card .hero-actions .btn{width:100%}}
 
 </style>
@@ -268,7 +247,7 @@
           </section>
         </aside>
 
-        <section class="main-panel empty-state" id="mainPanel">
+        <section class="main-panel">
           <div class="panel-head"><h2 id="detailTitle">Detalhe do bolão</h2><span id="detailHint">Selecione um bolão para abrir o painel.</span></div>
           <div class="detail" id="detailArea">
             <div class="empty">Depois de selecionar um bolão, aparecem aqui jogos, progresso, ranking e palpites.</div>
@@ -309,19 +288,6 @@
       </section>
     </div>
   </main>
-  <footer class="site-footer">
-    <div class="container">
-      <div>
-        <strong>© 2026 Portal SimonSports</strong>
-        <div class="footer-sub">Entretenimento esportivo</div>
-      </div>
-      <nav class="footer-links">
-        <a href="publicos.html">Bolões públicos</a>
-        <a href="index.html">Sistema</a>
-        <a href="regulamento.html">Regulamento</a>
-      </nav>
-    </div>
-  </footer>
 </div>
 
 <div class="modal" id="paModal" aria-hidden="true">
@@ -342,7 +308,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-  const API_BASE = 'https://script.google.com/macros/s/AKfycbxbFTg0YODAo1oSX6OQe4HPbMnkrMsXQP93oJsTj4ilhA2fTiZgxk-4qKv1XPiNyyaC/exec';
+  const API_BASE = 'https://script.google.com/macros/s/AKfycbxeMQZBffga-Oezl9AW1mfuFS-HlLNOoyG6YKdHCqMuiwFSUpbI8LwEVKQOerE2lOJ-/exec';
   const firebaseConfig = { apiKey:"AIzaSyA8tO_E2s6R9bYnEW6_5skqCUrBSVLLKkw", authDomain:"pss-bolao-esportivo.firebaseapp.com", projectId:"pss-bolao-esportivo", storageBucket:"pss-bolao-esportivo.firebasestorage.app", messagingSenderId:"575209475526", appId:"1:575209475526:web:7d2d1efa2d9fd8b600f6c7" };
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
@@ -372,10 +338,6 @@
     'brazil':'Brasil','germany':'Alemanha','france':'França','england':'Inglaterra','spain':'Espanha','italy':'Itália','japan':'Japão','south korea':'Coreia do Sul','korea republic':'Coreia do Sul','republic of korea':'Coreia do Sul','netherlands':'Países Baixos','morocco':'Marrocos','usa':'Estados Unidos','united states':'Estados Unidos','australia':'Austrália','cape verde':'Cabo Verde','switzerland':'Suíça','croatia':'Croácia','belgium':'Bélgica','mexico':'México','south africa':'África do Sul','czech republic':'República Tcheca','czechia':'República Tcheca','bosnia and herzegovina':'Bósnia e Herzegovina','saudi arabia':'Arábia Saudita','qatar':'Catar','iran':'Irã','sweden':'Suécia','poland':'Polônia','senegal':'Senegal','denmark':'Dinamarca','serbia':'Sérvia','tunisia':'Tunísia','ecuador':'Equador','ghana':'Gana','cameroon':'Camarões','wales':'País de Gales','scotland':'Escócia','paraguay':'Paraguai','austria':'Áustria','congo dr':'Congo DR','dr congo':'Congo DR','democratic republic of congo':'Congo DR','congo democratic republic':'Congo DR','bosnia herzegovina':'Bósnia e Herzegovina','bosnia-herzegovina':'Bósnia e Herzegovina','bosnia':'Bósnia e Herzegovina','algeria':'Argélia','egypt':'Egito','new zealand':'Nova Zelândia','norway':'Noruega','romania':'Romênia','slovakia':'Eslováquia','slovenia':'Eslovênia','turkey':'Turquia','ukraine':'Ucrânia','uzbekistan':'Uzbequistão','ivory coast':'Costa do Marfim','cote d ivoire':'Costa do Marfim','curacao':'Curaçao','jordan':'Jordânia','panama':'Panamá','nigeria':'Nigéria'
   };
   const TEAM_STRENGTH = {'brasil':96,'brazil':96,'franca':95,'france':95,'argentina':94,'inglaterra':92,'england':92,'espanha':92,'spain':92,'portugal':90,'alemanha':89,'germany':89,'paises baixos':88,'netherlands':88,'italia':87,'belgica':86,'uruguai':85,'croacia':84,'colombia':83,'mexico':81,'marrocos':80,'usa':80,'estados unidos':80,'japao':78,'coreia do sul':76,'australia':74};
-  // V054: fonte única do total de rodadas por campeonato (antes duplicado em 3 funções)
-  const TOTAL_RODADAS_CAMP = {CUP:7,BRA:38,ENG:38,ESP:38,FRA:38,ITA:38,SUP:10};
-  // V054: cache client-side do progresso por campeonato, para não recalcular a cada abertura de bolão
-  const PROGRESSO_TTL_MS = 5*60*1000;
 
   function p2(n){return String(n).padStart(2,'0')}
   function fmtClock(d){return `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}`}
@@ -423,14 +385,7 @@
     return {total:baseTotal,finalizados:Math.max(0,Math.min(baseTotal||finalizados,finalizados)),pct};
   }
   function renderCatalogo(){const grid=$('#catalogGrid'); if(!grid)return; const lista=state.catalogo.slice().sort((a,b)=>statusCamp(a).ordem-statusCamp(b).ordem||(a.ordem||999)-(b.ordem||999)); grid.innerHTML=lista.map(c=>{const st=statusCamp(c),p=progressoCamp(c); return `<article class="catalog-card"><div class="catalog-top"><div class="catalog-logo">${campLogo(c)}</div><div><h3>${esc(c.nome)}</h3><p>${esc(periodoCatalogo(c))}</p></div></div><div class="badge-row"><span class="badge ${st.classe}">${st.label}</span><span class="badge publico">Bolões conforme publicação</span></div><div class="progress"><div class="progress-top"><span>${formatNum(p.finalizados)}/${formatNum(p.total)} jogos finalizados</span><span>${p.pct}%</span></div><div class="bar"><span style="width:${p.pct}%"></span></div><div class="progress-note">Progresso calculado por jogos finalizados.</div></div><div class="card-actions"><button class="btn dark mini" data-camp-palpite="${esc(c.sigla)}">Dar palpite</button><button class="btn ghost mini" data-camp-publicos="${esc(c.sigla)}">Bolões públicos</button></div></article>`}).join('')||'<div class="empty">Nenhum campeonato disponível.</div>'; grid.querySelectorAll('[data-camp-palpite]').forEach(b=>b.onclick=()=>{if(state.uid==='GUEST')loginGoogleSeguro(); else {setAppTab('publicos'); const alvo=publicosVisiveis().find(x=>String(x.campeonato||x.camp||'').toUpperCase()===b.dataset.campPalpite); if(alvo)selectBolao(alvo);}}); grid.querySelectorAll('[data-camp-publicos]').forEach(b=>b.onclick=()=>{document.getElementById('publicos')?.scrollIntoView({behavior:'smooth'});});}
-  async function loadCatalogo(){let best=[]; for(const a of ['catalog','catalogo','campeonatos']){try{const j=await apiGet(withAction(a)); const arr=unwrapArray(j).map(normalizarCatalogo).filter(Boolean); if(arr.length>best.length)best=arr; if(arr.length>=7)break;}catch(e){console.warn('Catálogo '+a,e.message)}} state.catalogo=mergeCatalogo(best); preencherSelectsCampeonato(); renderCatalogo();
-    // V054-BUGFIX: antes, o progresso real (X/Y jogos finalizados) só era calculado depois que o usuário
-    // abria um bolão específico (atualizarProgressoCampeonato só rodava em selectBolao/carregarJogos).
-    // Por isso os cards de "Campeonatos disponíveis" sempre mostravam 0%, mesmo com jogos já realizados
-    // (a index.html calcula isso já na abertura do catálogo — aqui não calculava). Dispara em paralelo,
-    // sem bloquear a renderização inicial; cada card se atualiza sozinho quando o cálculo termina.
-    Promise.allSettled(state.catalogo.map(c=>atualizarProgressoCampeonato(c.sigla))).catch(()=>{});
-  }
+  async function loadCatalogo(){let best=[]; for(const a of ['catalog','catalogo','campeonatos']){try{const j=await apiGet(withAction(a)); const arr=unwrapArray(j).map(normalizarCatalogo).filter(Boolean); if(arr.length>best.length)best=arr; if(arr.length>=7)break;}catch(e){console.warn('Catálogo '+a,e.message)}} state.catalogo=mergeCatalogo(best); preencherSelectsCampeonato(); renderCatalogo();}
   function preencherSelectsCampeonato(){['#novoCamp','#selCamp'].forEach(id=>{const sel=$(id); if(!sel)return; const preferido=sel.value||((id==='#selCamp'&&state.bolao)?String(state.bolao.campeonato||state.bolao.camp||'').toUpperCase():''); sel.innerHTML=''; state.catalogo.forEach(c=>{const o=document.createElement('option'); o.value=c.sigla; o.textContent=c.nome; sel.appendChild(o)}); if(preferido&&Array.from(sel.options).some(o=>o.value===preferido))sel.value=preferido;});}
 
   function bolaoPublicoAtivo(b){const t=ctrl(b?.tipo||b?.tipoBolao||b?.visibilidade||b?.acesso||b?.categoria||''); const st=ctrl(b?.status||b?.statusBolao||b?.situacao||'ATIVO'); const oculto=b&&(b.excluido===true||b.deletado===true||b.arquivado===true||b.ativo===false||['INATIVO','CANCELADO','EXCLUIDO','ARQUIVADO'].includes(st)); return b&&!oculto&&(b.publico===true||b.publicado===true||b.publicoOficial===true||t==='PUBLICO'||t==='PÚBLICO'||t==='OFICIAL')}
@@ -470,7 +425,7 @@
   $$('.side-panel .tab[data-tab]').forEach(b=>b.onclick=()=>setAppTab(b.dataset.tab)); $$('.view-tab').forEach(b=>b.onclick=()=>setView(b.dataset.view));
   $('#btnExplorarTopo').onclick=()=>setAppTab('publicos'); $('#btnCriarTopo').onclick=()=>{ if(state.admin) location.href='admin-oficiais.html'; else setAppTab('criar'); }; $('#btnAtualizar').onclick=()=>refreshAll();
 
-  function renderSelected(){const d=$('#detailArea'); if(!state.bolao){$('#mainPanel')?.classList.add('empty-state'); $('#detailTitle').textContent='Detalhe do bolão'; $('#detailHint').textContent='Selecione um bolão para abrir o painel.'; $('#bolaoViews').style.display='none'; d.innerHTML='<div class="empty">Depois de selecionar um bolão, aparecem aqui jogos, progresso, ranking e palpites.</div>';return} $('#mainPanel')?.classList.remove('empty-state'); const b=state.bolao,st=statusBolao(b),p=progressoBolao(b),camp=String(b.campeonato||b.camp||'CUP').toUpperCase(); $('#detailTitle').textContent=bolaoTitulo(b); $('#detailHint').textContent='Painel carregado'; $('#bolaoViews').style.display='block'; d.innerHTML=`<div class="selected-title"><h2>${esc(bolaoTitulo(b))}</h2><p>${esc(b.publico?'Bolão público':'Bolão privado')} • ${esc(campInfo(camp).nome||camp)} • ${esc(st.label)}</p><div class="badge-row"><span class="badge ${st.classe}">${st.label}</span><span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Entrada automática':'Aprovação do criador'}</span>${isAdminBolao(b)?'<span class="badge admin">Administrador</span>':''}</div></div><div class="metric-grid"><div class="metric"><strong>${esc(camp)}</strong><span>Campeonato</span></div><div class="metric"><strong>${esc(periodoCatalogo({...campInfo(camp),...b}))}</strong><span>Período</span></div><div class="metric"><strong>${esc(st.label)}</strong><span>Status</span></div><div class="metric"><strong>${p.pct}%</strong><span>Progresso</span></div><div class="metric"><strong>${formatNum(p.finalizados)}/${formatNum(p.total)}</strong><span>Jogos</span></div><div class="metric"><strong>${esc(modoBolaoLabel(b.modoBolao||b.formatoBolao))}</strong><span>Formato</span></div><div class="metric"><strong>${esc(recorteBolaoResumo(b))}</strong><span>Recorte</span></div></div><div class="progress"><div class="progress-top"><span>Progresso real do campeonato</span><span>${p.pct}%</span></div><div class="bar"><span style="width:${p.pct}%"></span></div><div class="progress-note">Calculado por jogos finalizados/realizados nos dados publicados.</div></div><div class="share-box">${esc(shareUrl(b.id))}</div><div class="card-actions"><button class="btn blue mini" id="btnCopyShare" type="button">Copiar convite</button><button class="btn dark mini" id="btnOpenGames" type="button">Carregar jogos</button><button class="btn ghost mini" id="btnOpenParticipants" type="button">Participantes</button></div>`; $('#btnCopyShare').onclick=()=>copiarConvite(b.id); $('#btnOpenGames').onclick=()=>{setView('jogos'); carregarJogos().catch(e=>toast('Erro ao carregar jogos: '+e.message));}; $('#btnOpenParticipants').onclick=()=>setView('participantes'); if($('#selCamp')){setSelectValue('#selCamp',camp,campInfo(camp).nome||camp); loadRodadas(camp).then(()=>setSelectValue('#selCamp',camp,campInfo(camp).nome||camp)).catch(()=>{})}}
+  function renderSelected(){const d=$('#detailArea'); if(!state.bolao){$('#detailTitle').textContent='Detalhe do bolão'; $('#detailHint').textContent='Selecione um bolão para abrir o painel.'; $('#bolaoViews').style.display='none'; d.innerHTML='<div class="empty">Depois de selecionar um bolão, aparecem aqui jogos, progresso, ranking e palpites.</div>';return} const b=state.bolao,st=statusBolao(b),p=progressoBolao(b),camp=String(b.campeonato||b.camp||'CUP').toUpperCase(); $('#detailTitle').textContent=bolaoTitulo(b); $('#detailHint').textContent='Painel carregado'; $('#bolaoViews').style.display='block'; d.innerHTML=`<div class="selected-title"><h2>${esc(bolaoTitulo(b))}</h2><p>${esc(b.publico?'Bolão público':'Bolão privado')} • ${esc(campInfo(camp).nome||camp)} • ${esc(st.label)}</p><div class="badge-row"><span class="badge ${st.classe}">${st.label}</span><span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Entrada automática':'Aprovação do criador'}</span>${isAdminBolao(b)?'<span class="badge admin">Administrador</span>':''}</div></div><div class="metric-grid"><div class="metric"><strong>${esc(camp)}</strong><span>Campeonato</span></div><div class="metric"><strong>${esc(periodoCatalogo({...campInfo(camp),...b}))}</strong><span>Período</span></div><div class="metric"><strong>${esc(st.label)}</strong><span>Status</span></div><div class="metric"><strong>${p.pct}%</strong><span>Progresso</span></div><div class="metric"><strong>${formatNum(p.finalizados)}/${formatNum(p.total)}</strong><span>Jogos</span></div><div class="metric"><strong>${esc(modoBolaoLabel(b.modoBolao||b.formatoBolao))}</strong><span>Formato</span></div><div class="metric"><strong>${esc(recorteBolaoResumo(b))}</strong><span>Recorte</span></div></div><div class="progress"><div class="progress-top"><span>Progresso real do campeonato</span><span>${p.pct}%</span></div><div class="bar"><span style="width:${p.pct}%"></span></div><div class="progress-note">Calculado por jogos finalizados/realizados nos dados publicados.</div></div><div class="share-box">${esc(shareUrl(b.id))}</div><div class="card-actions"><button class="btn blue mini" id="btnCopyShare" type="button">Copiar convite</button><button class="btn dark mini" id="btnOpenGames" type="button">Carregar jogos</button><button class="btn ghost mini" id="btnOpenParticipants" type="button">Participantes</button></div>`; $('#btnCopyShare').onclick=()=>copiarConvite(b.id); $('#btnOpenGames').onclick=()=>{setView('jogos'); carregarJogos().catch(e=>toast('Erro ao carregar jogos: '+e.message));}; $('#btnOpenParticipants').onclick=()=>setView('participantes'); if($('#selCamp')){setSelectValue('#selCamp',camp,campInfo(camp).nome||camp); loadRodadas(camp).then(()=>setSelectValue('#selCamp',camp,campInfo(camp).nome||camp)).catch(()=>{})}}
   function selectBolao(b){
     if(!b)return;
     state.loadToken=Date.now();
@@ -482,9 +437,6 @@
     renderBoloes();
     renderSelected();
     setView('resumo');
-    // V054-UX: no mobile, o painel some da tela até ser selecionado (fica fora da área visível na lista longa).
-    // Rola até ele automaticamente para o usuário ver o "Carregando..." acontecer na hora, em vez de parecer travado.
-    if(window.innerWidth<=1040)requestAnimationFrame(()=>$('#mainPanel')?.scrollIntoView({behavior:'smooth',block:'start'}));
     toast('Bolão selecionado: '+bolaoTitulo(b));
     const camp=String(b.campeonato||b.camp||'CUP').toUpperCase();
     atualizarProgressoCampeonato(camp).catch(console.warn);
@@ -605,7 +557,7 @@
     try{
       const j=await apiGet(withAction('rodadas',`camp=${encodeURIComponent(camp)}`));
       let nums=unwrapArray(j).map(x=>typeof x==='number'?x:(x.n||x.rodada||x)).filter(Boolean);
-      if(!nums.length){const total=TOTAL_RODADAS_CAMP[camp]||38; nums=Array.from({length:total},(_,i)=>i+1)}
+      if(!nums.length){const total={CUP:7,BRA:38,ENG:38,ESP:38,FRA:38,ITA:38,SUP:10}[camp]||38; nums=Array.from({length:total},(_,i)=>i+1)}
       const sel=$('#selRod'); sel.innerHTML='';
       nums.forEach(n=>{const o=document.createElement('option'); o.value=n; o.textContent=`${n}ª Rodada`; sel.appendChild(o)});
     }catch(e){$('#selRod').innerHTML='<option value="1">1ª Rodada</option>'}
@@ -637,13 +589,10 @@
   async function buscarJogos(camp,rodada){const j=await apiGet(withAction('jogos',`camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}`)); return unwrapArray(j)}
   async function atualizarProgressoCampeonato(camp){
     if(!camp)return; const atual=state.progressoCache[camp]||{}; if(atual.atualizando)return;
-    // V054: se já temos progresso recente em cache (TTL), não refaz o loop de N chamadas por rodada.
-    // Isso evita golpear o Apps Script com uma chamada por rodada (até 38x) toda vez que um bolão abre.
-    if(atual.agregado && atual.atualizadoEm && (Date.now()-atual.atualizadoEm)<PROGRESSO_TTL_MS)return;
     state.progressoCache[camp]={...atual,atualizando:true};
     try{
       let nums=[]; try{const j=await apiGet(withAction('rodadas',`camp=${encodeURIComponent(camp)}`)); nums=unwrapArray(j).map(x=>typeof x==='number'?x:(x.n||x.rodada||x)).filter(Boolean)}catch(e){}
-      if(!nums.length){const total=TOTAL_RODADAS_CAMP[camp]||0; nums=Array.from({length:total},(_,i)=>i+1)}
+      if(!nums.length){const total={CUP:7,BRA:38,ENG:38,ESP:38,FRA:38,ITA:38,SUP:10}[camp]||0; nums=Array.from({length:total},(_,i)=>i+1)}
       const vistos=new Set(); let totalJogos=0,finalizados=0;
       for(const r of nums){let rows=[]; try{rows=await buscarJogos(camp,r)}catch(e){rows=[]} rows.forEach((g,i)=>{const id=String(g.id||g.id_jogo||g.jogo_id||`${camp}_${r}_${i}`); if(vistos.has(id))return; vistos.add(id); totalJogos++; if(jogoIniciado(g))finalizados++;});}
       const base=campInfo(camp),baseTotal=Number(base.qtd_jogos||0)||0;
@@ -695,7 +644,7 @@
 
   function rodadasParaProximosJogos(camp){
     const opts=Array.from($('#selRod')?.options||[]).map(o=>String(o.value)).filter(Boolean);
-    let base=opts.length?opts:Array.from({length:(TOTAL_RODADAS_CAMP[camp]||38)},(_,i)=>String(i+1));
+    let base=opts.length?opts:Array.from({length:({CUP:7,BRA:38,ENG:38,ESP:38,FRA:38,ITA:38,SUP:10}[camp]||38)},(_,i)=>String(i+1));
     const b=state.bolao||{};
     const formato=ctrl(b.formatoBolao||b.modoBolao||b.recorteTipo||'');
     const ri=Number(b.rodadaInicial||b.rodada_inicio||b.rodada||'');
@@ -811,10 +760,9 @@
     }
 
     // Depois completa o restante em segundo plano, sem travar a abertura do bolão.
-    // V054: carregarRanking(true) removido daqui — já é chamado ao final de carregarJogos(),
-    // então mantinha-lo aqui duplicava a consulta ao Firestore em toda abertura de bolão.
     await Promise.allSettled([
       carregarProximosJogosBolao(camp),
+      carregarRanking(true),
       carregarPalpitesTodos(),
       carregarParticipantes()
     ]);
@@ -826,13 +774,9 @@
   async function carregarJogos(silent=false){
     if(!state.bolao){toast('Selecione um bolão.');return}
     const camp=String($('#selCamp')?.value||state.bolao.campeonato||state.bolao.camp||'CUP').toUpperCase(),rodada=String($('#selRod')?.value||1);
-    const tokenNaChamada=state.loadToken; // V054: snapshot do token para checar depois do await
     setSelectValue('#selCamp',camp,campInfo(camp).nome||camp);
     const list=$('#lista'); if(list && !silent) list.innerHTML='<div class="loading">Carregando jogos...</div>';
     const rows=await buscarJogos(camp,rodada);
-    // V054: se o usuário trocou de bolão enquanto essa busca estava em voo, descarta o resultado —
-    // evita que uma resposta antiga sobrescreva a seleção mais recente na tela.
-    if(tokenNaChamada!==state.loadToken)return;
     state.currentCamp=camp; state.currentRodada=rodada;
     state.jogos=ordenarJogosRodada(rows.map((g,i)=>({...g,id:String(g.id||g.id_jogo||g.jogo_id||`${camp}_${rodada}_${i}`),__rodada:rodada,__camp:camp})));
     renderCatalogo(); renderBoloes(); renderSelected();
@@ -851,11 +795,6 @@
   setInterval(()=>autoRefreshJogosAtivos(),60000);
   function bindSave(camp,rodada){$$('[data-save]').forEach(b=>b.onclick=()=>salvarPalpite(b.dataset.save,camp,rodada).catch(e=>setSaveStatus(b.dataset.save,'erro: '+e.message,'err'))); $$('.inp-palpite').forEach(inp=>inp.addEventListener('input',()=>{const id=inp.dataset.id.replace(/_(gm|gv)$/,''); clearTimeout(autosaveTimers[id]); setSaveStatus(id,'aguardando digitação...','saving'); autosaveTimers[id]=setTimeout(()=>salvarPalpite(id,camp,rodada,'auto').catch(e=>setSaveStatus(id,'erro: '+e.message,'err')),900)}));}
   function setSaveStatus(id,txt,cls=''){const el=$(`[data-save-status="${cssEsc(id)}"]`); if(el){el.textContent=txt; el.className='autosave '+cls}}
-  // V054-ALERTA: a checagem "aberto" abaixo é só no client (dataset.aberto vem do último carregarJogos()).
-  // O write no Firestore que vem logo depois NÃO tem essa trava — alguém com DevTools pode gravar
-  // gm/gv direto na coleção "palpites" mesmo com o jogo já em andamento/encerrado.
-  // Se as Firestore Security Rules não replicam essa validação (ex.: comparando com o horário do jogo
-  // guardado em outra coleção/campo), essa é uma brecha real de manipulação de pontuação. Verificar rules.
   async function salvarPalpite(id,camp,rodada,origem='manual'){if(state.uid==='GUEST'){toast('Entre com Google antes de salvar.');return} const card=$(`.match-card[data-jogo="${cssEsc(id)}"]`); if(card?.dataset.aberto!=='1'){setSaveStatus(id,'palpite encerrado','err');return} const gm=$(`input[data-id="${cssEsc(id)}_gm"]`)?.value,gv=$(`input[data-id="${cssEsc(id)}_gv"]`)?.value; if(gm===''||gv===''){setSaveStatus(id,'preencha os dois placares','err');return} setSaveStatus(id,'salvando...','saving'); try{await apiGet(withAction('salvarPalpite',`camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}&id=${encodeURIComponent(id)}&gm=${encodeURIComponent(gm)}&gv=${encodeURIComponent(gv)}&origem=${encodeURIComponent(origem)}`));}catch(e){console.warn('Apps Script salvar:',e.message)} const doc=safeId(`${state.uid}_${camp}_${rodada}_${id}`); const payload={uid:state.uid,nome:state.nome,email:state.email,idJogo:id,camp,rodada:String(rodada),gm:Number(gm),gv:Number(gv),origem,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()}; await db.collection('boloes').doc(state.bolao.id).collection('palpites').doc(doc).set(payload,{merge:true}); state.palpites[id]=payload; const jogo=state.jogos.find(x=>x.id===id); const pts=pontuar(payload,jogo); const pEl=$(`[data-pts="${cssEsc(id)}"]`); if(pEl)pEl.textContent=pts+' pts'; setSaveStatus(id,'salvo automaticamente ✓','ok'); renderProximosResumo();}
 
   function resultado(a,b){return a>b?'M':a<b?'V':'E'}
@@ -871,7 +810,7 @@
 
   function hashInt(s){let h=0; for(let i=0;i<String(s).length;i++)h=(h*31+String(s).charCodeAt(i))|0; return Math.abs(h)}
   function teamStrength(n){const k=norm(n); return TEAM_STRENGTH[k]||70+(hashInt(k)%12)}
-  function gerarPalpite(home,away,perfil,seed){const diff=teamStrength(home)+2-teamStrength(away),h=hashInt(`${home}|${away}|${perfil}|${seed}`); let gm=1,gv=1; if(perfil==='FAVORITOS'){if(diff>=10){gm=2;gv=h%3===0?1:0}else if(diff<=-10){gm=h%3===0?1:0;gv=2}else{gm=1;gv=h%2?1:0}}else if(perfil==='SURPRESA'){if(Math.abs(diff)<7){gm=h%3===0?2:1;gv=h%4===0?2:1}else if(diff>0){gm=h%4===0?0:1;gv=h%4===0?2:1}else{gm=h%4===0?2:1;gv=h%4===0?0:1}}else{if(diff>=8){gm=2;gv=1}else if(diff<=-8){gm=1;gv=2}else{gm=1;gv=h%4===0?0:1}} return {gm:Math.max(0,Math.min(5,gm)),gv:Math.max(0,Math.min(5,gv))}}
+  function gerarPalpite(home,away,perfil,seed){const diff=teamStrength(home)+2-teamStrength(away),h=hashInt(`${home}|${away}|${perfil}|${seed}`); let gm=1,gv=1; if(perfil==='FAVORITOS'){if(diff>=10){gm=2;gv=h%3===0?1:0}else if(diff<=-10){gm=h%3===0?1:0;gv=2}else{gm=1;gv=h%2?1:0}}else if(perfil==='SURPRESA'){if(Math.abs(diff)<7){gm=h%3===0?2:1;gv=h%4===0?2:1}else if(diff>0){gm=h%4===0?0:1;gv=h%4===0?1:1}else{gm=h%4===0?1:1;gv=h%4===0?0:1}}else{if(diff>=8){gm=2;gv=1}else if(diff<=-8){gm=1;gv=2}else{gm=1;gv=h%4===0?0:1}} return {gm:Math.max(0,Math.min(5,gm)),gv:Math.max(0,Math.min(5,gv))}}
   function applyPAIfNeeded(camp,rodada){if(!state.pa?.perfil)return; $$('.match-card[data-aberto="1"]').forEach(card=>{const id=card.dataset.jogo,gm=$(`input[data-id="${cssEsc(id)}_gm"]`),gv=$(`input[data-id="${cssEsc(id)}_gv"]`); if(gm&&gv&&gm.value===''&&gv.value===''){const p=gerarPalpite(card.dataset.home,card.dataset.away,state.pa.perfil,`${camp}_${rodada}_${id}`); gm.value=p.gm; gv.value=p.gv; salvarPalpite(id,camp,rodada,'PA_'+state.pa.perfil).catch(console.warn)}})}
   function loadPA(){try{state.pa=JSON.parse(localStorage.getItem('PSS_PA_BOLAO')||'null')}catch(e){state.pa=null}}
   $('#btnPA').onclick=()=>$('#paModal').classList.add('open'); $('#paFechar').onclick=()=>$('#paModal').classList.remove('open'); $('#paRemover').onclick=()=>{state.pa=null;localStorage.removeItem('PSS_PA_BOLAO');$('#paModal').classList.remove('open');toast('Palpite automático removido.')}; $('#paSalvar').onclick=()=>{const perfil=document.querySelector('input[name="paPerfil"]:checked')?.value||'EQUILIBRADO'; state.pa={perfil,ts:Date.now()}; localStorage.setItem('PSS_PA_BOLAO',JSON.stringify(state.pa)); $('#paModal').classList.remove('open'); toast('Perfil de P.A. salvo: '+perfil); if(state.jogos.length)applyPAIfNeeded($('#selCamp').value,$('#selRod').value)};
