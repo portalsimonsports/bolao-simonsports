@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V054_API_BASE_CORRETA_PLACARES_COLUNAS_IJ_2026-07-01 -->
+<!-- V055_RODADA_FIXA_TEMPO_REAL_ULTIMOS_PALPITES_DESAFIANTE_2026-07-01 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -259,6 +259,7 @@
               <button class="tab view-tab" data-view="jogos">Jogos</button>
               <button class="tab view-tab" data-view="ranking">Ranking</button>
               <button class="tab view-tab" data-view="palpites">Palpites de todos</button>
+              <button class="tab view-tab" data-view="ultimos">Últimos palpites</button>
               <button class="tab view-tab" data-view="participantes">Participantes</button>
             </div>
 
@@ -282,6 +283,7 @@
 
             <section class="view" id="view-ranking"><div id="rankingBody" class="empty">Clique em Ranking para carregar a classificação.</div></section>
             <section class="view" id="view-palpites"><div id="palpitesBody" class="empty">Só serão exibidos palpites de jogos já iniciados, ao vivo ou encerrados.</div></section>
+            <section class="view" id="view-ultimos"><div id="ultimosBody" class="empty">Últimos palpites liberados do bolão.</div></section>
             <section class="view" id="view-participantes"><div id="participantesBody" class="empty">Abra a lista de participantes deste bolão.</div></section>
           </div>
         </section>
@@ -320,7 +322,7 @@
 
   const $ = s => document.querySelector(s);
   const $$ = s => Array.from(document.querySelectorAll(s));
-  const state = {uid:'GUEST',nome:'Visitante',email:'',foto:'',perfil:'USUARIO',perfilGlobal:'USUARIO',admin:false,bolao:null,meus:[],publicos:[],privados:[],catalogo:[],jogos:[],palpites:{},pa:null,progressoCache:{},currentCamp:'',currentRodada:'',proximosJogos:[],loadToken:0};
+  const state = {uid:'GUEST',nome:'Visitante',email:'',foto:'',perfil:'USUARIO',perfilGlobal:'USUARIO',admin:false,bolao:null,meus:[],publicos:[],privados:[],catalogo:[],jogos:[],palpites:{},pa:null,progressoCache:{},currentCamp:'',currentRodada:'',proximosJogos:[],loadToken:0,unsubscribePalpites:null};
   const autosaveTimers = {};
   const CATALOG_BASE_FALLBACK = [
     {sigla:'CUP',nome:'Copa do Mundo',ordem:10,ativo:true,publicado:true,inicio:'2026-06-11',fim:'2026-07-19',qtd_jogos:104,logo:''},
@@ -421,24 +423,28 @@
   async function refreshAll(){await Promise.allSettled([loadCatalogo(),loadPublicos(),loadMeus()]); renderSelected();}
 
   function setAppTab(name){$$('.side-panel .tab[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===name)); $$('.tab-section').forEach(s=>s.classList.toggle('active',s.id==='sec-'+name)); $('#painel')?.classList.toggle('create-mode',name==='criar');}
-  function setView(name){$$('.view-tab').forEach(b=>b.classList.toggle('active',b.dataset.view===name)); $$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name)); if(name==='ranking')carregarRanking().catch(e=>toast('Erro no ranking: '+e.message)); if(name==='palpites')carregarPalpitesTodos().catch(e=>toast('Erro nos palpites: '+e.message)); if(name==='participantes')carregarParticipantes().catch(e=>toast('Erro nos participantes: '+e.message));}
+  function setView(name){$$('.view-tab').forEach(b=>b.classList.toggle('active',b.dataset.view===name)); $$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name)); if(name==='jogos'&&!state.jogos.length)carregarJogos().catch(e=>toast('Erro nos jogos: '+e.message)); if(name==='ranking')carregarRanking().catch(e=>toast('Erro no ranking: '+e.message)); if(name==='palpites')carregarPalpitesTodos().catch(e=>toast('Erro nos palpites: '+e.message)); if(name==='ultimos')carregarUltimosPalpites().catch(e=>toast('Erro nos últimos palpites: '+e.message)); if(name==='participantes')carregarParticipantes().catch(e=>toast('Erro nos participantes: '+e.message));}
   $$('.side-panel .tab[data-tab]').forEach(b=>b.onclick=()=>setAppTab(b.dataset.tab)); $$('.view-tab').forEach(b=>b.onclick=()=>setView(b.dataset.view));
   $('#btnExplorarTopo').onclick=()=>setAppTab('publicos'); $('#btnCriarTopo').onclick=()=>{ if(state.admin) location.href='admin-oficiais.html'; else setAppTab('criar'); }; $('#btnAtualizar').onclick=()=>refreshAll();
 
   function renderSelected(){const d=$('#detailArea'); if(!state.bolao){$('#detailTitle').textContent='Detalhe do bolão'; $('#detailHint').textContent='Selecione um bolão para abrir o painel.'; $('#bolaoViews').style.display='none'; d.innerHTML='<div class="empty">Depois de selecionar um bolão, aparecem aqui jogos, progresso, ranking e palpites.</div>';return} const b=state.bolao,st=statusBolao(b),p=progressoBolao(b),camp=String(b.campeonato||b.camp||'CUP').toUpperCase(); $('#detailTitle').textContent=bolaoTitulo(b); $('#detailHint').textContent='Painel carregado'; $('#bolaoViews').style.display='block'; d.innerHTML=`<div class="selected-title"><h2>${esc(bolaoTitulo(b))}</h2><p>${esc(b.publico?'Bolão público':'Bolão privado')} • ${esc(campInfo(camp).nome||camp)} • ${esc(st.label)}</p><div class="badge-row"><span class="badge ${st.classe}">${st.label}</span><span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Entrada automática':'Aprovação do criador'}</span>${isAdminBolao(b)?'<span class="badge admin">Administrador</span>':''}</div></div><div class="metric-grid"><div class="metric"><strong>${esc(camp)}</strong><span>Campeonato</span></div><div class="metric"><strong>${esc(periodoCatalogo({...campInfo(camp),...b}))}</strong><span>Período</span></div><div class="metric"><strong>${esc(st.label)}</strong><span>Status</span></div><div class="metric"><strong>${p.pct}%</strong><span>Progresso</span></div><div class="metric"><strong>${formatNum(p.finalizados)}/${formatNum(p.total)}</strong><span>Jogos</span></div><div class="metric"><strong>${esc(modoBolaoLabel(b.modoBolao||b.formatoBolao))}</strong><span>Formato</span></div><div class="metric"><strong>${esc(recorteBolaoResumo(b))}</strong><span>Recorte</span></div></div><div class="progress"><div class="progress-top"><span>Progresso real do campeonato</span><span>${p.pct}%</span></div><div class="bar"><span style="width:${p.pct}%"></span></div><div class="progress-note">Calculado por jogos finalizados/realizados nos dados publicados.</div></div><div class="share-box">${esc(shareUrl(b.id))}</div><div class="card-actions"><button class="btn blue mini" id="btnCopyShare" type="button">Copiar convite</button><button class="btn dark mini" id="btnOpenGames" type="button">Carregar jogos</button><button class="btn ghost mini" id="btnOpenParticipants" type="button">Participantes</button></div>`; $('#btnCopyShare').onclick=()=>copiarConvite(b.id); $('#btnOpenGames').onclick=()=>{setView('jogos'); carregarJogos().catch(e=>toast('Erro ao carregar jogos: '+e.message));}; $('#btnOpenParticipants').onclick=()=>setView('participantes'); if($('#selCamp')){setSelectValue('#selCamp',camp,campInfo(camp).nome||camp); loadRodadas(camp).then(()=>setSelectValue('#selCamp',camp,campInfo(camp).nome||camp)).catch(()=>{})}}
   function selectBolao(b){
     if(!b)return;
+    if(typeof state.unsubscribePalpites==='function'){try{state.unsubscribePalpites()}catch(e){} state.unsubscribePalpites=null;}
     state.loadToken=Date.now();
     const token=state.loadToken;
     state.bolao=b;
     state.jogos=[];
     state.palpites={};
     state.proximosJogos=[];
+    state.currentCamp=String(b.campeonato||b.camp||'CUP').toUpperCase();
+    state.currentRodada=String(b.rodadaInicial||b.rodada||b.proximaRodada||1);
     renderBoloes();
     renderSelected();
+    iniciarTempoRealPalpites();
     setView('resumo');
     toast('Bolão selecionado: '+bolaoTitulo(b));
-    const camp=String(b.campeonato||b.camp||'CUP').toUpperCase();
+    const camp=state.currentCamp;
     atualizarProgressoCampeonato(camp).catch(console.warn);
     carregarJogosAutomatico(token).catch(e=>{
       console.warn(e);
@@ -554,15 +560,22 @@
   async function copiarConvite(id){const url=shareUrl(id); const txt=`Participe do meu bolão no Portal SimonSports: ${url}`; try{await navigator.clipboard.writeText(txt); toast('Link de convite copiado.')}catch(e){prompt('Copie o link:',url)}}
 
   async function loadRodadas(camp){
+    const sel=$('#selRod');
+    const atual=String(sel?.value||state.currentRodada||state.bolao?.rodadaInicial||state.bolao?.rodada||1);
     try{
       const j=await apiGet(withAction('rodadas',`camp=${encodeURIComponent(camp)}`));
       let nums=unwrapArray(j).map(x=>typeof x==='number'?x:(x.n||x.rodada||x)).filter(Boolean);
       if(!nums.length){const total={CUP:7,BRA:38,ENG:38,ESP:38,FRA:38,ITA:38,SUP:10}[camp]||38; nums=Array.from({length:total},(_,i)=>i+1)}
-      const sel=$('#selRod'); sel.innerHTML='';
-      nums.forEach(n=>{const o=document.createElement('option'); o.value=n; o.textContent=`${n}ª Rodada`; sel.appendChild(o)});
-    }catch(e){$('#selRod').innerHTML='<option value="1">1ª Rodada</option>'}
+      if(!sel)return;
+      sel.innerHTML='';
+      nums.forEach(n=>{const o=document.createElement('option'); o.value=String(n); o.textContent=`${n}ª Rodada`; sel.appendChild(o)});
+      const existe=Array.from(sel.options).some(o=>String(o.value)===atual);
+      sel.value=existe?atual:(sel.options[0]?.value||'1');
+      state.currentRodada=String(sel.value||atual||1);
+    }catch(e){if(sel){sel.innerHTML='<option value="1">1ª Rodada</option>'; sel.value=atual||'1'; state.currentRodada=String(sel.value||1)}}
   }
-  $('#selCamp')?.addEventListener('change',e=>loadRodadas(e.target.value));
+  $('#selCamp')?.addEventListener('change',async e=>{state.currentCamp=String(e.target.value||'CUP').toUpperCase(); await loadRodadas(state.currentCamp); carregarJogos().catch(err=>toast('Erro: '+err.message));});
+  $('#selRod')?.addEventListener('change',e=>{state.currentRodada=String(e.target.value||1); carregarJogos().catch(err=>toast('Erro: '+err.message));});
   function valorPlacar(v){if(v===0||v==='0')return 0; if(v===undefined||v===null||String(v).trim()==='')return null; const s=String(v).trim(); if(['VS','X','-','—','A DEFINIR','ADIADO'].includes(ctrl(s)))return null; const m=s.match(/-?\d+/); return m?Number(m[0]):null}
   function placarCombinado(v){const s=String(v||'').trim(); const m=s.match(/(\d+)\s*(?:x|X|×|\-|–|—|:)\s*(\d+)/); return m?{gm:Number(m[1]),gv:Number(m[2])}:null}
   function primeiroNumero(obj,keys){for(const k of keys){if(obj&&obj[k]!==undefined&&obj[k]!==null&&obj[k]!==''){const n=valorPlacar(obj[k]); if(n!==null)return n;}} return null}
@@ -746,7 +759,7 @@
       console.warn('loadRodadas automático:', e.message || e);
     }
 
-    const rodadaBase = state.bolao.rodadaInicial || state.bolao.rodada || state.bolao.proximaRodada || $('#selRod')?.value || 1;
+    const rodadaBase = state.currentRodada || $('#selRod')?.value || state.bolao.rodadaInicial || state.bolao.rodada || state.bolao.proximaRodada || 1;
     if($('#selRod')){
       const alvo = String(rodadaBase);
       const existe = Array.from($('#selRod').options).some(o=>String(o.value)===alvo);
@@ -763,7 +776,8 @@
     await Promise.allSettled([
       carregarProximosJogosBolao(camp),
       carregarRanking(true),
-      carregarPalpitesTodos(),
+      carregarPalpitesTodos(true),
+      carregarUltimosPalpites(true),
       carregarParticipantes()
     ]);
 
@@ -779,8 +793,9 @@
     const rows=await buscarJogos(camp,rodada);
     state.currentCamp=camp; state.currentRodada=rodada;
     state.jogos=ordenarJogosRodada(rows.map((g,i)=>({...g,id:String(g.id||g.id_jogo||g.jogo_id||`${camp}_${rodada}_${i}`),__rodada:rodada,__camp:camp})));
-    renderCatalogo(); renderBoloes(); renderSelected();
+    renderCatalogo(); renderBoloes();
     await carregarPalpitesUsuario(camp,rodada);
+    await garantirPalpitesDesafiante(camp,rodada).catch(e=>console.warn('Desafiante IA:',e.message||e));
     atualizarProgressoCampeonato(camp).catch(console.warn);
     if(!state.jogos.length){if(list) list.innerHTML='<div class="empty">Nenhum jogo encontrado nesta rodada.</div>'; renderProximosResumo(); return}
     if(list) list.innerHTML=state.jogos.map(g=>{
@@ -788,23 +803,134 @@
       const pts=pontuar(p,g),status=statusJogo(g);
       return `<article class="match-card" data-jogo="${esc(id)}" data-home="${esc(home)}" data-away="${esc(away)}" data-aberto="${aberto?'1':'0'}"><div class="match-head"><div><div class="match-date">${esc(dataHoraLabel(dataDoJogo(g)))}</div><div class="match-meta">${esc(camp)} • ${esc(rodada)}ª Rodada</div></div><span class="eta ${aberto?'':status==='AO VIVO'?'live':'enc'}">${esc(etaLabel(g))}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div>${teamHtml(home)}<div class="box-score">${of?of.gm:'–'}</div><input class="inp-palpite" type="number" min="0" inputmode="numeric" data-id="${esc(id)}_gm" value="${p.gm??''}" ${aberto?'':'disabled'}>${teamHtml(away)}<div class="box-score">${of?of.gv:'–'}</div><input class="inp-palpite" type="number" min="0" inputmode="numeric" data-id="${esc(id)}_gv" value="${p.gv??''}" ${aberto?'':'disabled'}></div><div class="match-foot"><div><div class="autosave" data-save-status="${esc(id)}">${p.atualizadoEm?'salvo anteriormente':(aberto?'aguardando palpite':status==='AO VIVO'?'jogo em andamento':'palpite encerrado')}</div></div><span class="pts" data-pts="${esc(id)}">${pts} pts</span><button class="btn primary mini" data-save="${esc(id)}" ${aberto?'':'disabled'}>Salvar</button></div></article>`
     }).join('');
-    bindSave(camp,rodada); applyPAIfNeeded(camp,rodada); renderProximosResumo(); await carregarRanking(true);
+    bindSave(camp,rodada); applyPAIfNeeded(camp,rodada); renderProximosResumo(); await atualizarPainelTempoReal(true);
   }
   $('#btnCarregar').onclick=()=>carregarJogos().catch(e=>toast('Erro: '+e.message));
-  async function autoRefreshJogosAtivos(){if(!state.bolao||!state.jogos.length||document.hidden)return; const view=document.querySelector('.view.active')?.id||''; if(!['view-resumo','view-jogos','view-ranking','view-palpites'].includes(view))return; try{const camp=state.currentCamp||String(state.bolao.campeonato||state.bolao.camp||'CUP').toUpperCase(); await carregarProximosJogosBolao(camp); await carregarJogos(true);}catch(e){console.warn('auto refresh jogos:',e.message||e)}}
+  async function autoRefreshJogosAtivos(){if(!state.bolao||!state.jogos.length||document.hidden)return; const view=document.querySelector('.view.active')?.id||''; if(!['view-resumo','view-jogos','view-ranking','view-palpites','view-ultimos'].includes(view))return; try{const camp=state.currentCamp||String(state.bolao.campeonato||state.bolao.camp||'CUP').toUpperCase(); await carregarProximosJogosBolao(camp); await carregarJogos(true);}catch(e){console.warn('auto refresh jogos:',e.message||e)}}
   setInterval(()=>autoRefreshJogosAtivos(),60000);
   function bindSave(camp,rodada){$$('[data-save]').forEach(b=>b.onclick=()=>salvarPalpite(b.dataset.save,camp,rodada).catch(e=>setSaveStatus(b.dataset.save,'erro: '+e.message,'err'))); $$('.inp-palpite').forEach(inp=>inp.addEventListener('input',()=>{const id=inp.dataset.id.replace(/_(gm|gv)$/,''); clearTimeout(autosaveTimers[id]); setSaveStatus(id,'aguardando digitação...','saving'); autosaveTimers[id]=setTimeout(()=>salvarPalpite(id,camp,rodada,'auto').catch(e=>setSaveStatus(id,'erro: '+e.message,'err')),900)}));}
   function setSaveStatus(id,txt,cls=''){const el=$(`[data-save-status="${cssEsc(id)}"]`); if(el){el.textContent=txt; el.className='autosave '+cls}}
-  async function salvarPalpite(id,camp,rodada,origem='manual'){if(state.uid==='GUEST'){toast('Entre com Google antes de salvar.');return} const card=$(`.match-card[data-jogo="${cssEsc(id)}"]`); if(card?.dataset.aberto!=='1'){setSaveStatus(id,'palpite encerrado','err');return} const gm=$(`input[data-id="${cssEsc(id)}_gm"]`)?.value,gv=$(`input[data-id="${cssEsc(id)}_gv"]`)?.value; if(gm===''||gv===''){setSaveStatus(id,'preencha os dois placares','err');return} setSaveStatus(id,'salvando...','saving'); try{await apiGet(withAction('salvarPalpite',`camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}&id=${encodeURIComponent(id)}&gm=${encodeURIComponent(gm)}&gv=${encodeURIComponent(gv)}&origem=${encodeURIComponent(origem)}`));}catch(e){console.warn('Apps Script salvar:',e.message)} const doc=safeId(`${state.uid}_${camp}_${rodada}_${id}`); const payload={uid:state.uid,nome:state.nome,email:state.email,idJogo:id,camp,rodada:String(rodada),gm:Number(gm),gv:Number(gv),origem,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()}; await db.collection('boloes').doc(state.bolao.id).collection('palpites').doc(doc).set(payload,{merge:true}); state.palpites[id]=payload; const jogo=state.jogos.find(x=>x.id===id); const pts=pontuar(payload,jogo); const pEl=$(`[data-pts="${cssEsc(id)}"]`); if(pEl)pEl.textContent=pts+' pts'; setSaveStatus(id,'salvo automaticamente ✓','ok'); renderProximosResumo();}
+  async function salvarPalpite(id,camp,rodada,origem='manual'){
+    if(state.uid==='GUEST'){toast('Entre com Google antes de salvar.');return}
+    const card=$(`.match-card[data-jogo="${cssEsc(id)}"]`);
+    if(card?.dataset.aberto!=='1'){setSaveStatus(id,'palpite encerrado','err');return}
+    const gm=$(`input[data-id="${cssEsc(id)}_gm"]`)?.value,gv=$(`input[data-id="${cssEsc(id)}_gv"]`)?.value;
+    if(gm===''||gv===''){setSaveStatus(id,'preencha os dois placares','err');return}
+    setSaveStatus(id,'salvando...','saving');
+    try{await apiGet(withAction('salvarPalpite',`camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}&id=${encodeURIComponent(id)}&gm=${encodeURIComponent(gm)}&gv=${encodeURIComponent(gv)}&origem=${encodeURIComponent(origem)}`));}catch(e){console.warn('Apps Script salvar:',e.message)}
+    const doc=safeId(`${state.uid}_${camp}_${rodada}_${id}`);
+    const payload={uid:state.uid,nome:state.nome,email:state.email,idJogo:id,camp,rodada:String(rodada),gm:Number(gm),gv:Number(gv),origem,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()};
+    await db.collection('boloes').doc(state.bolao.id).collection('palpites').doc(doc).set(payload,{merge:true});
+    state.palpites[id]=payload;
+    const jogo=state.jogos.find(x=>x.id===id);
+    const pts=pontuar(payload,jogo);
+    const pEl=$(`[data-pts="${cssEsc(id)}"]`); if(pEl)pEl.textContent=pts+' pts';
+    setSaveStatus(id,'salvo automaticamente ✓','ok');
+    renderProximosResumo();
+    atualizarPainelTempoReal(true).catch(console.warn);
+  }
 
   function resultado(a,b){return a>b?'M':a<b?'V':'E'}
   function detalhePontuacao(p,g){const of=placarOficial(g),gm=Number(p?.gm),gv=Number(p?.gv); if(!of||!Number.isFinite(gm)||!Number.isFinite(gv))return {pts:0,tipo:'—'}; if(gm===of.gm&&gv===of.gv)return {pts:25,tipo:'PE'}; const rp=resultado(gm,gv),ro=resultado(of.gm,of.gv); if(rp==='E'&&ro!=='E')return {pts:4,tipo:'E'}; if(rp!==ro)return {pts:0,tipo:'—'}; if(ro==='E')return {pts:15,tipo:'SG'}; const mand=ro==='M',gvp=mand?gm:gv,gvo=mand?of.gm:of.gv,gpp=mand?gv:gm,gpo=mand?of.gv:of.gm,sp=Math.abs(gm-gv),so=Math.abs(of.gm-of.gv); if(gvp===gvo)return {pts:18,tipo:'GV'}; if(sp===so)return {pts:15,tipo:'SG'}; if(gpp===gpo)return {pts:12,tipo:'GP'}; return {pts:10,tipo:'V'}}
   function pontuar(p,g){return detalhePontuacao(p,g).pts||0}
   async function getPalpitesRodada(){if(!state.bolao)return []; const camp=$('#selCamp').value||state.bolao.campeonato||'CUP',rodada=String($('#selRod').value||1); const q=await db.collection('boloes').doc(state.bolao.id).collection('palpites').where('camp','==',camp).where('rodada','==',rodada).get(); return q.docs.map(d=>({id:d.id,...d.data()}))}
-  async function carregarRanking(silent=false){if(!state.bolao)return; const body=$('#rankingBody'); if(!silent){setView('ranking'); body.innerHTML='<div class="loading">Carregando ranking...</div>'} const palp=await getPalpitesRodada().catch(()=>[]); const map=new Map(state.jogos.map(g=>[g.id,g])); const agg=new Map(); palp.forEach(p=>{const g=map.get(String(p.idJogo||'')); if(!g||!jogoIniciado(g))return; const k=p.uid||p.nome||'PART'; const cur=agg.get(k)||{nome:p.nome||p.email||k,pontos:0,jogos:0,exatos:0}; const det=detalhePontuacao(p,g); cur.pontos+=det.pts; cur.jogos++; if(det.tipo==='PE')cur.exatos++; agg.set(k,cur)}); const rows=Array.from(agg.values()).sort((a,b)=>b.pontos-a.pontos||b.exatos-a.exatos||a.nome.localeCompare(b.nome,'pt-BR')); const html=rows.length?`<table class="info-table"><thead><tr><th>#</th><th>Participante</th><th>Pontos</th><th>Jogos</th><th>Exatos</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td><span class="info-pill">${i+1}</span></td><td>${esc(r.nome)}</td><td><strong>${r.pontos}</strong></td><td>${r.jogos}</td><td>${r.exatos}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Ranking sem dados pontuáveis. Ele aparece quando houver jogos iniciados ou encerrados.</div>'; body.innerHTML=html; $('#rankingResumo').innerHTML=rows.slice(0,5).map((r,i)=>`<div class="muted"><strong>${i+1}. ${esc(r.nome)}</strong> — ${r.pontos} pts</div>`).join('')||'O ranking será calculado quando houver jogos com resultado.';}
+
+  async function atualizarPainelTempoReal(silent=true){
+    await Promise.allSettled([
+      carregarRanking(true),
+      carregarPalpitesTodos(true),
+      carregarUltimosPalpites(true)
+    ]);
+  }
+
+  function iniciarTempoRealPalpites(){
+    if(!state.bolao)return;
+    if(typeof state.unsubscribePalpites==='function'){try{state.unsubscribePalpites()}catch(e){}}
+    state.unsubscribePalpites=db.collection('boloes').doc(state.bolao.id).collection('palpites').onSnapshot(()=>{
+      if(!state.bolao)return;
+      atualizarPainelTempoReal(true).catch(console.warn);
+    },e=>console.warn('tempo real palpites:',e.message||e));
+  }
+
+  async function garantirPalpitesDesafiante(camp,rodada){
+    if(!state.bolao||!state.jogos.length)return;
+    const bolaoRef=db.collection('boloes').doc(state.bolao.id);
+    await bolaoRef.collection('participantes').doc('DESAFIANTE_IA').set({
+      uid:'DESAFIANTE_IA',nome:'🤖 Desafiante IA',email:'virtual@portalsimonsports.local',papel:'DESAFIANTE',status:'APROVADO',ativo:true,virtual:true,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true}).catch(e=>console.warn('participante Desafiante IA:',e.message||e));
+    const snap=await bolaoRef.collection('palpites').where('uid','==','DESAFIANTE_IA').where('camp','==',camp).where('rodada','==',String(rodada)).get().catch(()=>null);
+    const existentes=new Set(); if(snap) snap.docs.forEach(d=>{const p=d.data(); if(p.idJogo)existentes.add(String(p.idJogo));});
+    const batch=db.batch(); let qtd=0;
+    state.jogos.forEach(g=>{
+      if(statusJogo(g)==='ENCERRADO')return;
+      if(existentes.has(String(g.id)))return;
+      const home=pick(g,['mandante','home','time_mandante','casa'],'Mandante'),away=pick(g,['visitante','away','time_visitante','fora'],'Visitante');
+      const p=gerarPalpite(home,away,'EQUILIBRADO',`DESAFIANTE_${state.bolao.id}_${camp}_${rodada}_${g.id}`);
+      const doc=safeId(`DESAFIANTE_IA_${camp}_${rodada}_${g.id}`);
+      batch.set(bolaoRef.collection('palpites').doc(doc),{uid:'DESAFIANTE_IA',nome:'🤖 Desafiante IA',email:'virtual@portalsimonsports.local',idJogo:String(g.id),camp,rodada:String(rodada),gm:p.gm,gv:p.gv,origem:'DESAFIANTE_IA',virtual:true,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp(),criadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      qtd++;
+    });
+    if(qtd) await batch.commit().catch(e=>console.warn('palpites Desafiante IA:',e.message||e));
+  }
+
+  function jogoPorPalpite(p){return state.jogos.find(g=>String(g.id)===String(p.idJogo||p.jogoId||p.id_jogo||''));}
+  function palpiteLiberado(p){const g=jogoPorPalpite(p); return g&&jogoIniciado(g);}
+  async function getUltimosPalpitesBolao(){
+    if(!state.bolao)return [];
+    const q=await db.collection('boloes').doc(state.bolao.id).collection('palpites').limit(500).get();
+    return q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{
+      const da=a.atualizadoEm?.toDate?a.atualizadoEm.toDate().getTime():0;
+      const dbb=b.atualizadoEm?.toDate?b.atualizadoEm.toDate().getTime():0;
+      return dbb-da;
+    });
+  }
+  async function irParaPalpitar(camp,rodada,idJogo){
+    setView('jogos');
+    setSelectValue('#selCamp',camp,campInfo(camp).nome||camp);
+    await loadRodadas(camp);
+    setSelectValue('#selRod',rodada,`${rodada}ª Rodada`);
+    state.currentCamp=camp; state.currentRodada=String(rodada);
+    await carregarJogos();
+    const el=document.querySelector(`.match-card[data-jogo="${cssEsc(idJogo)}"]`);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  window.PSS_IR_PALPITAR=(camp,rodada,id)=>irParaPalpitar(camp,rodada,id).catch(e=>toast('Erro ao abrir palpite: '+e.message));
+
+  async function carregarUltimosPalpites(silent=false){
+    if(!state.bolao)return;
+    const body=$('#ultimosBody'); if(!body)return;
+    if(!silent)body.innerHTML='<div class="loading">Carregando últimos palpites...</div>';
+    const palp=await getUltimosPalpitesBolao().catch(()=>[]);
+    const rows=palp.filter(p=>palpiteLiberado(p)).slice(0,40);
+    if(!rows.length){body.innerHTML='<div class="empty">Nenhum palpite liberado ainda. Palpites de jogos futuros continuam ocultos.</div>';return}
+    body.innerHTML=`<table class="info-table"><thead><tr><th>Data</th><th>Jogo</th><th>Participante</th><th>Palpite</th><th>Ação</th></tr></thead><tbody>${rows.map(p=>{const g=jogoPorPalpite(p),home=pick(g,['mandante','home','time_mandante'],'Mandante'),away=pick(g,['visitante','away','time_visitante'],'Visitante'),d=p.atualizadoEm?.toDate?p.atualizadoEm.toDate():null,camp=String(p.camp||g.__camp||state.currentCamp||'CUP'),rod=String(p.rodada||g.__rodada||state.currentRodada||1); return `<tr><td>${esc(d?dataHoraLabel(d):'—')}</td><td>${esc(translateTeam(home))} x ${esc(translateTeam(away))}</td><td>${esc(p.nome||p.email||p.uid||'Participante')}</td><td><strong>${esc(p.gm)} x ${esc(p.gv)}</strong></td><td><button class="btn mini" type="button" onclick="PSS_IR_PALPITAR('${esc(camp)}','${esc(rod)}','${esc(g.id)}')">Palpitar</button></td></tr>`}).join('')}</tbody></table>`;
+  }
+
+  async function carregarRanking(silent=false){
+    if(!state.bolao)return;
+    const body=$('#rankingBody');
+    if(body&&!silent)body.innerHTML='<div class="loading">Carregando ranking...</div>';
+    const palp=await getPalpitesRodada().catch(()=>[]);
+    const map=new Map(state.jogos.map(g=>[g.id,g]));
+    const agg=new Map();
+    palp.forEach(p=>{const g=map.get(String(p.idJogo||'')); if(!g||!jogoIniciado(g))return; const k=p.uid||p.nome||'PART'; const cur=agg.get(k)||{nome:p.nome||p.email||k,pontos:0,jogos:0,exatos:0}; const det=detalhePontuacao(p,g); cur.pontos+=det.pts; cur.jogos++; if(det.tipo==='PE')cur.exatos++; agg.set(k,cur)});
+    const rows=Array.from(agg.values()).sort((a,b)=>b.pontos-a.pontos||b.exatos-a.exatos||a.nome.localeCompare(b.nome,'pt-BR'));
+    const html=rows.length?`<table class="info-table"><thead><tr><th>#</th><th>Participante</th><th>Pontos</th><th>Jogos</th><th>Exatos</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td><span class="info-pill">${i+1}</span></td><td>${esc(r.nome)}</td><td><strong>${r.pontos}</strong></td><td>${r.jogos}</td><td>${r.exatos}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Ranking sem dados pontuáveis. Ele aparece quando houver jogos iniciados ou encerrados.</div>';
+    if(body)body.innerHTML=html;
+    const res=$('#rankingResumo'); if(res)res.innerHTML=rows.slice(0,5).map((r,i)=>`<div class="muted"><strong>${i+1}. ${esc(r.nome)}</strong> — ${r.pontos} pts</div>`).join('')||'O ranking será calculado quando houver jogos com resultado.';
+  }
   $('#btnRanking').onclick=()=>carregarRanking().catch(e=>toast('Erro no ranking: '+e.message));
-  async function carregarPalpitesTodos(){if(!state.bolao)return; const body=$('#palpitesBody'); body.innerHTML='<div class="loading">Carregando palpites...</div>'; const palp=await getPalpitesRodada().catch(()=>[]); const map=new Map(state.jogos.map(g=>[g.id,g])); const rows=palp.map(p=>({p,g:map.get(String(p.idJogo||''))})).filter(x=>x.g&&jogoIniciado(x.g)); if(!rows.length){body.innerHTML='<div class="empty">Nenhum palpite liberado. Jogos futuros continuam ocultos.</div>';return} body.innerHTML=`<div class="legend"><strong>Legenda:</strong><span>PE Placar exato</span><span>GV Gol vencedor</span><span>SG Saldo</span><span>GP Gol perdedor</span><span>V Vencedor</span><span>E Empate garantido</span></div><table class="info-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th><th>Pontos</th></tr></thead><tbody>${rows.map(({p,g})=>{const home=pick(g,['mandante','home','time_mandante'],'Mandante'),away=pick(g,['visitante','away','time_visitante'],'Visitante'),det=detalhePontuacao(p,g),of=placarOficial(g); return `<tr><td>${esc(translateTeam(home))} ${of?of.gm:'--'} x ${of?of.gv:'--'} ${esc(translateTeam(away))}</td><td><strong>${esc(p.gm)} x ${esc(p.gv)}</strong></td><td>${esc(p.nome||p.email||p.uid||'Participante')}</td><td><span class="info-pill">${det.pts} PTS</span> <span class="badge">${det.tipo}</span></td></tr>`}).join('')}</tbody></table>`}
-  $('#btnTodos').onclick=()=>carregarPalpitesTodos().catch(e=>toast('Erro nos palpites: '+e.message));
+  async function carregarPalpitesTodos(silent=false){
+    if(!state.bolao)return;
+    const body=$('#palpitesBody'); if(!body)return;
+    if(!silent)body.innerHTML='<div class="loading">Carregando palpites...</div>';
+    const palp=await getPalpitesRodada().catch(()=>[]);
+    const map=new Map(state.jogos.map(g=>[g.id,g]));
+    const rows=palp.map(p=>({p,g:map.get(String(p.idJogo||''))})).filter(x=>x.g&&jogoIniciado(x.g));
+    if(!rows.length){body.innerHTML='<div class="empty">Nenhum palpite liberado. Jogos futuros continuam ocultos.</div>';return}
+    body.innerHTML=`<div class="legend"><strong>Legenda:</strong><span>PE Placar exato</span><span>GV Gol vencedor</span><span>SG Saldo</span><span>GP Gol perdedor</span><span>V Vencedor</span><span>E Empate garantido</span></div><table class="info-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th><th>Pontos</th></tr></thead><tbody>${rows.map(({p,g})=>{const home=pick(g,['mandante','home','time_mandante'],'Mandante'),away=pick(g,['visitante','away','time_visitante'],'Visitante'),det=detalhePontuacao(p,g),of=placarOficial(g); return `<tr><td>${esc(translateTeam(home))} ${of?of.gm:'--'} x ${of?of.gv:'--'} ${esc(translateTeam(away))}</td><td><strong>${esc(p.gm)} x ${esc(p.gv)}</strong></td><td>${esc(p.nome||p.email||p.uid||'Participante')}</td><td><span class="info-pill">${det.pts} PTS</span> <span class="badge">${det.tipo}</span></td></tr>`}).join('')}</tbody></table>`;
+  }
+  $('#btnTodos').onclick=()=>setView('palpites');
   function renderProximosResumo(){const box=$('#proxJogosResumo'); if(!box)return; const rows=ordenarJogosRodada(state.proximosJogos||[]).slice(0,6); if(!rows.length){box.innerHTML='<div class="empty compact">Nenhum próximo jogo encontrado para este bolão no momento.</div>';return} box.innerHTML=`<div class="resumo-jogos">${rows.map(g=>{const home=pick(g,['mandante','home','time_mandante','casa'],'Mandante'),away=pick(g,['visitante','away','time_visitante','fora'],'Visitante'),of=placarOficial(g),d=dataDoJogo(g),st=statusJogo(g),statusTxt=st==='AO VIVO'?'Ao vivo':st==='ENCERRADO'?'Encerrado':'Aberto',statusCls=st==='AO VIVO'?'live':st==='ENCERRADO'?'enc':'open',score=of?`${of.gm}<span>x</span>${of.gv}`:'<span>x</span>'; return `<article class="resumo-jogo"><div class="resumo-jogo-top"><div class="resumo-data">${esc(d?dataHoraLabel(d):'Data não informada')}</div><span class="resumo-status ${statusCls}">${esc(statusTxt)}</span></div><div class="resumo-jogo-main">${resumoTeamHtml(home)}<div class="resumo-placar">${score}</div>${resumoTeamHtml(away,'right')}</div></article>`}).join('')}</div>`}
   async function carregarParticipantes(){if(!state.bolao)return; const body=$('#participantesBody'); body.innerHTML='<div class="loading">Carregando participantes...</div>'; const q=await db.collection('boloes').doc(state.bolao.id).collection('participantes').get(); if(q.empty){body.innerHTML='<div class="empty">Nenhum participante encontrado.</div>';return} body.innerHTML=`<table class="info-table"><thead><tr><th>Participante</th><th>Status</th><th>Papel</th></tr></thead><tbody>${q.docs.map(d=>{const p=d.data(); return `<tr><td>${esc(p.nome||p.email||p.uid||'Participante')}</td><td><span class="badge ${p.status==='PENDENTE'?'pendente':'publico'}">${esc(p.status||'APROVADO')}</span></td><td>${esc(p.papel||'PARTICIPANTE')}</td></tr>`}).join('')}</tbody></table>`}
 
@@ -828,4 +954,5 @@
 </script>
 </body>
 </html>
+
 
