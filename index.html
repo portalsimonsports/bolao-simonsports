@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- V021_INDEX_FIRESTORE_DINAMICO_VISUAL_LIMPO_2026-06-29 -->
+<!-- V022_INDEX_STATUS_EVOLUCAO_CORRIGIDOS_2026-06-30 -->
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -63,14 +63,55 @@ function fmt(n){return Math.max(0,Math.round(Number(n||0))).toLocaleString('pt-B
 function num(v){if(v===null||v===undefined||v==='')return 0;const n=Number(String(v).replace(/\./g,'').replace(',','.').replace(/[^0-9.-]/g,''));return Number.isFinite(n)?Math.max(0,Math.round(n)):0}
 function parseDate(v){if(!v)return null;if(v&&typeof v.toDate==='function')return v.toDate();if(v instanceof Date)return isNaN(v)?null:v;const s=String(v).trim();let m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);const d=new Date(s);return isNaN(d)?null:d}
 function d(v){const dt=parseDate(v);return dt?`${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`:'—'}
-function campCode(v){const s=String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').trim().toUpperCase();if(s==='BR')return'BRA';if(['CUP','BRA','ENG','ESP','ITA','FRA','SUP'].includes(s))return s;if(s.includes('COPA')||s.includes('WORLD'))return'CUP';if(s.includes('BRASILE'))return'BRA';if(s.includes('PREMIER')||s.includes('INGL'))return'ENG';if(s.includes('ESPAN'))return'ESP';if(s.includes('ITAL'))return'ITA';if(s.includes('FRANC'))return'FRA';if(s.includes('SUPER'))return'SUP';return s||'CUP'}
+function campCode(v){const s=String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();if(s==='BR')return'BRA';if(['CUP','BRA','ENG','ESP','ITA','FRA','SUP'].includes(s))return s;if(s.includes('COPA')||s.includes('WORLD'))return'CUP';if(s.includes('BRASILE'))return'BRA';if(s.includes('PREMIER')||s.includes('INGL'))return'ENG';if(s.includes('ESPAN'))return'ESP';if(s.includes('ITAL'))return'ITA';if(s.includes('FRANC'))return'FRA';if(s.includes('SUPER'))return'SUP';return s||'CUP'}
 function cls(st){return st==='Finalizado'?'done':st==='A iniciar'?'wait':'ok'}
 function ordem(st){return st==='Em andamento'?1:st==='A iniciar'?2:3}
-function statusFrom(c){const total=num(c.qtd_jogos??c.qtdJogos??c.totalJogos),feitos=num(c.jogos_realizados??c.jogosRealizados??c.jogosFinalizados),fonte=String(c.status||c.statusCampeonato||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase();if(total&&feitos>=total)return'Finalizado';if(fonte.includes('FINAL'))return'Finalizado';if(fonte.includes('INICIAR'))return'A iniciar';if(fonte.includes('ANDAMENTO'))return'Em andamento';const ini=parseDate(c.inicio||c.dataInicio),fim=parseDate(c.fim||c.dataFim),hoje=new Date();if(ini&&hoje<ini)return'A iniciar';if(fim&&hoje>fim)return'Finalizado';return'Em andamento'}
+function statusFrom(c){
+  const fonte=String(c.status||c.statusCampeonato||c.statusCompeticao||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+
+  if(fonte.includes('FINAL'))return'Finalizado';
+  if(fonte.includes('INICIAR'))return'A iniciar';
+  if(fonte.includes('ANDAMENTO'))return'Em andamento';
+
+  const total=num(c.qtd_jogos??c.total_jogos??c.qtdJogos??c.totalJogos);
+  const feitos=num(c.jogos_realizados??c.jogos_finalizados??c.realizados??c.finalizados??c.jogosRealizados??c.jogosFinalizados);
+
+  if(total&&feitos>=total)return'Finalizado';
+
+  const ini=parseDate(c.inicio||c.dataInicio),fim=parseDate(c.fim||c.dataFim),hoje=new Date();
+  if(ini&&hoje<ini)return'A iniciar';
+  if(fim&&hoje>fim)return'Finalizado';
+
+  return'Em andamento';
+}
 function logoHtml(c){const sig=campCode(c.sigla||c.id),src=c.logo||c.logoUrl||c.logo_url||c.logoCampeonato||'';if(src)return`<div class="logo"><img src="${esc(src)}" alt="${esc(c.nome||sig)}" loading="lazy" onerror="this.remove();this.parentNode.innerHTML='<span class=&quot;logo-fallback&quot;>${esc(sig)}</span>'"></div>`;const emoji={CUP:'🏆',BRA:'🇧🇷',ENG:'🏴',ESP:'🇪🇸',FRA:'🇫🇷',ITA:'🇮🇹',SUP:'🌍'}[sig]||sig;return`<div class="logo">${esc(emoji)}</div>`}
-function normalizeCamp(doc){const c=doc||{},sig=campCode(c.sigla||c.id||c.camp||c.campeonato||c.nome);return{id:c.id||sig,sigla:sig,nome:c.nome||c.campeonatoNome||sig,inicio:c.inicio||c.dataInicio||'',fim:c.fim||c.dataFim||'',total:num(c.qtd_jogos??c.qtdJogos??c.totalJogos),feitos:num(c.jogos_realizados??c.jogosRealizados??c.jogosFinalizados),status:statusFrom(c),logo:c.logo||c.logoUrl||c.logo_url||c.logoCampeonato||''}}
+function primeiroCampo(c,keys){
+  for(const k of keys){
+    if(Object.prototype.hasOwnProperty.call(c,k)&&c[k]!==null&&c[k]!==undefined&&String(c[k]).trim()!=='')return c[k];
+  }
+  return '';
+}
+
+function normalizeCamp(doc){
+  const c=doc||{},sig=campCode(c.sigla||c.id||c.camp||c.campeonato||c.nome);
+  const total=num(primeiroCampo(c,['qtd_jogos','total_jogos','qtdJogos','totalJogos']));
+  const feitosBruto=num(primeiroCampo(c,['jogos_realizados','jogos_finalizados','realizados','finalizados','jogosRealizados','jogosFinalizados']));
+  const feitos=total?Math.min(feitosBruto,total):feitosBruto;
+
+  return{
+    id:c.id||sig,
+    sigla:sig,
+    nome:c.nome||c.campeonatoNome||sig,
+    inicio:c.inicio||c.dataInicio||'',
+    fim:c.fim||c.dataFim||'',
+    total:total,
+    feitos:feitos,
+    status:statusFrom(c),
+    logo:c.logo||c.logoUrl||c.logo_url||c.logoCampeonato||''
+  };
+}
 async function carregarCampeonatos(){const grid=document.getElementById('catalogGrid');grid.innerHTML='<div class="empty">Carregando campeonatos...</div>';try{const qs=await db.collection('campeonatos').get();const list=qs.docs.map(d=>normalizeCamp({id:d.id,...d.data()})).filter(c=>c.nome&&c.sigla);if(!list.length){grid.innerHTML='<div class="empty">Nenhum campeonato publicado no Firestore. Sincronize a aba Boloes_Disponiveis para a coleção campeonatos.</div>';return}renderCatalog(list)}catch(e){console.warn(e);grid.innerHTML=`<div class="empty">Não foi possível carregar os campeonatos do Firestore.<br>${esc(e.message||e)}</div>`}}
-function renderCatalog(list){const grid=document.getElementById('catalogGrid');grid.innerHTML=list.slice().sort((a,b)=>ordem(a.status)-ordem(b.status)||a.nome.localeCompare(b.nome,'pt-BR')).map(c=>{const pct=c.total?Math.round(Math.min(c.feitos,c.total)/c.total*100):0,textoJogos=`${fmt(c.feitos)}/${fmt(c.total)} jogos realizados`;return`<article class="card"><div class="card-top">${logoHtml(c)}<div><h3>${esc(c.nome)}</h3><p>${d(c.inicio)} — ${d(c.fim)}</p></div></div><div class="badges"><span class="badge ${cls(c.status)}">${esc(c.status)}</span><span class="badge pub">Bolões públicos</span><span class="badge peso">Com peso</span><span class="badge">Sem peso</span></div><div class="bar-wrap"><div class="bar-top"><span>${textoJogos}</span><span>${pct}%</span></div><div class="bar"><span style="width:${pct}%"></span></div><div class="note">Progresso por jogos realizados/finalizados.</div></div><div class="actions"><a class="btn dark sm" href="bolao.html?camp=${esc(c.sigla)}">Dar palpite</a><a class="btn light sm" href="publicos.html?campeonato=${esc(c.sigla)}">Bolões públicos</a></div></article>`}).join('')}
+function renderCatalog(list){const grid=document.getElementById('catalogGrid');grid.innerHTML=list.slice().sort((a,b)=>ordem(a.status)-ordem(b.status)||a.nome.localeCompare(b.nome,'pt-BR')).map(c=>{const pct=c.total?Math.round(Math.min(c.feitos,c.total)/c.total*100):0,textoJogos=`${fmt(c.feitos)}/${fmt(c.total)} jogos realizados`;return`<article class="card"><div class="card-top">${logoHtml(c)}<div><h3>${esc(c.nome)}</h3><p>${d(c.inicio)} — ${d(c.fim)}</p></div></div><div class="badges"><span class="badge ${cls(c.status)}">${esc(c.status)}</span><span class="badge pub">Bolões públicos</span><span class="badge peso">Com peso</span><span class="badge">Sem peso</span></div><div class="bar-wrap"><div class="bar-top"><span>${textoJogos}</span><span>${pct}%</span></div><div class="bar"><span style="width:${pct}%"></span></div><div class="note">Progresso por jogos realizados.</div></div><div class="actions"><a class="btn dark sm" href="bolao.html?camp=${esc(c.sigla)}">Dar palpite</a><a class="btn light sm" href="publicos.html?campeonato=${esc(c.sigla)}">Bolões públicos</a></div></article>`}).join('')}
 auth.onAuthStateChanged(u=>{const userBox=document.getElementById('userBox'),login=document.getElementById('btnLogin'),logout=document.getElementById('btnLogout');if(u){userBox.textContent='Olá, '+(u.displayName||u.email);login.style.display='none';logout.style.display='inline-flex'}else{userBox.textContent='Você não está logado';login.style.display='inline-flex';logout.style.display='none'}});
 document.getElementById('btnLogin').onclick=async()=>{try{await auth.signInWithPopup(provider)}catch(e){try{await auth.signInWithRedirect(provider)}catch(_){}}};
 document.getElementById('btnLogout').onclick=()=>auth.signOut();
