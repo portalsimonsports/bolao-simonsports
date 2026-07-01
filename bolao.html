@@ -110,6 +110,15 @@
   @media(max-width:660px){.container{width:min(92vw,1240px)}.topbar-row{min-height:auto;padding:10px 0;align-items:flex-start;flex-direction:column}.top-actions{width:100%;justify-content:space-between;flex-wrap:wrap}.user-pill{order:3;max-width:100%;width:100%}.hero-grid{padding:38px 0 50px}.hero h1{font-size:38px}.hero-actions .btn{width:100%}.login-card{display:none}.section{padding:38px 0}.section-head{display:block}.catalog-grid,.public-boloes-grid{grid-template-columns:1fr}.stats{margin-top:-22px;gap:10px}.stat{min-height:84px}.stat .n{font-size:27px}.app-card{border-radius:22px;padding:16px}.tabs{padding:10px}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.field-grid,.tools{grid-template-columns:1fr}.match-card{padding:13px;border-radius:18px}.match-table{grid-template-columns:minmax(0,1fr) 64px 76px;gap:7px;padding:10px}.team{font-size:14px}.match-foot{grid-template-columns:1fr auto}.autosave{grid-column:1/-1}.brand-text strong{max-width:210px}.modal-card{padding:16px}}
 
   @media(max-width:1040px){.app-grid.create-mode{grid-template-columns:1fr}.create-mode #sec-criar .field-grid.single{grid-template-columns:1fr 1fr}}
+  /* V054-UX: rodapé — antes ausente na bolao.html, presente nas demais páginas (index.html, publicos.html) */
+  .site-footer{background:var(--dark);color:#cbd5e1;padding:22px 0;margin-top:40px}
+  .site-footer .container{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+  .site-footer strong{color:#fff;font-weight:1000}
+  .site-footer .footer-sub{font-size:12px;color:#94a3b8;font-weight:700;margin-top:2px}
+  .site-footer .footer-links{display:flex;gap:18px;flex-wrap:wrap}
+  .site-footer .footer-links a{color:#cbd5e1;font-weight:800;font-size:13px;text-decoration:none}
+  .site-footer .footer-links a:hover{color:#fff;text-decoration:underline}
+  @media(max-width:660px){.site-footer .container{flex-direction:column;align-items:flex-start;text-align:left}}
   @media(max-width:660px){.logged .hero{display:none}.app-grid.create-mode{grid-template-columns:1fr}.create-mode #sec-criar .field-grid.single,#sec-criar .create-subgrid{grid-template-columns:1fr}.app-card .hero-actions .btn{width:100%}}
 
 </style>
@@ -300,6 +309,19 @@
       </section>
     </div>
   </main>
+  <footer class="site-footer">
+    <div class="container">
+      <div>
+        <strong>© 2026 Portal SimonSports</strong>
+        <div class="footer-sub">Entretenimento esportivo</div>
+      </div>
+      <nav class="footer-links">
+        <a href="publicos.html">Bolões públicos</a>
+        <a href="index.html">Sistema</a>
+        <a href="regulamento.html">Regulamento</a>
+      </nav>
+    </div>
+  </footer>
 </div>
 
 <div class="modal" id="paModal" aria-hidden="true">
@@ -867,5 +889,4 @@
 </script>
 </body>
 </html>
-
 
