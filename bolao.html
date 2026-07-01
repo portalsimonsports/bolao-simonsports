@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V050_RESULTADOS_OFICIAIS_E_BANDEIRAS_COMPLETAS_2026-06-30 -->
+<!-- V051_RESTAURA_PLACARES_MERGE_RESULTADOS_2026-06-30 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -625,9 +625,35 @@
       if(gm!==null&&gv!==null)return {gm,gv};
     }
 
-    if(Array.isArray(g)){
-      const gm=valorPlacar(g[8]??g[9]);
-      const gv=valorPlacar(g[9]??g[10]);
+    const arrays=[];
+    if(Array.isArray(g)) arrays.push(g);
+    ['competitors','participantes','teams','equipes'].forEach(k=>{if(Array.isArray(g?.[k]))arrays.push(g[k])});
+    if(Array.isArray(g?.competitions?.[0]?.competitors))arrays.push(g.competitions[0].competitors);
+    if(Array.isArray(g?.event?.competitions?.[0]?.competitors))arrays.push(g.event.competitions[0].competitors);
+
+    for(const arr of arrays){
+      if(arr.length>=2&&arr.every(x=>x&&typeof x==='object'&&!Array.isArray(x))){
+        const home=arr.find(x=>ctrl(x.homeAway||x.casaFora||x.local||x.tipo).includes('HOME')||ctrl(x.homeAway||x.casaFora||x.local||x.tipo).includes('CASA')||x.isHome===true)||arr[0];
+        const away=arr.find(x=>ctrl(x.homeAway||x.casaFora||x.local||x.tipo).includes('AWAY')||ctrl(x.homeAway||x.casaFora||x.local||x.tipo).includes('FORA')||x.isAway===true)||arr.find(x=>x!==home)||arr[1];
+        const gm=valorPorChaveFlex(home,['score','placar','gols','goals','points','pontos','resultado']);
+        const gv=valorPorChaveFlex(away,['score','placar','gols','goals','points','pontos','resultado']);
+        if(gm!==null&&gv!==null)return {gm,gv};
+      }
+
+      if(arr.length>=10){
+        const candidatos=[[8,9],[7,8],[9,10],[10,11],[6,7]];
+        for(const par of candidatos){
+          const gm=valorPlacar(arr[par[0]]),gv=valorPlacar(arr[par[1]]);
+          if(gm!==null&&gv!==null&&gm<30&&gv<30)return {gm,gv};
+        }
+      }
+    }
+
+    const homeObj=g?.home||g?.mandante||g?.casa||g?.homeTeam||g?.teamHome||g?.equipeMandante;
+    const awayObj=g?.away||g?.visitante||g?.fora||g?.awayTeam||g?.teamAway||g?.equipeVisitante;
+    if(homeObj&&awayObj&&typeof homeObj==='object'&&typeof awayObj==='object'){
+      const gm=valorPorChaveFlex(homeObj,['score','placar','gols','goals','points','pontos','resultado']);
+      const gv=valorPorChaveFlex(awayObj,['score','placar','gols','goals','points','pontos','resultado']);
       if(gm!==null&&gv!==null)return {gm,gv};
     }
 
@@ -644,7 +670,67 @@
   }
   function jogoIniciado(g){return statusJogo(g)!=='ABERTO'}
   function jogoAberto(g){return statusJogo(g)==='ABERTO'}
-  async function buscarJogos(camp,rodada){const j=await apiGet(withAction('jogos',`camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}`)); return unwrapArray(j)}
+  function nomeJogoKey(g){
+    const h=norm(pick(g,['mandante','home','time_mandante','casa','homeTeam','equipeMandante'],''));
+    const a=norm(pick(g,['visitante','away','time_visitante','fora','awayTeam','equipeVisitante'],''));
+    const d=dataHoraLabel(parseDate(pick(g,['data_jogo','data','horario','inicio','dataHora'],'')));
+    return `${h}|${a}|${d}`;
+  }
+  function idJogoKey(g,camp,rodada,i=0){
+    return String(g.id||g.id_jogo||g.jogo_id||g.codigo||g.cod_jogo||g.matchId||g.eventId||`${camp}_${rodada}_${i}`);
+  }
+  function aplicarPlacarNoJogo(base,fonte){
+    if(!base||!fonte)return base;
+    if(placarOficial(base))return base;
+    const of=placarOficial(fonte);
+    if(!of)return base;
+    return {
+      ...base,
+      gm:of.gm,
+      gv:of.gv,
+      gols_mandante:of.gm,
+      gols_visitante:of.gv,
+      placar_mandante:of.gm,
+      placar_visitante:of.gv,
+      placar:`${of.gm} x ${of.gv}`,
+      status:base.status||fonte.status||fonte.situacao||'ENCERRADO'
+    };
+  }
+  async function buscarResultadosExtras(camp,rodada){
+    const params=`camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}&comPlacar=1&incluirPlacares=1&placares=1&resultados=1`;
+    const actions=['resultados','placares','jogos_resultados','jogosResultados','jogos_finalizados','jogosFinalizados','jogos'];
+    const out=[];
+    for(const action of actions){
+      try{
+        const j=await apiGet(withAction(action,params));
+        const arr=unwrapArray(j);
+        if(arr&&arr.length)out.push(...arr);
+      }catch(e){
+        console.warn('fonte extra de placar indisponível:',action,e.message||e);
+      }
+    }
+    return out;
+  }
+  async function buscarJogos(camp,rodada){
+    const params=`camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}&comPlacar=1&incluirPlacares=1&placares=1&resultados=1`;
+    const j=await apiGet(withAction('jogos',params));
+    const base=unwrapArray(j);
+    let extras=[];
+    try{extras=await buscarResultadosExtras(camp,rodada)}catch(e){extras=[]}
+
+    if(!extras.length)return base;
+
+    const porId=new Map(),porNome=new Map();
+    extras.forEach((g,i)=>{
+      porId.set(idJogoKey(g,camp,rodada,i),g);
+      porNome.set(nomeJogoKey(g),g);
+    });
+
+    return base.map((g,i)=>{
+      const porChave=porId.get(idJogoKey(g,camp,rodada,i))||porNome.get(nomeJogoKey(g));
+      return aplicarPlacarNoJogo(g,porChave);
+    });
+  }
   async function atualizarProgressoCampeonato(camp){
     if(!camp)return; const atual=state.progressoCache[camp]||{}; if(atual.atualizando)return;
     state.progressoCache[camp]={...atual,atualizando:true};
@@ -824,7 +910,7 @@
     if(list) list.innerHTML=state.jogos.map(g=>{
       const id=g.id,of=placarOficial(g),p=state.palpites[id]||{},aberto=jogoAberto(g),home=pick(g,['mandante','home','time_mandante','casa'],'Mandante'),away=pick(g,['visitante','away','time_visitante','fora'],'Visitante');
       const pts=pontuar(p,g),status=statusJogo(g);
-      return `<article class="match-card" data-jogo="${esc(id)}" data-home="${esc(home)}" data-away="${esc(away)}" data-aberto="${aberto?'1':'0'}"><div class="match-head"><div><div class="match-date">${esc(dataHoraLabel(dataDoJogo(g)))}</div><div class="match-meta">${esc(camp)} • ${esc(rodada)}ª Rodada</div></div><span class="eta ${aberto?'':status==='AO VIVO'?'live':'enc'}">${esc(etaLabel(g))}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div>${teamHtml(home)}<div class="box-score">${of?of.gm:(status==='ENCERRADO'?'?':'–')}</div><input class="inp-palpite" type="number" min="0" inputmode="numeric" data-id="${esc(id)}_gm" value="${p.gm??''}" ${aberto?'':'disabled'}>${teamHtml(away)}<div class="box-score">${of?of.gv:(status==='ENCERRADO'?'?':'–')}</div><input class="inp-palpite" type="number" min="0" inputmode="numeric" data-id="${esc(id)}_gv" value="${p.gv??''}" ${aberto?'':'disabled'}></div><div class="match-foot"><div><div class="autosave" data-save-status="${esc(id)}">${p.atualizadoEm?'salvo anteriormente':(aberto?'aguardando palpite':status==='AO VIVO'?'jogo em andamento':'palpite encerrado')}</div></div><span class="pts" data-pts="${esc(id)}">${pts} pts</span><button class="btn primary mini" data-save="${esc(id)}" ${aberto?'':'disabled'}>Salvar</button></div></article>`
+      return `<article class="match-card" data-jogo="${esc(id)}" data-home="${esc(home)}" data-away="${esc(away)}" data-aberto="${aberto?'1':'0'}"><div class="match-head"><div><div class="match-date">${esc(dataHoraLabel(dataDoJogo(g)))}</div><div class="match-meta">${esc(camp)} • ${esc(rodada)}ª Rodada</div></div><span class="eta ${aberto?'':status==='AO VIVO'?'live':'enc'}">${esc(etaLabel(g))}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div>${teamHtml(home)}<div class="box-score">${of?of.gm:'–'}</div><input class="inp-palpite" type="number" min="0" inputmode="numeric" data-id="${esc(id)}_gm" value="${p.gm??''}" ${aberto?'':'disabled'}>${teamHtml(away)}<div class="box-score">${of?of.gv:'–'}</div><input class="inp-palpite" type="number" min="0" inputmode="numeric" data-id="${esc(id)}_gv" value="${p.gv??''}" ${aberto?'':'disabled'}></div><div class="match-foot"><div><div class="autosave" data-save-status="${esc(id)}">${p.atualizadoEm?'salvo anteriormente':(aberto?'aguardando palpite':status==='AO VIVO'?'jogo em andamento':(of?'palpite encerrado':'sem placar oficial na fonte'))}</div></div><span class="pts" data-pts="${esc(id)}">${pts} pts</span><button class="btn primary mini" data-save="${esc(id)}" ${aberto?'':'disabled'}>Salvar</button></div></article>`
     }).join('');
     bindSave(camp,rodada); applyPAIfNeeded(camp,rodada); renderProximosResumo(); await carregarRanking(true);
   }
