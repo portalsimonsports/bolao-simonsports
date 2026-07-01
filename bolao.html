@@ -1,5 +1,13 @@
 <!DOCTYPE html>
-<!-- V053_ABERTURA_IMEDIATA_PRECARREGA_JOGOS_RANKING_PALPITES_PARTICIPANTES_2026-06-30 -->
+<!-- V054_CORRECOES_PROGRESSO_CACHE_PA_TOKEN_2026-07-01
+     Mudanças desde V053:
+     1) TOTAL_RODADAS_CAMP: constante única (antes duplicada em loadRodadas / atualizarProgressoCampeonato / rodadasParaProximosJogos)
+     2) atualizarProgressoCampeonato: cache com TTL de 5min, evita loop de N chamadas ao Apps Script a cada abertura de bolão
+     3) gerarPalpite: corrigido ternário morto no perfil FAVORITOS (gv sempre virava 1)
+     4) carregarJogosAutomatico: removida chamada duplicada de carregarRanking(true)
+     5) carregarJogos: agora respeita loadToken após o await, evita race condition ao trocar de bolão rápido
+     6) salvarPalpite: comentário de alerta — trava de "jogo aberto" é só client-side, checar Firestore Rules
+-->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -338,6 +346,10 @@
     'brazil':'Brasil','germany':'Alemanha','france':'França','england':'Inglaterra','spain':'Espanha','italy':'Itália','japan':'Japão','south korea':'Coreia do Sul','korea republic':'Coreia do Sul','republic of korea':'Coreia do Sul','netherlands':'Países Baixos','morocco':'Marrocos','usa':'Estados Unidos','united states':'Estados Unidos','australia':'Austrália','cape verde':'Cabo Verde','switzerland':'Suíça','croatia':'Croácia','belgium':'Bélgica','mexico':'México','south africa':'África do Sul','czech republic':'República Tcheca','czechia':'República Tcheca','bosnia and herzegovina':'Bósnia e Herzegovina','saudi arabia':'Arábia Saudita','qatar':'Catar','iran':'Irã','sweden':'Suécia','poland':'Polônia','senegal':'Senegal','denmark':'Dinamarca','serbia':'Sérvia','tunisia':'Tunísia','ecuador':'Equador','ghana':'Gana','cameroon':'Camarões','wales':'País de Gales','scotland':'Escócia','paraguay':'Paraguai','austria':'Áustria','congo dr':'Congo DR','dr congo':'Congo DR','democratic republic of congo':'Congo DR','congo democratic republic':'Congo DR','bosnia herzegovina':'Bósnia e Herzegovina','bosnia-herzegovina':'Bósnia e Herzegovina','bosnia':'Bósnia e Herzegovina','algeria':'Argélia','egypt':'Egito','new zealand':'Nova Zelândia','norway':'Noruega','romania':'Romênia','slovakia':'Eslováquia','slovenia':'Eslovênia','turkey':'Turquia','ukraine':'Ucrânia','uzbekistan':'Uzbequistão','ivory coast':'Costa do Marfim','cote d ivoire':'Costa do Marfim','curacao':'Curaçao','jordan':'Jordânia','panama':'Panamá','nigeria':'Nigéria'
   };
   const TEAM_STRENGTH = {'brasil':96,'brazil':96,'franca':95,'france':95,'argentina':94,'inglaterra':92,'england':92,'espanha':92,'spain':92,'portugal':90,'alemanha':89,'germany':89,'paises baixos':88,'netherlands':88,'italia':87,'belgica':86,'uruguai':85,'croacia':84,'colombia':83,'mexico':81,'marrocos':80,'usa':80,'estados unidos':80,'japao':78,'coreia do sul':76,'australia':74};
+  // V054: fonte única do total de rodadas por campeonato (antes duplicado em 3 funções)
+  const TOTAL_RODADAS_CAMP = {CUP:7,BRA:38,ENG:38,ESP:38,FRA:38,ITA:38,SUP:10};
+  // V054: cache client-side do progresso por campeonato, para não recalcular a cada abertura de bolão
+  const PROGRESSO_TTL_MS = 5*60*1000;
 
   function p2(n){return String(n).padStart(2,'0')}
   function fmtClock(d){return `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}`}
@@ -557,7 +569,7 @@
     try{
       const j=await apiGet(withAction('rodadas',`camp=${encodeURIComponent(camp)}`));
       let nums=unwrapArray(j).map(x=>typeof x==='number'?x:(x.n||x.rodada||x)).filter(Boolean);
-      if(!nums.length){const total={CUP:7,BRA:38,ENG:38,ESP:38,FRA:38,ITA:38,SUP:10}[camp]||38; nums=Array.from({length:total},(_,i)=>i+1)}
+      if(!nums.length){const total=TOTAL_RODADAS_CAMP[camp]||38; nums=Array.from({length:total},(_,i)=>i+1)}
       const sel=$('#selRod'); sel.innerHTML='';
       nums.forEach(n=>{const o=document.createElement('option'); o.value=n; o.textContent=`${n}ª Rodada`; sel.appendChild(o)});
     }catch(e){$('#selRod').innerHTML='<option value="1">1ª Rodada</option>'}
@@ -589,10 +601,13 @@
   async function buscarJogos(camp,rodada){const j=await apiGet(withAction('jogos',`camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}`)); return unwrapArray(j)}
   async function atualizarProgressoCampeonato(camp){
     if(!camp)return; const atual=state.progressoCache[camp]||{}; if(atual.atualizando)return;
+    // V054: se já temos progresso recente em cache (TTL), não refaz o loop de N chamadas por rodada.
+    // Isso evita golpear o Apps Script com uma chamada por rodada (até 38x) toda vez que um bolão abre.
+    if(atual.agregado && atual.atualizadoEm && (Date.now()-atual.atualizadoEm)<PROGRESSO_TTL_MS)return;
     state.progressoCache[camp]={...atual,atualizando:true};
     try{
       let nums=[]; try{const j=await apiGet(withAction('rodadas',`camp=${encodeURIComponent(camp)}`)); nums=unwrapArray(j).map(x=>typeof x==='number'?x:(x.n||x.rodada||x)).filter(Boolean)}catch(e){}
-      if(!nums.length){const total={CUP:7,BRA:38,ENG:38,ESP:38,FRA:38,ITA:38,SUP:10}[camp]||0; nums=Array.from({length:total},(_,i)=>i+1)}
+      if(!nums.length){const total=TOTAL_RODADAS_CAMP[camp]||0; nums=Array.from({length:total},(_,i)=>i+1)}
       const vistos=new Set(); let totalJogos=0,finalizados=0;
       for(const r of nums){let rows=[]; try{rows=await buscarJogos(camp,r)}catch(e){rows=[]} rows.forEach((g,i)=>{const id=String(g.id||g.id_jogo||g.jogo_id||`${camp}_${r}_${i}`); if(vistos.has(id))return; vistos.add(id); totalJogos++; if(jogoIniciado(g))finalizados++;});}
       const base=campInfo(camp),baseTotal=Number(base.qtd_jogos||0)||0;
@@ -644,7 +659,7 @@
 
   function rodadasParaProximosJogos(camp){
     const opts=Array.from($('#selRod')?.options||[]).map(o=>String(o.value)).filter(Boolean);
-    let base=opts.length?opts:Array.from({length:({CUP:7,BRA:38,ENG:38,ESP:38,FRA:38,ITA:38,SUP:10}[camp]||38)},(_,i)=>String(i+1));
+    let base=opts.length?opts:Array.from({length:(TOTAL_RODADAS_CAMP[camp]||38)},(_,i)=>String(i+1));
     const b=state.bolao||{};
     const formato=ctrl(b.formatoBolao||b.modoBolao||b.recorteTipo||'');
     const ri=Number(b.rodadaInicial||b.rodada_inicio||b.rodada||'');
@@ -760,9 +775,10 @@
     }
 
     // Depois completa o restante em segundo plano, sem travar a abertura do bolão.
+    // V054: carregarRanking(true) removido daqui — já é chamado ao final de carregarJogos(),
+    // então mantinha-lo aqui duplicava a consulta ao Firestore em toda abertura de bolão.
     await Promise.allSettled([
       carregarProximosJogosBolao(camp),
-      carregarRanking(true),
       carregarPalpitesTodos(),
       carregarParticipantes()
     ]);
@@ -774,9 +790,13 @@
   async function carregarJogos(silent=false){
     if(!state.bolao){toast('Selecione um bolão.');return}
     const camp=String($('#selCamp')?.value||state.bolao.campeonato||state.bolao.camp||'CUP').toUpperCase(),rodada=String($('#selRod')?.value||1);
+    const tokenNaChamada=state.loadToken; // V054: snapshot do token para checar depois do await
     setSelectValue('#selCamp',camp,campInfo(camp).nome||camp);
     const list=$('#lista'); if(list && !silent) list.innerHTML='<div class="loading">Carregando jogos...</div>';
     const rows=await buscarJogos(camp,rodada);
+    // V054: se o usuário trocou de bolão enquanto essa busca estava em voo, descarta o resultado —
+    // evita que uma resposta antiga sobrescreva a seleção mais recente na tela.
+    if(tokenNaChamada!==state.loadToken)return;
     state.currentCamp=camp; state.currentRodada=rodada;
     state.jogos=ordenarJogosRodada(rows.map((g,i)=>({...g,id:String(g.id||g.id_jogo||g.jogo_id||`${camp}_${rodada}_${i}`),__rodada:rodada,__camp:camp})));
     renderCatalogo(); renderBoloes(); renderSelected();
@@ -795,6 +815,11 @@
   setInterval(()=>autoRefreshJogosAtivos(),60000);
   function bindSave(camp,rodada){$$('[data-save]').forEach(b=>b.onclick=()=>salvarPalpite(b.dataset.save,camp,rodada).catch(e=>setSaveStatus(b.dataset.save,'erro: '+e.message,'err'))); $$('.inp-palpite').forEach(inp=>inp.addEventListener('input',()=>{const id=inp.dataset.id.replace(/_(gm|gv)$/,''); clearTimeout(autosaveTimers[id]); setSaveStatus(id,'aguardando digitação...','saving'); autosaveTimers[id]=setTimeout(()=>salvarPalpite(id,camp,rodada,'auto').catch(e=>setSaveStatus(id,'erro: '+e.message,'err')),900)}));}
   function setSaveStatus(id,txt,cls=''){const el=$(`[data-save-status="${cssEsc(id)}"]`); if(el){el.textContent=txt; el.className='autosave '+cls}}
+  // V054-ALERTA: a checagem "aberto" abaixo é só no client (dataset.aberto vem do último carregarJogos()).
+  // O write no Firestore que vem logo depois NÃO tem essa trava — alguém com DevTools pode gravar
+  // gm/gv direto na coleção "palpites" mesmo com o jogo já em andamento/encerrado.
+  // Se as Firestore Security Rules não replicam essa validação (ex.: comparando com o horário do jogo
+  // guardado em outra coleção/campo), essa é uma brecha real de manipulação de pontuação. Verificar rules.
   async function salvarPalpite(id,camp,rodada,origem='manual'){if(state.uid==='GUEST'){toast('Entre com Google antes de salvar.');return} const card=$(`.match-card[data-jogo="${cssEsc(id)}"]`); if(card?.dataset.aberto!=='1'){setSaveStatus(id,'palpite encerrado','err');return} const gm=$(`input[data-id="${cssEsc(id)}_gm"]`)?.value,gv=$(`input[data-id="${cssEsc(id)}_gv"]`)?.value; if(gm===''||gv===''){setSaveStatus(id,'preencha os dois placares','err');return} setSaveStatus(id,'salvando...','saving'); try{await apiGet(withAction('salvarPalpite',`camp=${encodeURIComponent(camp)}&rodada=${encodeURIComponent(rodada)}&id=${encodeURIComponent(id)}&gm=${encodeURIComponent(gm)}&gv=${encodeURIComponent(gv)}&origem=${encodeURIComponent(origem)}`));}catch(e){console.warn('Apps Script salvar:',e.message)} const doc=safeId(`${state.uid}_${camp}_${rodada}_${id}`); const payload={uid:state.uid,nome:state.nome,email:state.email,idJogo:id,camp,rodada:String(rodada),gm:Number(gm),gv:Number(gv),origem,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()}; await db.collection('boloes').doc(state.bolao.id).collection('palpites').doc(doc).set(payload,{merge:true}); state.palpites[id]=payload; const jogo=state.jogos.find(x=>x.id===id); const pts=pontuar(payload,jogo); const pEl=$(`[data-pts="${cssEsc(id)}"]`); if(pEl)pEl.textContent=pts+' pts'; setSaveStatus(id,'salvo automaticamente ✓','ok'); renderProximosResumo();}
 
   function resultado(a,b){return a>b?'M':a<b?'V':'E'}
@@ -810,7 +835,7 @@
 
   function hashInt(s){let h=0; for(let i=0;i<String(s).length;i++)h=(h*31+String(s).charCodeAt(i))|0; return Math.abs(h)}
   function teamStrength(n){const k=norm(n); return TEAM_STRENGTH[k]||70+(hashInt(k)%12)}
-  function gerarPalpite(home,away,perfil,seed){const diff=teamStrength(home)+2-teamStrength(away),h=hashInt(`${home}|${away}|${perfil}|${seed}`); let gm=1,gv=1; if(perfil==='FAVORITOS'){if(diff>=10){gm=2;gv=h%3===0?1:0}else if(diff<=-10){gm=h%3===0?1:0;gv=2}else{gm=1;gv=h%2?1:0}}else if(perfil==='SURPRESA'){if(Math.abs(diff)<7){gm=h%3===0?2:1;gv=h%4===0?2:1}else if(diff>0){gm=h%4===0?0:1;gv=h%4===0?1:1}else{gm=h%4===0?1:1;gv=h%4===0?0:1}}else{if(diff>=8){gm=2;gv=1}else if(diff<=-8){gm=1;gv=2}else{gm=1;gv=h%4===0?0:1}} return {gm:Math.max(0,Math.min(5,gm)),gv:Math.max(0,Math.min(5,gv))}}
+  function gerarPalpite(home,away,perfil,seed){const diff=teamStrength(home)+2-teamStrength(away),h=hashInt(`${home}|${away}|${perfil}|${seed}`); let gm=1,gv=1; if(perfil==='FAVORITOS'){if(diff>=10){gm=2;gv=h%3===0?1:0}else if(diff<=-10){gm=h%3===0?1:0;gv=2}else{gm=1;gv=h%2?1:0}}else if(perfil==='SURPRESA'){if(Math.abs(diff)<7){gm=h%3===0?2:1;gv=h%4===0?2:1}else if(diff>0){gm=h%4===0?0:1;gv=h%4===0?2:1}else{gm=h%4===0?2:1;gv=h%4===0?0:1}}else{if(diff>=8){gm=2;gv=1}else if(diff<=-8){gm=1;gv=2}else{gm=1;gv=h%4===0?0:1}} return {gm:Math.max(0,Math.min(5,gm)),gv:Math.max(0,Math.min(5,gv))}}
   function applyPAIfNeeded(camp,rodada){if(!state.pa?.perfil)return; $$('.match-card[data-aberto="1"]').forEach(card=>{const id=card.dataset.jogo,gm=$(`input[data-id="${cssEsc(id)}_gm"]`),gv=$(`input[data-id="${cssEsc(id)}_gv"]`); if(gm&&gv&&gm.value===''&&gv.value===''){const p=gerarPalpite(card.dataset.home,card.dataset.away,state.pa.perfil,`${camp}_${rodada}_${id}`); gm.value=p.gm; gv.value=p.gv; salvarPalpite(id,camp,rodada,'PA_'+state.pa.perfil).catch(console.warn)}})}
   function loadPA(){try{state.pa=JSON.parse(localStorage.getItem('PSS_PA_BOLAO')||'null')}catch(e){state.pa=null}}
   $('#btnPA').onclick=()=>$('#paModal').classList.add('open'); $('#paFechar').onclick=()=>$('#paModal').classList.remove('open'); $('#paRemover').onclick=()=>{state.pa=null;localStorage.removeItem('PSS_PA_BOLAO');$('#paModal').classList.remove('open');toast('Palpite automático removido.')}; $('#paSalvar').onclick=()=>{const perfil=document.querySelector('input[name="paPerfil"]:checked')?.value||'EQUILIBRADO'; state.pa={perfil,ts:Date.now()}; localStorage.setItem('PSS_PA_BOLAO',JSON.stringify(state.pa)); $('#paModal').classList.remove('open'); toast('Perfil de P.A. salvo: '+perfil); if(state.jogos.length)applyPAIfNeeded($('#selCamp').value,$('#selRod').value)};
