@@ -1,4 +1,4 @@
-name: Corrigir bolao.html - IA e palpite automático
+name: Corrigir bolao.html - pontuação com peso
 
 on:
   workflow_dispatch:
@@ -22,9 +22,12 @@ jobs:
 
       - name: Validar correção
         run: |
-          grep -q 'V057_DESAFIANTE_IA_TODOS_JOGOS_PA_NO_FECHAMENTO' bolao.html
+          grep -q 'V058_PONTUACAO_COM_PESO_POR_RODADA' bolao.html
+          grep -q 'function bolaoComPeso' bolao.html
+          grep -q 'function pesoDaRodada' bolao.html
+          grep -q 'function detalhePontuacaoBase' bolao.html
           grep -q 'gravarPANoFechamento' bolao.html
-          test "$(grep -c 'function applyPAIfNeeded' bolao.html)" -eq 1
+          test "$(grep -c 'function detalhePontuacao(p,g)' bolao.html)" -eq 1
 
       - name: Publicar bolao.html corrigido
         run: |
@@ -35,5 +38,5 @@ jobs:
           git config user.name 'Portal SimonSports Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add bolao.html
-          git commit -m 'Corrigir Desafiante IA e palpite automático no fechamento'
+          git commit -m 'Corrigir pontuação com peso por rodada no bolao.html'
           git push
