@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- V030_PUBLICOS_SEM_MENSAGEM_FONTE_LE_JOGOS_REALIZADOS_ABA_2026-06-29 -->
+<!-- V031_PUBLICOS_CATALOGO_OPERACIONAL_PRIORITARIO_2026-07-17 -->
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -205,6 +205,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
+  const API_BASE = 'https://script.google.com/macros/s/AKfycbxeMQZBffga-Oezl9AW1mfuFS-HlLNOoyG6YKdHCqMuiwFSUpbI8LwEVKQOerE2lOJ-/exec';
   const firebaseConfig = {
     apiKey: "AIzaSyA8tO_E2s6R9bYnEW6_5skqCUrBSVLLKkw",
     authDomain: "pss-bolao-esportivo.firebaseapp.com",
@@ -219,12 +220,36 @@
   const db = firebase.firestore();
 
   const $ = s => document.querySelector(s);
-  const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', publicos:[], filtrados:[], meusIds:new Set(), detalhe:null, pendingEnter:null, autoRefresh:null };
+  const state = { uid:'GUEST', nome:'Visitante', email:'', foto:'', publicos:[], filtrados:[], meusIds:new Set(), detalhe:null, pendingEnter:null, autoRefresh:null, catalogoOperacional:{} };
 
   function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),3600); }
   function esc(v){ return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
   function norm(v){ return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
   function fmt(n){ return Math.max(0,Math.round(Number(n||0))).toLocaleString('pt-BR'); }
+  function withAction(action,qs=''){return `?a=${encodeURIComponent(action)}&action=${encodeURIComponent(action)}${qs?'&'+qs:''}`;}
+  async function apiGet(qs){const sep=qs.includes('?')?'&':'?';const res=await fetch(`${API_BASE}${qs}${sep}_=${Date.now()}`,{method:'GET',credentials:'omit',redirect:'follow'});if(!res.ok)throw new Error(`${res.status} ${res.statusText}`);return await res.json();}
+  function unwrapArray(j){if(Array.isArray(j))return j;for(const k of ['data','dados','result','items','rows','catalogo','campeonatos']){if(Array.isArray(j?.[k]))return j[k];}return [];}
+  function normalizarCatalogoOperacional(raw){
+    if(!raw||typeof raw!=='object')return null;
+    const code=campCode(raw.sigla||raw.camp||raw.campeonato||raw.id||raw.codigo||'');
+    if(!code)return null;
+    return {...raw,sigla:code,
+      inicio:raw.inicio||raw.dataInicio||raw.data_inicio||'',
+      fim:raw.fim||raw.dataFim||raw.data_fim||'',
+      qtd_jogos:Number(raw.qtd_jogos||raw.qtdJogos||raw.totalJogos||0)||0,
+      jogos_realizados:Number(raw.jogos_realizados||raw.jogosRealizados||raw.jogosFinalizados||raw.finalizados||0)||0,
+      status:raw.status||raw.statusCampeonato||raw.statusCompeticao||'',
+      temporada:raw.temporada||raw.season||''};
+  }
+  async function carregarCatalogoOperacional(){
+    const dados={};let melhor=[];
+    for(const action of ['catalog','catalogo','campeonatos']){
+      try{const arr=unwrapArray(await apiGet(withAction(action))).map(normalizarCatalogoOperacional).filter(Boolean);if(arr.length>melhor.length)melhor=arr;if(arr.length>=7)break;}catch(e){console.warn('Catálogo operacional '+action+':',e.message||e);}
+    }
+    melhor.forEach(c=>dados[c.sigla]=c);
+    state.catalogoOperacional=dados;
+    return dados;
+  }
   function p2(n){ return String(n).padStart(2,'0'); }
 
   function campCode(v){
@@ -335,31 +360,21 @@
 
 
   function aplicarDadosCampeonatoNoBolao(b, dadosCamp){
-    const code = campRaw(b);
-    const c = dadosCamp && dadosCamp[code] ? dadosCamp[code] : null;
-    if(!c) return b;
-    const out = {...b};
-
-    if(out.dataInicio === undefined && out.inicio === undefined && c.inicio !== undefined) out.dataInicio = c.inicio;
-    if(out.dataInicio === undefined && out.inicio === undefined && c.dataInicio !== undefined) out.dataInicio = c.dataInicio;
-    if(out.dataFim === undefined && out.fim === undefined && c.fim !== undefined) out.dataFim = c.fim;
-    if(out.dataFim === undefined && out.fim === undefined && c.dataFim !== undefined) out.dataFim = c.dataFim;
-
-    if(out.totalJogos === undefined && out.qtdJogos === undefined && out.qtd_jogos === undefined){
-      if(c.qtd_jogos !== undefined) out.qtd_jogos = c.qtd_jogos;
-      else if(c.totalJogos !== undefined) out.totalJogos = c.totalJogos;
-      else if(c.qtdJogos !== undefined) out.qtdJogos = c.qtdJogos;
-    }
-
-    if(out.jogos_realizados === undefined && out.jogosRealizados === undefined && out.jogosFinalizados === undefined){
-      if(c.jogos_realizados !== undefined) out.jogos_realizados = c.jogos_realizados;
-      else if(c.jogosRealizados !== undefined) out.jogosRealizados = c.jogosRealizados;
-      else if(c.jogosFinalizados !== undefined) out.jogosFinalizados = c.jogosFinalizados;
-    }
-
-    if((out.statusCampeonato === undefined || out.statusCampeonato === '') && c.status !== undefined) out.statusCampeonato = c.status;
-    if((out.statusCampeonato === undefined || out.statusCampeonato === '') && c.statusCampeonato !== undefined) out.statusCampeonato = c.statusCampeonato;
-
+    const code=campRaw(b);
+    const c=(state.catalogoOperacional&&state.catalogoOperacional[code])||(dadosCamp&&dadosCamp[code])||null;
+    if(!c)return b;
+    const out={...b};
+    const inicio=c.inicio||c.dataInicio||c.data_inicio;
+    const fim=c.fim||c.dataFim||c.data_fim;
+    const total=numBolao(c,['qtd_jogos','qtdJogos','totalJogos','jogosTotal']);
+    const realizados=numBolao(c,['jogos_realizados','jogosRealizados','jogosFinalizados','finalizados']);
+    const status=c.status||c.statusCampeonato||c.statusCompeticao||'';
+    if(inicio){out.inicio=inicio;out.dataInicio=inicio;out.temporadaInicio=inicio;}
+    if(fim){out.fim=fim;out.dataFim=fim;out.temporadaFim=fim;}
+    if(total){out.qtd_jogos=total;out.qtdJogos=total;out.totalJogos=total;}
+    out.jogos_realizados=realizados;out.jogosRealizados=realizados;out.jogosFinalizados=realizados;
+    if(status){out.statusCampeonato=status;out.statusCompeticao=status;}
+    if(c.temporada)out.temporada=c.temporada;
     return out;
   }
 
@@ -399,6 +414,7 @@
         .get();
       q2.docs.forEach(d=>map.set(d.id,{id:d.id,...d.data()}));
 
+      await carregarCatalogoOperacional();
       const dadosCampeonatos = await carregarDadosCampeonatos();
       state.publicos=Array.from(map.values())
         .map(b=>aplicarDadosCampeonatoNoBolao(b,dadosCampeonatos))
