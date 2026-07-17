@@ -17,16 +17,16 @@ jobs:
       - name: Baixar repositório
         uses: actions/checkout@v4
 
-      - name: Aplicar correções no bolao.html
+      - name: Aplicar ajuste pontual no bolao.html
         run: python3 .github/scripts/corrigir_bolao_ia.py
 
-      - name: Validar estrutura do arquivo
+      - name: Validar estrutura preservada
         run: |
           grep -q '<!DOCTYPE html>' bolao.html
           grep -q 'function ensureUser' bolao.html
           grep -q 'function detalhePontuacao' bolao.html
-          grep -q 'escolherRodadaAutomatica' bolao.html
-          grep -q 'confrontoTabelaHtml' bolao.html
+          grep -q 'function teamMiniHtml' bolao.html
+          grep -q 'V060_LOGOS_INTERNOS_TABELAS' bolao.html
 
       - name: Publicar bolao.html atualizado
         run: |
@@ -37,5 +37,5 @@ jobs:
           git config user.name 'Portal SimonSports Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add bolao.html
-          git commit -m 'Selecionar rodada atual, exibir próximos jogos e alinhar confrontos'
+          git commit -m 'Padronizar logos internos nas tabelas de palpites'
           git push
