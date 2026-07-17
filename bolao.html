@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V058_PONTUACAO_COM_PESO_POR_RODADA_2026-07-16 -->
+<!-- V059_ESCUDOS_TODOS_TIMES_TODOS_BOLOES_2026-07-16 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -99,6 +99,11 @@
 
   @media(max-width:1040px){.app-grid.create-mode{grid-template-columns:1fr}.create-mode #sec-criar .field-grid.single{grid-template-columns:1fr 1fr}}
   @media(max-width:660px){.logged .hero{display:none}.app-grid.create-mode{grid-template-columns:1fr}.create-mode #sec-criar .field-grid.single,#sec-criar .create-subgrid{grid-template-columns:1fr}.app-card .hero-actions .btn{width:100%}}
+
+  .team-logo img,.resumo-logo img,.team-mini-logo img{width:100%;height:100%;object-fit:contain;display:block}
+  .team-mini{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;font-weight:850;white-space:nowrap}
+  .team-mini-logo{width:24px;height:24px;min-width:24px;border-radius:50%;display:inline-grid;place-items:center;overflow:hidden;background:#f8fafc;border:1px solid rgba(148,163,184,.35);font-size:8px;font-weight:950;color:#334155}
+  .team-versus{display:inline-block;margin:0 4px;color:var(--muted);font-weight:950}
 
 </style>
 </head>
@@ -628,12 +633,209 @@
     return code ? `https://flagcdn.com/w80/${code}.png` : '';
   }
 
-  function teamHtml(nome){
-    const nomePt = translateTeam(nome);
-    const url = flagUrlByTeam(nome);
-    const initials = nomePt.split(/\s+/).filter(Boolean).slice(0,2).map(p=>p[0]).join('').toUpperCase() || '⚽';
-    return `<div class="team"><span class="team-logo">${url ? `<img src="${esc(url)}" alt="${esc(nomePt)}" loading="lazy" onerror="this.remove();this.parentNode.textContent='${esc(initials)}'">` : esc(initials)}</span><span class="team-title">${esc(nomePt)}</span></div>`;
+  const TEAM_LOGO_STORAGE_KEY='PSS_TEAM_LOGOS_V2';
+  const TEAM_LOGO_SEARCH_ALIASES={
+    'athletico pr':'Athletico Paranaense','athletico-pr':'Athletico Paranaense','atletico pr':'Athletico Paranaense',
+    'atletico mineiro':'Atletico Mineiro','atletico mg':'Atletico Mineiro','gremio':'Gremio',
+    'sao paulo':'Sao Paulo','vasco da gama':'Vasco da Gama','red bull bragantino':'Red Bull Bragantino',
+    'bragantino':'Red Bull Bragantino','internacional':'Internacional','corinthians':'Corinthians',
+    'paris sg':'Paris Saint-Germain','psg':'Paris Saint-Germain','inter de milao':'Inter Milan',
+    'internazionale':'Inter Milan','manchester city':'Manchester City','manchester united':'Manchester United'
+  };
+  let teamLogoCache={};
+  try{teamLogoCache=JSON.parse(localStorage.getItem(TEAM_LOGO_STORAGE_KEY)||'{}')||{}}catch(e){teamLogoCache={}}
+  const teamLogoQueue=[];
+  const teamLogoPending=new Map();
+  let teamLogoQueueRunning=false;
+
+  function normalizarLogoUrl(valor){
+    if(!valor)return '';
+    if(typeof valor==='object'){
+      for(const k of ['url','src','logo','escudo','badge','crest','imagem','image','foto','photo','strBadge']){
+        const u=normalizarLogoUrl(valor[k]); if(u)return u;
+      }
+      return '';
+    }
+    let url=String(valor).trim();
+    if(!url)return '';
+    if(url.startsWith('//'))url='https:'+url;
+    if(/^https?:\/\//i.test(url)||/^data:image\//i.test(url))return url;
+    return '';
   }
+
+  function logoEmObjeto(obj,chaves){
+    if(!obj||typeof obj!=='object')return '';
+    for(const chave of chaves){
+      const url=normalizarLogoUrl(obj[chave]);
+      if(url)return url;
+    }
+    return '';
+  }
+
+  function logoNoJogo(g,lado,nome){
+    if(!g||typeof g!=='object')return '';
+    const casa=lado==='home'||lado==='mandante'||lado==='casa';
+    const chaves=casa?[
+      'logoMandante','escudoMandante','imagemMandante','fotoMandante','mandanteLogo','mandanteEscudo','mandanteImagem',
+      'logo_mandante','escudo_mandante','imagem_mandante','foto_mandante','time_mandante_logo','timeMandanteLogo',
+      'homeLogo','homeBadge','homeCrest','homeImage','home_logo','home_badge','home_crest','home_image',
+      'logoCasa','escudoCasa','logo_casa','escudo_casa','logo1','escudo1','strHomeTeamBadge'
+    ]:[
+      'logoVisitante','escudoVisitante','imagemVisitante','fotoVisitante','visitanteLogo','visitanteEscudo','visitanteImagem',
+      'logo_visitante','escudo_visitante','imagem_visitante','foto_visitante','time_visitante_logo','timeVisitanteLogo',
+      'awayLogo','awayBadge','awayCrest','awayImage','away_logo','away_badge','away_crest','away_image',
+      'logoFora','escudoFora','logo_fora','escudo_fora','logo2','escudo2','strAwayTeamBadge'
+    ];
+    const direto=logoEmObjeto(g,chaves);
+    if(direto)return direto;
+
+    const objetos=casa?[
+      g.mandanteObj,g.mandanteDados,g.timeMandante,g.time_mandante_obj,g.homeTeam,g.home_team,g.casaObj,g.casa
+    ]:[
+      g.visitanteObj,g.visitanteDados,g.timeVisitante,g.time_visitante_obj,g.awayTeam,g.away_team,g.foraObj,g.fora
+    ];
+    for(const obj of objetos){
+      const url=logoEmObjeto(obj,['logo','escudo','badge','crest','imagem','image','foto','photo','strBadge','teamBadge']);
+      if(url)return url;
+    }
+
+    const nomeOriginal=String(nome||'').trim();
+    const nomeNorm=norm(nomeOriginal);
+    for(const mapa of [g.logos,g.escudos,g.badges,g.crests,g.teamLogos,g.imagensTimes,g.timesLogos]){
+      if(!mapa||typeof mapa!=='object')continue;
+      const url=normalizarLogoUrl(mapa[nomeOriginal]||mapa[nomeNorm]||mapa[casa?'mandante':'visitante']||mapa[casa?'home':'away']);
+      if(url)return url;
+    }
+    return '';
+  }
+
+  function salvarTeamLogoCache(chave,url){
+    teamLogoCache[chave]=url||'';
+    try{localStorage.setItem(TEAM_LOGO_STORAGE_KEY,JSON.stringify(teamLogoCache))}catch(e){}
+  }
+
+  function logoCacheDoTime(nome){
+    const chave=norm(nome);
+    return Object.prototype.hasOwnProperty.call(teamLogoCache,chave)?teamLogoCache[chave]:null;
+  }
+
+  async function buscarLogoTimeExterno(nome){
+    const chave=norm(nome);
+    const consulta=TEAM_LOGO_SEARCH_ALIASES[chave]||String(nome||'').trim();
+    if(!consulta)return '';
+    try{
+      const resp=await fetch(`https://www.thesportsdb.com/api/v1/json/123/searchteams.php?t=${encodeURIComponent(consulta)}`,{cache:'force-cache'});
+      if(!resp.ok)throw new Error('HTTP '+resp.status);
+      const dados=await resp.json();
+      const times=Array.isArray(dados?.teams)?dados.teams:[];
+      const futebol=times.filter(t=>/soccer|football/i.test(String(t?.strSport||'')));
+      const candidatos=futebol.length?futebol:times;
+      const alvo=norm(consulta),original=norm(nome);
+      const escolhido=candidatos.find(t=>norm(t?.strTeam)===alvo||norm(t?.strTeam)===original)||candidatos[0];
+      return normalizarLogoUrl(escolhido?.strBadge||escolhido?.strTeamBadge||escolhido?.strLogo||'');
+    }catch(e){
+      console.warn('Logo externo de '+nome+':',e.message||e);
+      return '';
+    }
+  }
+
+  function processarFilaTeamLogo(){
+    if(teamLogoQueueRunning)return;
+    teamLogoQueueRunning=true;
+    (async()=>{
+      while(teamLogoQueue.length){
+        const item=teamLogoQueue.shift();
+        const chave=norm(item.nome);
+        let url='';
+        try{url=await buscarLogoTimeExterno(item.nome)}catch(e){}
+        salvarTeamLogoCache(chave,url);
+        item.resolve(url);
+        teamLogoPending.delete(chave);
+        if(teamLogoQueue.length)await new Promise(r=>setTimeout(r,2100));
+      }
+      teamLogoQueueRunning=false;
+    })();
+  }
+
+  function solicitarLogoTime(nome){
+    const chave=norm(nome);
+    const salvo=logoCacheDoTime(nome);
+    if(salvo!==null)return Promise.resolve(salvo);
+    if(teamLogoPending.has(chave))return teamLogoPending.get(chave);
+    const promessa=new Promise(resolve=>teamLogoQueue.push({nome,resolve}));
+    teamLogoPending.set(chave,promessa);
+    processarFilaTeamLogo();
+    return promessa;
+  }
+
+  function logoUrlByTeam(nome,g=null,lado=''){
+    return logoNoJogo(g,lado,nome)||logoCacheDoTime(nome)||flagUrlByTeam(nome)||'';
+  }
+
+  function iniciaisTime(nome){
+    const nomePt=translateTeam(nome);
+    return nomePt.split(/\s+/).filter(Boolean).slice(0,2).map(p=>p[0]).join('').toUpperCase()||'⚽';
+  }
+
+  function logoSpanHtml(nome,url,classe){
+    const nomePt=translateTeam(nome),iniciais=iniciaisTime(nome);
+    if(url)return `<span class="${classe}"><img src="${esc(url)}" alt="Escudo do ${esc(nomePt)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove();this.parentNode.textContent='${esc(iniciais)}'"></span>`;
+    return `<span class="${classe}" data-team-logo="${esc(nome)}" data-initials="${esc(iniciais)}">${esc(iniciais)}</span>`;
+  }
+
+  function teamHtml(nome,g=null,lado=''){
+    const nomePt=translateTeam(nome);
+    const logo=logoSpanHtml(nome,logoUrlByTeam(nome,g,lado),'team-logo');
+    return `<div class="team">${logo}<span class="team-title">${esc(nomePt)}</span></div>`;
+  }
+
+  function teamMiniHtml(nome,g=null,lado=''){
+    const nomePt=translateTeam(nome);
+    const logo=logoSpanHtml(nome,logoUrlByTeam(nome,g,lado),'team-mini-logo');
+    return `<span class="team-mini">${logo}<span>${esc(nomePt)}</span></span>`;
+  }
+
+  function aplicarLogoCarregado(el,url){
+    if(!el)return;
+    const iniciais=el.dataset.initials||'⚽';
+    el.dataset.logoState='done';
+    if(!url){el.textContent=iniciais;return}
+    const img=document.createElement('img');
+    img.src=url;
+    img.alt='Escudo do '+(el.dataset.teamLogo||'time');
+    img.loading='lazy';
+    img.referrerPolicy='no-referrer';
+    img.onerror=()=>{img.remove();el.textContent=iniciais};
+    el.textContent='';
+    el.appendChild(img);
+  }
+
+  function hidratarLogosTimes(root=document){
+    const elementos=Array.from(root.querySelectorAll?.('[data-team-logo]:not([data-logo-state])')||[]);
+    const grupos=new Map();
+    elementos.forEach(el=>{
+      const nome=el.dataset.teamLogo||'';
+      const chave=norm(nome);
+      if(!chave)return;
+      el.dataset.logoState='loading';
+      if(!grupos.has(chave))grupos.set(chave,{nome,els:[]});
+      grupos.get(chave).els.push(el);
+    });
+    grupos.forEach(grupo=>{
+      const salvo=logoCacheDoTime(grupo.nome);
+      if(salvo!==null){grupo.els.forEach(el=>aplicarLogoCarregado(el,salvo));return}
+      solicitarLogoTime(grupo.nome).then(url=>grupo.els.forEach(el=>aplicarLogoCarregado(el,url)));
+    });
+  }
+
+  function iniciarObservadorLogos(){
+    if(window.__PSS_LOGO_OBSERVER__)return;
+    const observer=new MutationObserver(()=>hidratarLogosTimes(document));
+    observer.observe(document.body,{childList:true,subtree:true});
+    window.__PSS_LOGO_OBSERVER__=observer;
+    hidratarLogosTimes(document);
+  }
+  setTimeout(iniciarObservadorLogos,0);
 
   function formatRegressiva(ms){
     if(!Number.isFinite(ms)||ms<=0)return 'Fechado';
@@ -679,7 +881,14 @@
   function dataDoJogo(g){return parseDate(pick(g,['data_jogo','data','horario','inicio','dataHora'],''))}
   function ordemStatusResumo(st){return st==='AO VIVO'?0:st==='ABERTO'?1:2}
   function ordenarJogosRodada(arr){return (arr||[]).slice().sort((a,b)=>{const sa=ordemStatusResumo(statusJogo(a)),sb=ordemStatusResumo(statusJogo(b)); if(sa!==sb)return sa-sb; const da=dataDoJogo(a),db=dataDoJogo(b); return (da?da.getTime():0)-(db?db.getTime():0)})}
-  function resumoTeamHtml(nome,lado=''){const nomePt=translateTeam(nome); const url=flagUrlByTeam(nome); const initials=nomePt.split(/\s+/).filter(Boolean).slice(0,2).map(p=>p[0]).join('').toUpperCase()||'⚽'; const logo=`<span class="resumo-logo">${url?`<img src="${esc(url)}" alt="${esc(nomePt)}" loading="lazy" onerror="this.remove();this.parentNode.textContent='${esc(initials)}'">`:esc(initials)}</span>`; return lado==='right'?`<div class="resumo-time right">${logo}<span class="resumo-nome">${esc(nomePt)}</span></div>`:`<div class="resumo-time home"><span class="resumo-nome">${esc(nomePt)}</span>${logo}</div>`}
+  function resumoTeamHtml(nome,lado='',g=null){
+    const nomePt=translateTeam(nome);
+    const ladoLogo=lado==='right'?'away':'home';
+    const logo=logoSpanHtml(nome,logoUrlByTeam(nome,g,ladoLogo),'resumo-logo');
+    return lado==='right'
+      ?`<div class="resumo-time right">${logo}<span class="resumo-nome">${esc(nomePt)}</span></div>`
+      :`<div class="resumo-time home"><span class="resumo-nome">${esc(nomePt)}</span>${logo}</div>`;
+  }
 
   function rodadasParaProximosJogos(camp){
     const opts=Array.from($('#selRod')?.options||[]).map(o=>String(o.value)).filter(Boolean);
@@ -827,7 +1036,7 @@
     if(list) list.innerHTML=state.jogos.map(g=>{
       const id=g.id,of=placarOficial(g),p=state.palpites[id]||{},aberto=jogoAberto(g),home=pick(g,['mandante','home','time_mandante','casa'],'Mandante'),away=pick(g,['visitante','away','time_visitante','fora'],'Visitante');
       const det=detalhePontuacao(p,g),pts=det.pts,status=statusJogo(g),dt=dataDoJogo(g),closeTs=dt?dt.getTime():'';
-      return `<article class="match-card" data-jogo="${esc(id)}" data-home="${esc(home)}" data-away="${esc(away)}" data-aberto="${aberto?'1':'0'}"><div class="match-head"><div><div class="match-date">${esc(dataHoraLabel(dt))}</div><div class="match-meta">${esc(camp)} • ${esc(rodada)}ª Rodada</div></div><span class="eta ${aberto?'countdown':status==='AO VIVO'?'live':'enc'}" data-close="${esc(closeTs)}" data-status="${esc(status)}">${esc(etaLabel(g))}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div>${teamHtml(home)}<div class="box-score">${of?of.gm:'–'}</div><input class="inp-palpite" type="number" min="0" inputmode="numeric" data-id="${esc(id)}_gm" value="${p.gm??''}" ${aberto?'':'disabled'}>${teamHtml(away)}<div class="box-score">${of?of.gv:'–'}</div><input class="inp-palpite" type="number" min="0" inputmode="numeric" data-id="${esc(id)}_gv" value="${p.gv??''}" ${aberto?'':'disabled'}></div><div class="match-foot"><div><div class="autosave" data-save-status="${esc(id)}">${p.atualizadoEm?'salvo anteriormente':(aberto?'aguardando palpite':status==='AO VIVO'?'jogo em andamento':'palpite encerrado')}</div><div class="score-detail" data-score-detail="${esc(id)}">${resumoPontuacaoHtml(det,p,g)}</div></div><span class="pts" data-pts="${esc(id)}">${pts} pts</span><button class="btn primary mini" data-save="${esc(id)}" ${aberto?'':'disabled'}>Salvar</button></div></article>`
+      return `<article class="match-card" data-jogo="${esc(id)}" data-home="${esc(home)}" data-away="${esc(away)}" data-aberto="${aberto?'1':'0'}"><div class="match-head"><div><div class="match-date">${esc(dataHoraLabel(dt))}</div><div class="match-meta">${esc(camp)} • ${esc(rodada)}ª Rodada</div></div><span class="eta ${aberto?'countdown':status==='AO VIVO'?'live':'enc'}" data-close="${esc(closeTs)}" data-status="${esc(status)}">${esc(etaLabel(g))}</span></div><div class="match-table"><div></div><div class="th">Oficial</div><div class="th">Palpite</div>${teamHtml(home,g,'home')}<div class="box-score">${of?of.gm:'–'}</div><input class="inp-palpite" type="number" min="0" inputmode="numeric" data-id="${esc(id)}_gm" value="${p.gm??''}" ${aberto?'':'disabled'}>${teamHtml(away,g,'away')}<div class="box-score">${of?of.gv:'–'}</div><input class="inp-palpite" type="number" min="0" inputmode="numeric" data-id="${esc(id)}_gv" value="${p.gv??''}" ${aberto?'':'disabled'}></div><div class="match-foot"><div><div class="autosave" data-save-status="${esc(id)}">${p.atualizadoEm?'salvo anteriormente':(aberto?'aguardando palpite':status==='AO VIVO'?'jogo em andamento':'palpite encerrado')}</div><div class="score-detail" data-score-detail="${esc(id)}">${resumoPontuacaoHtml(det,p,g)}</div></div><span class="pts" data-pts="${esc(id)}">${pts} pts</span><button class="btn primary mini" data-save="${esc(id)}" ${aberto?'':'disabled'}>Salvar</button></div></article>`
     }).join('');
     bindSave(camp,rodada); iniciarRegressivaMovel(); applyPAIfNeeded(camp,rodada); renderProximosResumo(); await atualizarPainelTempoReal(true);
   }
@@ -998,7 +1207,7 @@
     const palp=await getUltimosPalpitesBolao().catch(()=>[]);
     const rows=palp.filter(p=>palpiteLiberado(p)).slice(0,40);
     if(!rows.length){body.innerHTML='<div class="empty">Nenhum palpite liberado ainda. Palpites de jogos futuros continuam ocultos.</div>';return}
-    body.innerHTML=`<table class="info-table"><thead><tr><th>Data</th><th>Jogo</th><th>Participante</th><th>Palpite</th><th>Tipo</th><th>Pontos</th><th>Ação</th></tr></thead><tbody>${rows.map(p=>{const g=jogoPorPalpite(p),home=pick(g,['mandante','home','time_mandante'],'Mandante'),away=pick(g,['visitante','away','time_visitante'],'Visitante'),d=p.atualizadoEm?.toDate?p.atualizadoEm.toDate():null,camp=String(p.camp||g.__camp||state.currentCamp||'CUP'),rod=String(p.rodada||g.__rodada||state.currentRodada||1),det=detalhePontuacao(p,g); return `<tr><td>${esc(d?dataHoraLabel(d):'—')}</td><td>${esc(translateTeam(home))} x ${esc(translateTeam(away))}</td><td>${esc(p.nome||p.email||p.uid||'Participante')}</td><td><strong>${esc(p.gm)} x ${esc(p.gv)}</strong></td><td><span class="badge">${esc(det.tipo)} • ${esc(det.label||tipoAcertoLabel(det.tipo))}</span></td><td><span class="info-pill">${det.pts} PTS${det.comPeso?` • ${det.ptsBase}×${det.peso}`:''}</span></td><td><button class="btn mini" type="button" onclick="PSS_IR_PALPITAR('${esc(camp)}','${esc(rod)}','${esc(g.id)}')">Palpitar</button></td></tr>`}).join('')}</tbody></table>`;
+    body.innerHTML=`<table class="info-table"><thead><tr><th>Data</th><th>Jogo</th><th>Participante</th><th>Palpite</th><th>Tipo</th><th>Pontos</th><th>Ação</th></tr></thead><tbody>${rows.map(p=>{const g=jogoPorPalpite(p),home=pick(g,['mandante','home','time_mandante'],'Mandante'),away=pick(g,['visitante','away','time_visitante'],'Visitante'),d=p.atualizadoEm?.toDate?p.atualizadoEm.toDate():null,camp=String(p.camp||g.__camp||state.currentCamp||'CUP'),rod=String(p.rodada||g.__rodada||state.currentRodada||1),det=detalhePontuacao(p,g); return `<tr><td>${esc(d?dataHoraLabel(d):'—')}</td><td>${teamMiniHtml(home,g,'home')} <span class="team-versus">x</span> ${teamMiniHtml(away,g,'away')}</td><td>${esc(p.nome||p.email||p.uid||'Participante')}</td><td><strong>${esc(p.gm)} x ${esc(p.gv)}</strong></td><td><span class="badge">${esc(det.tipo)} • ${esc(det.label||tipoAcertoLabel(det.tipo))}</span></td><td><span class="info-pill">${det.pts} PTS${det.comPeso?` • ${det.ptsBase}×${det.peso}`:''}</span></td><td><button class="btn mini" type="button" onclick="PSS_IR_PALPITAR('${esc(camp)}','${esc(rod)}','${esc(g.id)}')">Palpitar</button></td></tr>`}).join('')}</tbody></table>`;
   }
 
   async function carregarRanking(silent=false){
@@ -1023,10 +1232,10 @@
     const map=new Map(state.jogos.map(g=>[g.id,g]));
     const rows=palp.map(p=>({p,g:map.get(String(p.idJogo||''))})).filter(x=>x.g&&jogoIniciado(x.g));
     if(!rows.length){body.innerHTML='<div class="empty">Nenhum palpite liberado. Jogos futuros continuam ocultos.</div>';return}
-    body.innerHTML=`<div class="legend"><strong>Legenda:</strong><span>PE Placar exato</span><span>GV Gol vencedor</span><span>SG Saldo</span><span>GP Gol perdedor</span><span>V Vencedor</span><span>E Empate garantido</span></div><table class="info-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th><th>Tipo de acerto</th><th>Pontuação</th></tr></thead><tbody>${rows.map(({p,g})=>{const home=pick(g,['mandante','home','time_mandante'],'Mandante'),away=pick(g,['visitante','away','time_visitante'],'Visitante'),det=detalhePontuacao(p,g),of=placarOficial(g); return `<tr><td>${esc(translateTeam(home))} ${of?of.gm:'--'} x ${of?of.gv:'--'} ${esc(translateTeam(away))}</td><td><strong>${esc(p.gm)} x ${esc(p.gv)}</strong></td><td>${esc(p.nome||p.email||p.uid||'Participante')}</td><td><span class="badge">${esc(det.tipo)} • ${esc(det.label||tipoAcertoLabel(det.tipo))}</span></td><td><span class="info-pill">${det.pts} PTS${det.comPeso?` • ${det.ptsBase}×${det.peso}`:''}</span></td></tr>`}).join('')}</tbody></table>`;
+    body.innerHTML=`<div class="legend"><strong>Legenda:</strong><span>PE Placar exato</span><span>GV Gol vencedor</span><span>SG Saldo</span><span>GP Gol perdedor</span><span>V Vencedor</span><span>E Empate garantido</span></div><table class="info-table"><thead><tr><th>Jogo</th><th>Palpite</th><th>Participante</th><th>Tipo de acerto</th><th>Pontuação</th></tr></thead><tbody>${rows.map(({p,g})=>{const home=pick(g,['mandante','home','time_mandante'],'Mandante'),away=pick(g,['visitante','away','time_visitante'],'Visitante'),det=detalhePontuacao(p,g),of=placarOficial(g); return `<tr><td>${teamMiniHtml(home,g,'home')} ${of?of.gm:'--'} x ${of?of.gv:'--'} ${teamMiniHtml(away,g,'away')}</td><td><strong>${esc(p.gm)} x ${esc(p.gv)}</strong></td><td>${esc(p.nome||p.email||p.uid||'Participante')}</td><td><span class="badge">${esc(det.tipo)} • ${esc(det.label||tipoAcertoLabel(det.tipo))}</span></td><td><span class="info-pill">${det.pts} PTS${det.comPeso?` • ${det.ptsBase}×${det.peso}`:''}</span></td></tr>`}).join('')}</tbody></table>`;
   }
   $('#btnTodos').onclick=()=>setView('palpites');
-  function renderProximosResumo(){const box=$('#proxJogosResumo'); if(!box)return; const rows=ordenarJogosRodada(state.proximosJogos||[]).slice(0,6); if(!rows.length){box.innerHTML='<div class="empty compact">Nenhum próximo jogo encontrado para este bolão no momento.</div>';return} box.innerHTML=`<div class="resumo-jogos">${rows.map(g=>{const home=pick(g,['mandante','home','time_mandante','casa'],'Mandante'),away=pick(g,['visitante','away','time_visitante','fora'],'Visitante'),of=placarOficial(g),d=dataDoJogo(g),st=statusJogo(g),statusTxt=st==='AO VIVO'?'Ao vivo':st==='ENCERRADO'?'Encerrado':'Aberto',statusCls=st==='AO VIVO'?'live':st==='ENCERRADO'?'enc':'open',score=of?`${of.gm}<span>x</span>${of.gv}`:'<span>x</span>'; return `<article class="resumo-jogo"><div class="resumo-jogo-top"><div class="resumo-data">${esc(d?dataHoraLabel(d):'Data não informada')}</div><span class="resumo-status ${statusCls}">${esc(statusTxt)}</span></div><div class="resumo-jogo-main">${resumoTeamHtml(home)}<div class="resumo-placar">${score}</div>${resumoTeamHtml(away,'right')}</div></article>`}).join('')}</div>`}
+  function renderProximosResumo(){const box=$('#proxJogosResumo'); if(!box)return; const rows=ordenarJogosRodada(state.proximosJogos||[]).slice(0,6); if(!rows.length){box.innerHTML='<div class="empty compact">Nenhum próximo jogo encontrado para este bolão no momento.</div>';return} box.innerHTML=`<div class="resumo-jogos">${rows.map(g=>{const home=pick(g,['mandante','home','time_mandante','casa'],'Mandante'),away=pick(g,['visitante','away','time_visitante','fora'],'Visitante'),of=placarOficial(g),d=dataDoJogo(g),st=statusJogo(g),statusTxt=st==='AO VIVO'?'Ao vivo':st==='ENCERRADO'?'Encerrado':'Aberto',statusCls=st==='AO VIVO'?'live':st==='ENCERRADO'?'enc':'open',score=of?`${of.gm}<span>x</span>${of.gv}`:'<span>x</span>'; return `<article class="resumo-jogo"><div class="resumo-jogo-top"><div class="resumo-data">${esc(d?dataHoraLabel(d):'Data não informada')}</div><span class="resumo-status ${statusCls}">${esc(statusTxt)}</span></div><div class="resumo-jogo-main">${resumoTeamHtml(home,'',g)}<div class="resumo-placar">${score}</div>${resumoTeamHtml(away,'right',g)}</div></article>`}).join('')}</div>`}
   async function carregarParticipantes(){if(!state.bolao)return; const body=$('#participantesBody'); body.innerHTML='<div class="loading">Carregando participantes...</div>'; const q=await db.collection('boloes').doc(state.bolao.id).collection('participantes').get(); if(q.empty){body.innerHTML='<div class="empty">Nenhum participante encontrado.</div>';return} body.innerHTML=`<table class="info-table"><thead><tr><th>Participante</th><th>Status</th><th>Papel</th></tr></thead><tbody>${q.docs.map(d=>{const p=d.data(); return `<tr><td>${esc(p.nome||p.email||p.uid||'Participante')}</td><td><span class="badge ${p.status==='PENDENTE'?'pendente':'publico'}">${esc(p.status||'APROVADO')}</span></td><td>${esc(p.papel||'PARTICIPANTE')}</td></tr>`}).join('')}</tbody></table>`}
 
   function hashInt(s){let h=0; for(let i=0;i<String(s).length;i++)h=(h*31+String(s).charCodeAt(i))|0; return Math.abs(h)}
