@@ -16,8 +16,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Aplicar correções no bolao.html
-        shell: python
+        shell: bash
         run: |
+          python3 <<'PY'
           from pathlib import Path
           import re
 
@@ -25,7 +26,6 @@ jobs:
           text = path.read_text(encoding='utf-8')
           original = text
 
-          # Versão da correção.
           text = re.sub(
               r'<!-- V056_REGRESSIVA_MOVEL_TIPO_ACERTO_PONTUACAO_2026-07-01 -->',
               '<!-- V057_DESAFIANTE_IA_TODOS_JOGOS_PA_NO_FECHAMENTO_2026-07-16 -->',
@@ -33,18 +33,15 @@ jobs:
               count=1
           )
 
-          # O Desafiante IA deve gerar palpite determinístico para todos os jogos,
-          # inclusive os que já fecharam antes da implantação desta correção.
           text = text.replace(
               "      if(statusJogo(g)==='ENCERRADO')return;\n      if(existentes.has(String(g.id)))return;",
               "      if(existentes.has(String(g.id)))return;"
           )
 
-          # Limpa participantes virtuais antigos/duplicados e mantém somente DESAFIANTE_IA.
           marcador = "    if(qtd) await batch.commit().catch(e=>console.warn('palpites Desafiante IA:',e.message||e));\n  }"
           substituto = """    if(qtd) await batch.commit().catch(e=>console.warn('palpites Desafiante IA:',e.message||e));
 
-    // Mantém somente um desafiante virtual oficial no bolão.
+    // Mantém somente o Desafiante IA oficial.
     for(const uidAntigo of ['DESAFIANTE_SIMON_IA','SIMON_IA','PALPITE_SIMON_IA']){
       await bolaoRef.collection('participantes').doc(uidAntigo).delete().catch(()=>{});
       const antigos=await bolaoRef.collection('palpites').where('uid','==',uidAntigo).limit(500).get().catch(()=>null);
@@ -59,15 +56,19 @@ jobs:
               raise SystemExit('Bloco garantirPalpitesDesafiante não localizado.')
           text = text.replace(marcador, substituto, 1)
 
-          # Substitui o comportamento antigo, que salvava imediatamente em jogos abertos,
-          # por uma rotina que grava somente no instante do fechamento e apenas se não
-          # houver palpite manual. A ativação não alcança partidas anteriores.
-          padrao_pa = re.compile(
-              r"  function applyPAIfNeeded\(camp,rodada\)\{.*?\n"
-              r"  function loadPA\(\)\{try\{state\.pa=JSON\.parse\(localStorage\.getItem\('PSS_PA_BOLAO'\)\|\|'null'\)\}catch\(e\)\{state\.pa=null\}\}\n"
-              r"  \$\('#btnPA'\)\.onclick=.*?if\(state\.jogos\.length\)applyPAIfNeeded\(\$\('#selCamp'\)\.value,\$\('#selRod'\)\.value\)\};",
-              re.S
-          )
+          inicio = text.find("  function applyPAIfNeeded(camp,rodada){")
+          fim = text.find("  function loadPA(){", inicio)
+          if inicio < 0 or fim < 0:
+              raise SystemExit('Bloco inicial do palpite automático não localizado.')
+
+          fim_linha = text.find("\n", fim)
+          if fim_linha < 0:
+              raise SystemExit('Fim de loadPA não localizado.')
+
+          linha_eventos_inicio = text.find("  $('#btnPA').onclick", fim_linha)
+          linha_eventos_fim = text.find("\n", text.find("};", linha_eventos_inicio) + 2)
+          if linha_eventos_inicio < 0 or linha_eventos_fim < 0:
+              raise SystemExit('Eventos do palpite automático não localizados.')
 
           novo_pa = r"""  const paFechamentoTimers=new Map();
 
@@ -79,7 +80,6 @@ jobs:
     if(!state.pa?.perfil||!state.pa?.ts)return false;
     const inicio=dataDoJogo(g);
     if(!inicio)return false;
-    // A configuração passa a valer somente para partidas posteriores à ativação.
     return inicio.getTime()>Number(state.pa.ts);
   }
 
@@ -127,8 +127,6 @@ jobs:
         return;
       }
 
-      // setTimeout possui limite aproximado de 24 dias. Jogos mais distantes
-      // serão reagendados nas atualizações periódicas da página.
       if(restante<=2147480000){
         const timer=setTimeout(()=>{
           paFechamentoTimers.delete(id);
@@ -165,14 +163,13 @@ jobs:
     if(state.jogos.length)applyPAIfNeeded($('#selCamp').value,$('#selRod').value);
   };"""
 
-          text, total = padrao_pa.subn(novo_pa, text, count=1)
-          if total != 1:
-              raise SystemExit(f'Bloco de palpite automático não localizado ou ambíguo: {total}')
+          text = text[:inicio] + novo_pa + text[linha_eventos_fim:]
 
           if text == original:
               raise SystemExit('Nenhuma alteração aplicada.')
 
           path.write_text(text, encoding='utf-8')
+          PY
 
       - name: Validar estrutura básica
         shell: bash
