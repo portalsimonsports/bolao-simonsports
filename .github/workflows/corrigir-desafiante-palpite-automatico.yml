@@ -1,193 +1,39 @@
-name: Corrigir Desafiante IA e palpite automático
+name: Corrigir bolao.html - IA e palpite automático
 
 on:
   workflow_dispatch:
   push:
     paths:
       - '.github/workflows/corrigir-desafiante-palpite-automatico.yml'
+      - '.github/scripts/corrigir_bolao_ia.py'
 
 permissions:
   contents: write
 
 jobs:
-  corrigir:
+  corrigir-bolao:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Baixar repositório
+        uses: actions/checkout@v4
 
-      - name: Aplicar correções no bolao.html
-        shell: bash
-        run: |
-          python3 <<'PY'
-          from pathlib import Path
-          import re
+      - name: Corrigir bolao.html
+        run: python3 .github/scripts/corrigir_bolao_ia.py
 
-          path = Path('bolao.html')
-          text = path.read_text(encoding='utf-8')
-          original = text
-
-          text = re.sub(
-              r'<!-- V056_REGRESSIVA_MOVEL_TIPO_ACERTO_PONTUACAO_2026-07-01 -->',
-              '<!-- V057_DESAFIANTE_IA_TODOS_JOGOS_PA_NO_FECHAMENTO_2026-07-16 -->',
-              text,
-              count=1
-          )
-
-          text = text.replace(
-              "      if(statusJogo(g)==='ENCERRADO')return;\n      if(existentes.has(String(g.id)))return;",
-              "      if(existentes.has(String(g.id)))return;"
-          )
-
-          marcador = "    if(qtd) await batch.commit().catch(e=>console.warn('palpites Desafiante IA:',e.message||e));\n  }"
-          substituto = """    if(qtd) await batch.commit().catch(e=>console.warn('palpites Desafiante IA:',e.message||e));
-
-    // Mantém somente o Desafiante IA oficial.
-    for(const uidAntigo of ['DESAFIANTE_SIMON_IA','SIMON_IA','PALPITE_SIMON_IA']){
-      await bolaoRef.collection('participantes').doc(uidAntigo).delete().catch(()=>{});
-      const antigos=await bolaoRef.collection('palpites').where('uid','==',uidAntigo).limit(500).get().catch(()=>null);
-      if(antigos&&!antigos.empty){
-        const limpeza=db.batch();
-        antigos.docs.forEach(d=>limpeza.delete(d.ref));
-        await limpeza.commit().catch(e=>console.warn('limpeza IA antiga:',e.message||e));
-      }
-    }
-  }"""
-          if marcador not in text:
-              raise SystemExit('Bloco garantirPalpitesDesafiante não localizado.')
-          text = text.replace(marcador, substituto, 1)
-
-          inicio = text.find("  function applyPAIfNeeded(camp,rodada){")
-          fim = text.find("  function loadPA(){", inicio)
-          if inicio < 0 or fim < 0:
-              raise SystemExit('Bloco inicial do palpite automático não localizado.')
-
-          fim_linha = text.find("\n", fim)
-          if fim_linha < 0:
-              raise SystemExit('Fim de loadPA não localizado.')
-
-          linha_eventos_inicio = text.find("  $('#btnPA').onclick", fim_linha)
-          linha_eventos_fim = text.find("\n", text.find("};", linha_eventos_inicio) + 2)
-          if linha_eventos_inicio < 0 or linha_eventos_fim < 0:
-              raise SystemExit('Eventos do palpite automático não localizados.')
-
-          novo_pa = r"""  const paFechamentoTimers=new Map();
-
-  function palpitePreenchido(p){
-    return Number.isFinite(Number(p?.gm))&&Number.isFinite(Number(p?.gv));
-  }
-
-  function jogoElegivelParaPA(g){
-    if(!state.pa?.perfil||!state.pa?.ts)return false;
-    const inicio=dataDoJogo(g);
-    if(!inicio)return false;
-    return inicio.getTime()>Number(state.pa.ts);
-  }
-
-  async function gravarPANoFechamento(g,camp,rodada){
-    if(!state.bolao||state.uid==='GUEST'||!jogoElegivelParaPA(g))return;
-    const id=String(g.id);
-    const inicio=dataDoJogo(g);
-    if(!inicio||Date.now()<inicio.getTime())return;
-
-    const doc=safeId(`${state.uid}_${camp}_${rodada}_${id}`);
-    const ref=db.collection('boloes').doc(state.bolao.id).collection('palpites').doc(doc);
-    const atual=await ref.get().catch(()=>null);
-    if(atual?.exists&&palpitePreenchido(atual.data()))return;
-
-    const home=pick(g,['mandante','home','time_mandante','casa'],'Mandante');
-    const away=pick(g,['visitante','away','time_visitante','fora'],'Visitante');
-    const gerado=gerarPalpite(home,away,state.pa.perfil,`${state.uid}_${camp}_${rodada}_${id}_${state.pa.ts}`);
-    const payload={
-      uid:state.uid,nome:state.nome,email:state.email,idJogo:id,camp,
-      rodada:String(rodada),gm:gerado.gm,gv:gerado.gv,
-      origem:`PA_${state.pa.perfil}`,automatico:true,
-      paAtivadoEm:Number(state.pa.ts),
-      criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
-      atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
-    };
-    await ref.set(payload,{merge:false});
-    state.palpites[id]=payload;
-    atualizarPainelTempoReal(true).catch(console.warn);
-  }
-
-  function applyPAIfNeeded(camp,rodada){
-    paFechamentoTimers.forEach(timer=>clearTimeout(timer));
-    paFechamentoTimers.clear();
-    if(!state.pa?.perfil||!state.pa?.ts)return;
-
-    state.jogos.forEach(g=>{
-      const id=String(g.id);
-      if(!jogoElegivelParaPA(g)||palpitePreenchido(state.palpites[id]))return;
-      const inicio=dataDoJogo(g);
-      if(!inicio)return;
-      const restante=inicio.getTime()-Date.now();
-
-      if(restante<=0){
-        gravarPANoFechamento(g,camp,rodada).catch(e=>console.warn('P.A. no fechamento:',e.message||e));
-        return;
-      }
-
-      if(restante<=2147480000){
-        const timer=setTimeout(()=>{
-          paFechamentoTimers.delete(id);
-          gravarPANoFechamento(g,camp,rodada).catch(e=>console.warn('P.A. no fechamento:',e.message||e));
-        },restante+750);
-        paFechamentoTimers.set(id,timer);
-      }
-    });
-  }
-
-  function loadPA(){
-    try{
-      const salvo=JSON.parse(localStorage.getItem('PSS_PA_BOLAO')||'null');
-      state.pa=salvo?.perfil&&salvo?.ts?salvo:null;
-    }catch(e){state.pa=null}
-  }
-
-  $('#btnPA').onclick=()=>$('#paModal').classList.add('open');
-  $('#paFechar').onclick=()=>$('#paModal').classList.remove('open');
-  $('#paRemover').onclick=()=>{
-    state.pa=null;
-    paFechamentoTimers.forEach(timer=>clearTimeout(timer));
-    paFechamentoTimers.clear();
-    localStorage.removeItem('PSS_PA_BOLAO');
-    $('#paModal').classList.remove('open');
-    toast('Palpite automático removido.');
-  };
-  $('#paSalvar').onclick=()=>{
-    const perfil=document.querySelector('input[name="paPerfil"]:checked')?.value||'EQUILIBRADO';
-    state.pa={perfil,ts:Date.now()};
-    localStorage.setItem('PSS_PA_BOLAO',JSON.stringify(state.pa));
-    $('#paModal').classList.remove('open');
-    toast('Palpite automático ativado para jogos futuros: '+perfil);
-    if(state.jogos.length)applyPAIfNeeded($('#selCamp').value,$('#selRod').value);
-  };"""
-
-          text = text[:inicio] + novo_pa + text[linha_eventos_fim:]
-
-          if text == original:
-              raise SystemExit('Nenhuma alteração aplicada.')
-
-          path.write_text(text, encoding='utf-8')
-          PY
-
-      - name: Validar estrutura básica
-        shell: bash
+      - name: Validar correção
         run: |
           grep -q 'V057_DESAFIANTE_IA_TODOS_JOGOS_PA_NO_FECHAMENTO' bolao.html
           grep -q 'gravarPANoFechamento' bolao.html
-          grep -q "DESAFIANTE_SIMON_IA" bolao.html
-          test "$(grep -c "function applyPAIfNeeded" bolao.html)" -eq 1
+          test "$(grep -c 'function applyPAIfNeeded' bolao.html)" -eq 1
 
-      - name: Publicar correção
-        shell: bash
+      - name: Publicar bolao.html corrigido
         run: |
-          if git diff --quiet; then
-            echo 'Nenhuma alteração pendente.'
+          if git diff --quiet -- bolao.html; then
+            echo 'O bolao.html já está corrigido.'
             exit 0
           fi
           git config user.name 'Portal SimonSports Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add bolao.html
-          git commit -m 'Corrigir IA e palpite automático no fechamento'
+          git commit -m 'Corrigir Desafiante IA e palpite automático no fechamento'
           git push
