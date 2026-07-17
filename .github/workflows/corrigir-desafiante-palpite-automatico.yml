@@ -1,4 +1,4 @@
-name: Corrigir bolao.html - pontuação com peso
+name: Atualizar bolao.html
 
 on:
   workflow_dispatch:
@@ -11,32 +11,29 @@ permissions:
   contents: write
 
 jobs:
-  corrigir-bolao:
+  atualizar-bolao:
     runs-on: ubuntu-latest
     steps:
       - name: Baixar repositório
         uses: actions/checkout@v4
 
-      - name: Corrigir bolao.html
+      - name: Aplicar correções no bolao.html
         run: python3 .github/scripts/corrigir_bolao_ia.py
 
-      - name: Validar correção
+      - name: Validar estrutura do arquivo
         run: |
-          grep -q 'V058_PONTUACAO_COM_PESO_POR_RODADA' bolao.html
-          grep -q 'function bolaoComPeso' bolao.html
-          grep -q 'function pesoDaRodada' bolao.html
-          grep -q 'function detalhePontuacaoBase' bolao.html
-          grep -q 'gravarPANoFechamento' bolao.html
-          test "$(grep -c 'function detalhePontuacao(p,g)' bolao.html)" -eq 1
+          grep -q '<!DOCTYPE html>' bolao.html
+          grep -q 'function ensureUser' bolao.html
+          grep -q 'function detalhePontuacao' bolao.html
 
-      - name: Publicar bolao.html corrigido
+      - name: Publicar bolao.html atualizado
         run: |
           if git diff --quiet -- bolao.html; then
-            echo 'O bolao.html já está corrigido.'
+            echo 'O bolao.html já está atualizado.'
             exit 0
           fi
           git config user.name 'Portal SimonSports Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add bolao.html
-          git commit -m 'Corrigir pontuação com peso por rodada no bolao.html'
+          git commit -m 'Exibir escudos dos times em todos os bolões'
           git push
