@@ -1,0 +1,41 @@
+name: Corrigir temporadas do site
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/scripts/corrigir_temporadas_site.py'
+      - '.github/workflows/corrigir-temporadas-site.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  corrigir-temporadas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Aplicar correções pontuais
+        run: python3 .github/scripts/corrigir_temporadas_site.py
+
+      - name: Validar arquivos
+        run: |
+          grep -q 'V006_ADMIN_OFICIAIS_TEMPORADAS_OPERACIONAIS_2026_2027' admin-oficiais.html
+          grep -q 'V061_CATALOGO_TEMPORADAS_2026_2027' bolao.html
+          grep -q 'V031_PUBLICOS_CATALOGO_OPERACIONAL_PRIORITARIO' publicos.html
+          grep -q 'function carregarCatalogoOperacional' publicos.html
+          grep -q "temporada:'2026/2027'" admin-oficiais.html
+
+      - name: Publicar alterações
+        run: |
+          if git diff --quiet -- admin-oficiais.html bolao.html publicos.html; then
+            echo 'Os arquivos já estão atualizados.'
+            exit 0
+          fi
+          git config user.name 'Portal SimonSports Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add admin-oficiais.html bolao.html publicos.html
+          git commit -m 'Atualizar temporadas e priorizar catálogo operacional'
+          git push
