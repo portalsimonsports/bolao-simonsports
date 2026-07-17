@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V059_ESCUDOS_TODOS_TIMES_TODOS_BOLOES_2026-07-16 -->
+<!-- V060_LOGOS_INTERNOS_TABELAS_2026-07-17 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -792,7 +792,10 @@
   function teamMiniHtml(nome,g=null,lado=''){
     const nomePt=translateTeam(nome);
     const logo=logoSpanHtml(nome,logoUrlByTeam(nome,g,lado),'team-mini-logo');
-    return `<span class="team-mini">${logo}<span>${esc(nomePt)}</span></span>`;
+    const mandante=lado==='home'||lado==='mandante'||lado==='casa';
+    return mandante
+      ?`<span class="team-mini"><span>${esc(nomePt)}</span>${logo}</span>`
+      :`<span class="team-mini">${logo}<span>${esc(nomePt)}</span></span>`;
   }
 
   function aplicarLogoCarregado(el,url){
