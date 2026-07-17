@@ -1,0 +1,196 @@
+name: Corrigir Desafiante IA e palpite automático
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/corrigir-desafiante-palpite-automatico.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  corrigir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Aplicar correções no bolao.html
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          path = Path('bolao.html')
+          text = path.read_text(encoding='utf-8')
+          original = text
+
+          # Versão da correção.
+          text = re.sub(
+              r'<!-- V056_REGRESSIVA_MOVEL_TIPO_ACERTO_PONTUACAO_2026-07-01 -->',
+              '<!-- V057_DESAFIANTE_IA_TODOS_JOGOS_PA_NO_FECHAMENTO_2026-07-16 -->',
+              text,
+              count=1
+          )
+
+          # O Desafiante IA deve gerar palpite determinístico para todos os jogos,
+          # inclusive os que já fecharam antes da implantação desta correção.
+          text = text.replace(
+              "      if(statusJogo(g)==='ENCERRADO')return;\n      if(existentes.has(String(g.id)))return;",
+              "      if(existentes.has(String(g.id)))return;"
+          )
+
+          # Limpa participantes virtuais antigos/duplicados e mantém somente DESAFIANTE_IA.
+          marcador = "    if(qtd) await batch.commit().catch(e=>console.warn('palpites Desafiante IA:',e.message||e));\n  }"
+          substituto = """    if(qtd) await batch.commit().catch(e=>console.warn('palpites Desafiante IA:',e.message||e));
+
+    // Mantém somente um desafiante virtual oficial no bolão.
+    for(const uidAntigo of ['DESAFIANTE_SIMON_IA','SIMON_IA','PALPITE_SIMON_IA']){
+      await bolaoRef.collection('participantes').doc(uidAntigo).delete().catch(()=>{});
+      const antigos=await bolaoRef.collection('palpites').where('uid','==',uidAntigo).limit(500).get().catch(()=>null);
+      if(antigos&&!antigos.empty){
+        const limpeza=db.batch();
+        antigos.docs.forEach(d=>limpeza.delete(d.ref));
+        await limpeza.commit().catch(e=>console.warn('limpeza IA antiga:',e.message||e));
+      }
+    }
+  }"""
+          if marcador not in text:
+              raise SystemExit('Bloco garantirPalpitesDesafiante não localizado.')
+          text = text.replace(marcador, substituto, 1)
+
+          # Substitui o comportamento antigo, que salvava imediatamente em jogos abertos,
+          # por uma rotina que grava somente no instante do fechamento e apenas se não
+          # houver palpite manual. A ativação não alcança partidas anteriores.
+          padrao_pa = re.compile(
+              r"  function applyPAIfNeeded\(camp,rodada\)\{.*?\n"
+              r"  function loadPA\(\)\{try\{state\.pa=JSON\.parse\(localStorage\.getItem\('PSS_PA_BOLAO'\)\|\|'null'\)\}catch\(e\)\{state\.pa=null\}\}\n"
+              r"  \$\('#btnPA'\)\.onclick=.*?if\(state\.jogos\.length\)applyPAIfNeeded\(\$\('#selCamp'\)\.value,\$\('#selRod'\)\.value\)\};",
+              re.S
+          )
+
+          novo_pa = r"""  const paFechamentoTimers=new Map();
+
+  function palpitePreenchido(p){
+    return Number.isFinite(Number(p?.gm))&&Number.isFinite(Number(p?.gv));
+  }
+
+  function jogoElegivelParaPA(g){
+    if(!state.pa?.perfil||!state.pa?.ts)return false;
+    const inicio=dataDoJogo(g);
+    if(!inicio)return false;
+    // A configuração passa a valer somente para partidas posteriores à ativação.
+    return inicio.getTime()>Number(state.pa.ts);
+  }
+
+  async function gravarPANoFechamento(g,camp,rodada){
+    if(!state.bolao||state.uid==='GUEST'||!jogoElegivelParaPA(g))return;
+    const id=String(g.id);
+    const inicio=dataDoJogo(g);
+    if(!inicio||Date.now()<inicio.getTime())return;
+
+    const doc=safeId(`${state.uid}_${camp}_${rodada}_${id}`);
+    const ref=db.collection('boloes').doc(state.bolao.id).collection('palpites').doc(doc);
+    const atual=await ref.get().catch(()=>null);
+    if(atual?.exists&&palpitePreenchido(atual.data()))return;
+
+    const home=pick(g,['mandante','home','time_mandante','casa'],'Mandante');
+    const away=pick(g,['visitante','away','time_visitante','fora'],'Visitante');
+    const gerado=gerarPalpite(home,away,state.pa.perfil,`${state.uid}_${camp}_${rodada}_${id}_${state.pa.ts}`);
+    const payload={
+      uid:state.uid,nome:state.nome,email:state.email,idJogo:id,camp,
+      rodada:String(rodada),gm:gerado.gm,gv:gerado.gv,
+      origem:`PA_${state.pa.perfil}`,automatico:true,
+      paAtivadoEm:Number(state.pa.ts),
+      criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
+      atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    };
+    await ref.set(payload,{merge:false});
+    state.palpites[id]=payload;
+    atualizarPainelTempoReal(true).catch(console.warn);
+  }
+
+  function applyPAIfNeeded(camp,rodada){
+    paFechamentoTimers.forEach(timer=>clearTimeout(timer));
+    paFechamentoTimers.clear();
+    if(!state.pa?.perfil||!state.pa?.ts)return;
+
+    state.jogos.forEach(g=>{
+      const id=String(g.id);
+      if(!jogoElegivelParaPA(g)||palpitePreenchido(state.palpites[id]))return;
+      const inicio=dataDoJogo(g);
+      if(!inicio)return;
+      const restante=inicio.getTime()-Date.now();
+
+      if(restante<=0){
+        gravarPANoFechamento(g,camp,rodada).catch(e=>console.warn('P.A. no fechamento:',e.message||e));
+        return;
+      }
+
+      // setTimeout possui limite aproximado de 24 dias. Jogos mais distantes
+      // serão reagendados nas atualizações periódicas da página.
+      if(restante<=2147480000){
+        const timer=setTimeout(()=>{
+          paFechamentoTimers.delete(id);
+          gravarPANoFechamento(g,camp,rodada).catch(e=>console.warn('P.A. no fechamento:',e.message||e));
+        },restante+750);
+        paFechamentoTimers.set(id,timer);
+      }
+    });
+  }
+
+  function loadPA(){
+    try{
+      const salvo=JSON.parse(localStorage.getItem('PSS_PA_BOLAO')||'null');
+      state.pa=salvo?.perfil&&salvo?.ts?salvo:null;
+    }catch(e){state.pa=null}
+  }
+
+  $('#btnPA').onclick=()=>$('#paModal').classList.add('open');
+  $('#paFechar').onclick=()=>$('#paModal').classList.remove('open');
+  $('#paRemover').onclick=()=>{
+    state.pa=null;
+    paFechamentoTimers.forEach(timer=>clearTimeout(timer));
+    paFechamentoTimers.clear();
+    localStorage.removeItem('PSS_PA_BOLAO');
+    $('#paModal').classList.remove('open');
+    toast('Palpite automático removido.');
+  };
+  $('#paSalvar').onclick=()=>{
+    const perfil=document.querySelector('input[name="paPerfil"]:checked')?.value||'EQUILIBRADO';
+    state.pa={perfil,ts:Date.now()};
+    localStorage.setItem('PSS_PA_BOLAO',JSON.stringify(state.pa));
+    $('#paModal').classList.remove('open');
+    toast('Palpite automático ativado para jogos futuros: '+perfil);
+    if(state.jogos.length)applyPAIfNeeded($('#selCamp').value,$('#selRod').value);
+  };"""
+
+          text, total = padrao_pa.subn(novo_pa, text, count=1)
+          if total != 1:
+              raise SystemExit(f'Bloco de palpite automático não localizado ou ambíguo: {total}')
+
+          if text == original:
+              raise SystemExit('Nenhuma alteração aplicada.')
+
+          path.write_text(text, encoding='utf-8')
+
+      - name: Validar estrutura básica
+        shell: bash
+        run: |
+          grep -q 'V057_DESAFIANTE_IA_TODOS_JOGOS_PA_NO_FECHAMENTO' bolao.html
+          grep -q 'gravarPANoFechamento' bolao.html
+          grep -q "DESAFIANTE_SIMON_IA" bolao.html
+          test "$(grep -c "function applyPAIfNeeded" bolao.html)" -eq 1
+
+      - name: Publicar correção
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo 'Nenhuma alteração pendente.'
+            exit 0
+          fi
+          git config user.name 'Portal SimonSports Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add bolao.html
+          git commit -m 'Corrigir IA e palpite automático no fechamento'
+          git push
