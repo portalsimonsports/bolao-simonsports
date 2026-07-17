@@ -25,6 +25,8 @@ jobs:
           grep -q '<!DOCTYPE html>' bolao.html
           grep -q 'function ensureUser' bolao.html
           grep -q 'function detalhePontuacao' bolao.html
+          grep -q 'escolherRodadaAutomatica' bolao.html
+          grep -q 'confrontoTabelaHtml' bolao.html
 
       - name: Publicar bolao.html atualizado
         run: |
@@ -35,5 +37,5 @@ jobs:
           git config user.name 'Portal SimonSports Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add bolao.html
-          git commit -m 'Exibir escudos dos times em todos os bolões'
+          git commit -m 'Selecionar rodada atual, exibir próximos jogos e alinhar confrontos'
           git push
