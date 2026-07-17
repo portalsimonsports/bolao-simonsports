@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V056_REGRESSIVA_MOVEL_TIPO_ACERTO_PONTUACAO_2026-07-01 -->
+<!-- V057_DESAFIANTE_IA_TODOS_JOGOS_PA_NO_FECHAMENTO_2026-07-16 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -904,7 +904,6 @@
     const existentes=new Set(); if(snap) snap.docs.forEach(d=>{const p=d.data(); if(p.idJogo)existentes.add(String(p.idJogo));});
     const batch=db.batch(); let qtd=0;
     state.jogos.forEach(g=>{
-      if(statusJogo(g)==='ENCERRADO')return;
       if(existentes.has(String(g.id)))return;
       const home=pick(g,['mandante','home','time_mandante','casa'],'Mandante'),away=pick(g,['visitante','away','time_visitante','fora'],'Visitante');
       const p=gerarPalpite(home,away,'EQUILIBRADO',`DESAFIANTE_${state.bolao.id}_${camp}_${rodada}_${g.id}`);
@@ -913,6 +912,34 @@
       qtd++;
     });
     if(qtd) await batch.commit().catch(e=>console.warn('palpites Desafiante IA:',e.message||e));
+
+    const participantesAntigos=await bolaoRef.collection('participantes').limit(500).get().catch(()=>null);
+    if(participantesAntigos&&!participantesAntigos.empty){
+      const remover=[];
+      participantesAntigos.docs.forEach(d=>{
+        const dados=d.data()||{};
+        const uid=String(dados.uid||d.id||'').toUpperCase();
+        const nome=String(dados.nome||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+        const antigo=d.id!=='DESAFIANTE_IA'&&(uid.includes('SIMON_IA')||uid.includes('PALPITE_SIMON')||nome.includes('DESAFIANTE SIMON IA'));
+        if(antigo)remover.push(d);
+      });
+      for(let i=0;i<remover.length;i+=400){
+        const limpeza=db.batch();
+        remover.slice(i,i+400).forEach(d=>limpeza.delete(d.ref));
+        await limpeza.commit().catch(e=>console.warn('limpeza participante IA antiga:',e.message||e));
+      }
+    }
+
+    for(const uidAntigo of ['DESAFIANTE_SIMON_IA','SIMON_IA','PALPITE_SIMON_IA']){
+      const antigos=await bolaoRef.collection('palpites').where('uid','==',uidAntigo).limit(500).get().catch(()=>null);
+      if(antigos&&!antigos.empty){
+        for(let i=0;i<antigos.docs.length;i+=400){
+          const limpeza=db.batch();
+          antigos.docs.slice(i,i+400).forEach(d=>limpeza.delete(d.ref));
+          await limpeza.commit().catch(e=>console.warn('limpeza palpite IA antiga:',e.message||e));
+        }
+      }
+    }
   }
 
   function jogoPorPalpite(p){return state.jogos.find(g=>String(g.id)===String(p.idJogo||p.jogoId||p.id_jogo||''));}
@@ -979,11 +1006,99 @@
   function hashInt(s){let h=0; for(let i=0;i<String(s).length;i++)h=(h*31+String(s).charCodeAt(i))|0; return Math.abs(h)}
   function teamStrength(n){const k=norm(n); return TEAM_STRENGTH[k]||70+(hashInt(k)%12)}
   function gerarPalpite(home,away,perfil,seed){const diff=teamStrength(home)+2-teamStrength(away),h=hashInt(`${home}|${away}|${perfil}|${seed}`); let gm=1,gv=1; if(perfil==='FAVORITOS'){if(diff>=10){gm=2;gv=h%3===0?1:0}else if(diff<=-10){gm=h%3===0?1:0;gv=2}else{gm=1;gv=h%2?1:0}}else if(perfil==='SURPRESA'){if(Math.abs(diff)<7){gm=h%3===0?2:1;gv=h%4===0?2:1}else if(diff>0){gm=h%4===0?0:1;gv=h%4===0?1:1}else{gm=h%4===0?1:1;gv=h%4===0?0:1}}else{if(diff>=8){gm=2;gv=1}else if(diff<=-8){gm=1;gv=2}else{gm=1;gv=h%4===0?0:1}} return {gm:Math.max(0,Math.min(5,gm)),gv:Math.max(0,Math.min(5,gv))}}
-  function applyPAIfNeeded(camp,rodada){if(!state.pa?.perfil)return; $$('.match-card[data-aberto="1"]').forEach(card=>{const id=card.dataset.jogo,gm=$(`input[data-id="${cssEsc(id)}_gm"]`),gv=$(`input[data-id="${cssEsc(id)}_gv"]`); if(gm&&gv&&gm.value===''&&gv.value===''){const p=gerarPalpite(card.dataset.home,card.dataset.away,state.pa.perfil,`${camp}_${rodada}_${id}`); gm.value=p.gm; gv.value=p.gv; salvarPalpite(id,camp,rodada,'PA_'+state.pa.perfil).catch(console.warn)}})}
-  function loadPA(){try{state.pa=JSON.parse(localStorage.getItem('PSS_PA_BOLAO')||'null')}catch(e){state.pa=null}}
-  $('#btnPA').onclick=()=>$('#paModal').classList.add('open'); $('#paFechar').onclick=()=>$('#paModal').classList.remove('open'); $('#paRemover').onclick=()=>{state.pa=null;localStorage.removeItem('PSS_PA_BOLAO');$('#paModal').classList.remove('open');toast('Palpite automático removido.')}; $('#paSalvar').onclick=()=>{const perfil=document.querySelector('input[name="paPerfil"]:checked')?.value||'EQUILIBRADO'; state.pa={perfil,ts:Date.now()}; localStorage.setItem('PSS_PA_BOLAO',JSON.stringify(state.pa)); $('#paModal').classList.remove('open'); toast('Perfil de P.A. salvo: '+perfil); if(state.jogos.length)applyPAIfNeeded($('#selCamp').value,$('#selRod').value)};
+  const paFechamentoTimers=new Map();
 
-  async function ensureUser(user){if(!user)return null; const ref=db.collection('usuarios').doc(user.uid),snap=await ref.get(),old=snap.exists?(snap.data()||{}):{}; const payload={uid:user.uid,nome:user.displayName||old.nome||user.email||'Usuário',email:user.email||old.email||'',foto:user.photoURL||old.foto||'',ativo:old.ativo!==false,status:old.status||'ATIVO',perfil:old.perfil||old.perfilGlobal||'USUARIO',perfilGlobal:old.perfilGlobal||old.perfil||'USUARIO',ultimoLoginEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()}; if(!snap.exists)payload.criadoEm=firebase.firestore.FieldValue.serverTimestamp(); await ref.set(payload,{merge:true}); return payload}
+  function palpitePreenchido(p){
+    return Number.isFinite(Number(p?.gm))&&Number.isFinite(Number(p?.gv));
+  }
+
+  function jogoElegivelParaPA(g){
+    if(!state.pa?.perfil||!state.pa?.ts)return false;
+    const inicio=dataDoJogo(g);
+    if(!inicio)return false;
+    return inicio.getTime()>Number(state.pa.ts);
+  }
+
+  async function gravarPANoFechamento(g,camp,rodada){
+    if(!state.bolao||state.uid==='GUEST'||!jogoElegivelParaPA(g))return;
+    const id=String(g.id);
+    const inicio=dataDoJogo(g);
+    if(!inicio||Date.now()<inicio.getTime())return;
+
+    const doc=safeId(`${state.uid}_${camp}_${rodada}_${id}`);
+    const ref=db.collection('boloes').doc(state.bolao.id).collection('palpites').doc(doc);
+    const atual=await ref.get().catch(()=>null);
+    if(atual?.exists&&palpitePreenchido(atual.data()))return;
+
+    const home=pick(g,['mandante','home','time_mandante','casa'],'Mandante');
+    const away=pick(g,['visitante','away','time_visitante','fora'],'Visitante');
+    const gerado=gerarPalpite(home,away,state.pa.perfil,`${state.uid}_${camp}_${rodada}_${id}_${state.pa.ts}`);
+    const payload={
+      uid:state.uid,nome:state.nome,email:state.email,idJogo:id,camp,
+      rodada:String(rodada),gm:gerado.gm,gv:gerado.gv,
+      origem:`PA_${state.pa.perfil}`,automatico:true,
+      paAtivadoEm:Number(state.pa.ts),
+      criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
+      atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    };
+    await ref.set(payload,{merge:false});
+    state.palpites[id]=payload;
+    atualizarPainelTempoReal(true).catch(console.warn);
+  }
+
+  function applyPAIfNeeded(camp,rodada){
+    paFechamentoTimers.forEach(timer=>clearTimeout(timer));
+    paFechamentoTimers.clear();
+    if(!state.pa?.perfil||!state.pa?.ts)return;
+
+    state.jogos.forEach(g=>{
+      const id=String(g.id);
+      if(!jogoElegivelParaPA(g)||palpitePreenchido(state.palpites[id]))return;
+      const inicio=dataDoJogo(g);
+      if(!inicio)return;
+      const restante=inicio.getTime()-Date.now();
+
+      if(restante<=0){
+        gravarPANoFechamento(g,camp,rodada).catch(e=>console.warn('P.A. no fechamento:',e.message||e));
+        return;
+      }
+
+      if(restante<=2147480000){
+        const timer=setTimeout(()=>{
+          paFechamentoTimers.delete(id);
+          gravarPANoFechamento(g,camp,rodada).catch(e=>console.warn('P.A. no fechamento:',e.message||e));
+        },restante+750);
+        paFechamentoTimers.set(id,timer);
+      }
+    });
+  }
+
+  function loadPA(){
+    try{
+      const salvo=JSON.parse(localStorage.getItem('PSS_PA_BOLAO')||'null');
+      state.pa=salvo?.perfil&&salvo?.ts?salvo:null;
+    }catch(e){state.pa=null}
+  }
+
+  $('#btnPA').onclick=()=>$('#paModal').classList.add('open');
+  $('#paFechar').onclick=()=>$('#paModal').classList.remove('open');
+  $('#paRemover').onclick=()=>{
+    state.pa=null;
+    paFechamentoTimers.forEach(timer=>clearTimeout(timer));
+    paFechamentoTimers.clear();
+    localStorage.removeItem('PSS_PA_BOLAO');
+    $('#paModal').classList.remove('open');
+    toast('Palpite automático removido.');
+  };
+  $('#paSalvar').onclick=()=>{
+    const perfil=document.querySelector('input[name="paPerfil"]:checked')?.value||'EQUILIBRADO';
+    state.pa={perfil,ts:Date.now()};
+    localStorage.setItem('PSS_PA_BOLAO',JSON.stringify(state.pa));
+    $('#paModal').classList.remove('open');
+    toast('Palpite automático ativado somente para jogos futuros: '+perfil);
+    if(state.jogos.length)applyPAIfNeeded($('#selCamp').value,$('#selRod').value);
+  };
+
   function atualizarAuthUI(user,perfil){state.uid=user?user.uid:'GUEST'; state.nome=user?(user.displayName||user.email||'Usuário'):'Visitante'; state.email=user?.email||''; state.foto=user?.photoURL||''; state.perfil=perfil?.perfil||'USUARIO'; state.perfilGlobal=perfil?.perfilGlobal||'USUARIO'; state.admin=!!(user&&isAdminProfile(perfil)); document.body.classList.toggle('logged',!!user); $('#page').classList.toggle('logged',!!user); $('#userBox').textContent=user?`Olá, ${state.nome}`:'Você não está logado'; $('#loginCardTitle').textContent=user?state.nome:'Visitante'; $('#loginCardText').textContent=user?(state.email||'Logado'):'Entre com Google para criar ou participar.'; $('#roleBox').style.display=user?'inline-flex':'none'; $('#roleBox').textContent=state.admin?'ADMIN':'USUÁRIO'; $('#btnLoginTop').style.display=user?'none':'inline-flex'; $('#btnLogoutTop').style.display=user?'inline-flex':'none'; ['#btnAdminOficiaisTop','#btnAdminOficiaisHero','#btnAdminOficiaisPainel'].forEach(id=>{const b=$(id); if(b)b.style.display=state.admin?'inline-flex':'none'}); ['#btnLoginHero','#btnLoginCard','#btnLoginCatalogo','#btnLoginPublicos'].forEach(id=>{const b=$(id); if(b)b.textContent=user?'Abrir painel':'Entrar com Google'}); const tipo=$('#novoTipo'); if(tipo){Array.from(tipo.options).forEach(o=>{if(o.value==='PUBLICO')o.disabled=!state.admin}); if(!state.admin&&tipo.value==='PUBLICO')tipo.value='PRIVADO'}; $('#btnCriarTopo').textContent=state.admin?'Criar / atualizar oficiais':'+ Criar bolão privado';}
   function mensagemErroAuth(e){const code=String(e?.code||''),msg=String(e?.message||''); if(code.includes('unauthorized-domain'))return 'Domínio não autorizado no Firebase Auth.'; if(code.includes('popup-blocked'))return 'O navegador bloqueou a janela do Google.'; if(code.includes('popup-closed'))return 'Login cancelado.'; if(code.includes('network-request-failed'))return 'Falha de rede ao autenticar com Google.'; return msg||code||'Erro desconhecido no login.'}
   async function loginGoogleSeguro(){if(state.uid!=='GUEST'){document.getElementById('painel')?.scrollIntoView({behavior:'smooth'});return} await AUTH_LOCAL_READY; try{try{await auth.signInWithPopup(provider)}catch(e){if(String(e?.code||'').includes('popup-closed'))throw e; await auth.signInWithRedirect(provider)}}catch(e){toast('Falha no login: '+mensagemErroAuth(e))}}
