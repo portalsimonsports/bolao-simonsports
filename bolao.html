@@ -604,6 +604,38 @@
     }
     return 1;
   }
+  function totalRodadasCamp(camp){return {CUP:7,BRA:38,ENG:38,ESP:38,FRA:34,ITA:38,SUP:38}[camp]||38}
+  function rodadaExplicitaDoBolao(){
+    const b=state.bolao||{};
+    const formato=ctrl(b.formatoBolao||b.modoBolao||b.recorteTipo||'');
+    const ri=Number(b.rodadaInicial||b.rodada_inicio||b.rodada||0);
+    if(formato.includes('CAMPEONATO')||formato.includes('COMPLETO'))return 0;
+    if((formato.includes('RODADA')||formato.includes('INTERVALO'))&&ri>0)return ri;
+    return 0;
+  }
+  function rodadaEstimadaPeloProgresso(camp,nums){
+    const explicita=rodadaExplicitaDoBolao();
+    if(explicita)return explicita;
+    const totalRodadas=Math.max(1,nums.length||totalRodadasCamp(camp));
+    let total=0,feitos=0;
+    if(camp==='SUP'){
+      const bra=campInfo('BRA')||{};
+      total=Number(bra.qtd_jogos||bra.total_jogos||bra.totalJogos||380)||380;
+      feitos=Number(bra.jogos_realizados||bra.jogos_finalizados||bra.realizados||bra.finalizados||0)||0;
+    }else{
+      const base=campInfo(camp)||{};
+      const prog=progressoBolao(state.bolao||{});
+      total=Number(prog.total||base.qtd_jogos||base.total_jogos||base.totalJogos||0)||0;
+      feitos=Number(prog.finalizados||base.jogos_realizados||base.jogos_finalizados||base.realizados||base.finalizados||0)||0;
+    }
+    if(total>0){
+      const media=Math.max(1,total/totalRodadas);
+      let alvo=feitos>=total?totalRodadas:Math.floor(feitos/media)+1;
+      alvo=Math.max(1,Math.min(totalRodadas,alvo));
+      return alvo;
+    }
+    return 1;
+  }
   async function loadRodadas(camp){
     const sel=$('#selRod');
     try{
