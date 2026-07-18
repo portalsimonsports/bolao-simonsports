@@ -31,7 +31,8 @@ jobs:
           grep -q 'function ensureUser' bolao.html
           grep -q 'function detalhePontuacao' bolao.html
           grep -q 'function teamMiniHtml' bolao.html
-          grep -q 'V062_RODADA_ATUAL_PROXIMOS_INSTANTANEOS' bolao.html
+          grep -q 'V063_TABELAS_CENTRALIZADAS' bolao.html
+          grep -q '.info-table th,.info-table td{text-align:center}' bolao.html
           test "$(grep -c 'function totalRodadasCamp' bolao.html)" -eq 1
           test "$(grep -c 'function rodadaEstimadaPeloProgresso' bolao.html)" -eq 1
 
@@ -44,6 +45,6 @@ jobs:
           git config user.name 'Portal SimonSports Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add bolao.html
-          git commit -m 'Corrigir rodada atual e próximos jogos do bolão'
+          git commit -m 'Centralizar dados abaixo dos cabeçalhos das tabelas'
           BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
           git push origin "HEAD:${BRANCH}"
