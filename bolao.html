@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V063_TABELAS_CENTRALIZADAS_2026-07-18 -->
+<!-- V064_PROGRESSO_REAL_COPA_2026-07-18 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -403,7 +403,19 @@
   function isAdminBolao(b){return b?.criadorUid===state.uid||['CRIADOR','ADMIN'].includes(String(b?.minhaParticipacao?.papel||''))}
   function bolaoTitulo(b){return b?.nome||b?.titulo||'Bolão sem nome'}
   function statusBolao(b){const c=campInfo(b?.campeonato||b?.camp||'CUP'); const st=statusCamp({...c,...b}); return st}
-  function progressoBolao(b){return progressoCamp({...campInfo(b?.campeonato||b?.camp||'CUP'),...b})}
+  function progressoBolao(b){
+    const camp=String(b?.campeonato||b?.camp||'CUP').toUpperCase();
+    const catalogo=progressoCamp(campInfo(camp));
+    const proprio=progressoCamp(b||{});
+    const modo=ctrl(b?.modoBolao||b?.formatoBolao||b?.recorteTipo||'CAMPEONATO');
+    const campeonatoCompleto=modo.includes('CAMPEONATO')||modo.includes('COMPLETO')||(!modo.includes('RODADA')&&!modo.includes('INTERVALO')&&!modo.includes('PERIODO')&&!modo.includes('DATA')&&!modo.includes('PERSONALIZADO'));
+    if(!campeonatoCompleto)return progressoCamp({...campInfo(camp),...b});
+    const total=Math.max(catalogo.total,proprio.total);
+    const finalizados=Math.max(catalogo.finalizados,proprio.finalizados);
+    const limitados=Math.max(0,Math.min(total||finalizados,finalizados));
+    const pct=total>0?Math.round(limitados/total*100):0;
+    return {total:total||limitados,finalizados:limitados,pct};
+  }
   function modoBolaoLabel(modo){
     const m=String(modo||'CAMPEONATO').toUpperCase();
     if(m==='RODADA')return 'Rodada única';
