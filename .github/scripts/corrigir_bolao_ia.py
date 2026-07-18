@@ -2,6 +2,7 @@ from pathlib import Path
 import re
 
 # Execução isolada para publicar a correção da rodada atual e dos próximos jogos.
+# Disparo da versão V062 pela branch de publicação.
 path = Path("bolao.html")
 text = path.read_text(encoding="utf-8")
 original = text
@@ -19,7 +20,7 @@ def replace_once(old: str, new: str, label: str) -> None:
 
 def regex_once(pattern: str, replacement: str, label: str) -> None:
     global text
-    updated, count = re.subn(pattern, replacement, text, count=1, flags=re.S)
+    updated, count = re.subn(pattern, lambda _match: replacement, text, count=1, flags=re.S)
     if count == 1:
         text = updated
         return
