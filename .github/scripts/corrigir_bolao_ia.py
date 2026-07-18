@@ -1,6 +1,7 @@
 from pathlib import Path
 import re
 
+# Execução isolada para publicar a correção da rodada atual e dos próximos jogos.
 path = Path("bolao.html")
 text = path.read_text(encoding="utf-8")
 original = text
