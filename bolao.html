@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <!-- V064_PROGRESSO_REAL_COPA_2026-07-18 -->
+<!-- V065_RANKING_DESTAQUE_LEGIVEL_2026-07-18 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -107,6 +108,14 @@
 
   /* V063 - dados sempre centralizados abaixo dos cabeçalhos */
   .info-table th,.info-table td{text-align:center}
+
+  /* V065 - ranking em destaque mais legível */
+  .ranking-resumo-list{display:grid;gap:8px;width:100%}
+  .ranking-resumo-item{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .ranking-resumo-pos{width:26px;height:26px;border-radius:999px;display:grid;place-items:center;background:#e0f2fe;color:#075985;font-size:12px;font-weight:1000}
+  .ranking-resumo-nome{min-width:0;font-size:13px;font-weight:950;color:var(--ink);line-height:1.25;white-space:normal;overflow-wrap:anywhere}
+  .ranking-resumo-pontos{font-size:12px;color:#334155;white-space:nowrap}
+  @media(max-width:660px){.ranking-resumo-item{grid-template-columns:28px minmax(0,1fr);gap:8px}.ranking-resumo-pontos{grid-column:2;justify-self:start;margin-top:-4px}}
 
 </style>
 </head>
@@ -1303,7 +1312,7 @@
     const rows=Array.from(agg.values()).sort((a,b)=>b.pontos-a.pontos||b.exatos-a.exatos||a.nome.localeCompare(b.nome,'pt-BR'));
     const html=rows.length?`<table class="info-table"><thead><tr><th>#</th><th>Participante</th><th>Pontos</th><th>Jogos</th><th>Exatos</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td><span class="info-pill">${i+1}</span></td><td>${esc(r.nome)}</td><td><strong>${r.pontos}</strong></td><td>${r.jogos}</td><td>${r.exatos}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Ranking sem dados pontuáveis. Ele aparece quando houver jogos iniciados ou encerrados.</div>';
     if(body)body.innerHTML=html;
-    const res=$('#rankingResumo'); if(res)res.innerHTML=rows.slice(0,5).map((r,i)=>`<div class="muted"><strong>${i+1}. ${esc(r.nome)}</strong> — ${r.pontos} pts</div>`).join('')||'O ranking será calculado quando houver jogos com resultado.';
+    const res=$('#rankingResumo'); if(res)res.innerHTML=rows.length?`<div class="ranking-resumo-list">${rows.slice(0,5).map((r,i)=>`<div class="ranking-resumo-item"><span class="ranking-resumo-pos">${i+1}</span><span class="ranking-resumo-nome">${esc(r.nome)}</span><strong class="ranking-resumo-pontos">${r.pontos} pts</strong></div>`).join('')}</div>`:'O ranking será calculado quando houver jogos com resultado.';
   }
   $('#btnRanking').onclick=()=>carregarRanking().catch(e=>toast('Erro no ranking: '+e.message));
   async function carregarPalpitesTodos(silent=false){
