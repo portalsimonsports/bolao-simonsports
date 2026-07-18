@@ -2,13 +2,13 @@ name: Atualizar bolao.html
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/corrigir-desafiante-palpite-automatico.yml'
-      - '.github/scripts/corrigir_bolao_ia.py'
   pull_request:
     paths:
       - '.github/scripts/corrigir_bolao_ia.py'
+
+concurrency:
+  group: atualizar-bolao-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -32,6 +32,8 @@ jobs:
           grep -q 'function detalhePontuacao' bolao.html
           grep -q 'function teamMiniHtml' bolao.html
           grep -q 'V062_RODADA_ATUAL_PROXIMOS_INSTANTANEOS' bolao.html
+          test "$(grep -c 'function totalRodadasCamp' bolao.html)" -eq 1
+          test "$(grep -c 'function rodadaEstimadaPeloProgresso' bolao.html)" -eq 1
 
       - name: Publicar bolao.html atualizado
         run: |
