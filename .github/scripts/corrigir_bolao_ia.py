@@ -1,64 +1,10 @@
 from pathlib import Path
-import re
 
-# Execução isolada para publicar a correção da rodada atual e dos próximos jogos.
-# Disparo da versão V062 pela branch de publicação.
 path = Path("bolao.html")
 text = path.read_text(encoding="utf-8")
 original = text
 
-
-def replace_once(old: str, new: str, label: str) -> None:
-    global text
-    if old in text:
-        text = text.replace(old, new, 1)
-        return
-    if new in text:
-        return
-    raise SystemExit(f"Bloco não localizado: {label}")
-
-
-def regex_once(pattern: str, replacement: str, label: str) -> None:
-    global text
-    updated, count = re.subn(pattern, lambda _match: replacement, text, count=1, flags=re.S)
-    if count == 1:
-        text = updated
-        return
-    if replacement.strip() in text:
-        return
-    raise SystemExit(f"Bloco não localizado por regex: {label}")
-
-
-text = text.replace(
-    "<!-- V061_CATALOGO_TEMPORADAS_2026_2027_2026-07-17 -->",
-    "<!-- V062_RODADA_ATUAL_PROXIMOS_INSTANTANEOS_2026-07-18 -->",
-    1,
-)
-
-old_set_view = "  function setView(name){$$('.view-tab').forEach(b=>b.classList.toggle('active',b.dataset.view===name)); $$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name)); if(name==='jogos'&&!state.jogos.length)carregarJogos().catch(e=>toast('Erro nos jogos: '+e.message)); if(name==='ranking')carregarRanking().catch(e=>toast('Erro no ranking: '+e.message)); if(name==='palpites')carregarPalpitesTodos().catch(e=>toast('Erro nos palpites: '+e.message)); if(name==='ultimos')carregarUltimosPalpites().catch(e=>toast('Erro nos últimos palpites: '+e.message)); if(name==='participantes')carregarParticipantes().catch(e=>toast('Erro nos participantes: '+e.message));}"
-new_set_view = """  async function abrirJogosRodadaAtual(){
-    if(!state.bolao)return;
-    const camp=String(state.bolao.campeonato||state.bolao.camp||'CUP').toUpperCase();
-    setSelectValue('#selCamp',camp,campInfo(camp).nome||camp);
-    await loadRodadas(camp);
-    await carregarJogos();
-  }
-  function setView(name){$$('.view-tab').forEach(b=>b.classList.toggle('active',b.dataset.view===name)); $$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name)); if(name==='jogos'&&!state.jogos.length)abrirJogosRodadaAtual().catch(e=>toast('Erro nos jogos: '+e.message)); if(name==='ranking')carregarRanking().catch(e=>toast('Erro no ranking: '+e.message)); if(name==='palpites')carregarPalpitesTodos().catch(e=>toast('Erro nos palpites: '+e.message)); if(name==='ultimos')carregarUltimosPalpites().catch(e=>toast('Erro nos últimos palpites: '+e.message)); if(name==='participantes')carregarParticipantes().catch(e=>toast('Erro nos participantes: '+e.message));}"""
-replace_once(old_set_view, new_set_view, "setView")
-
-replace_once(
-    "$('#btnOpenGames').onclick=()=>{setView('jogos'); carregarJogos().catch(e=>toast('Erro ao carregar jogos: '+e.message));};",
-    "$('#btnOpenGames').onclick=()=>setView('jogos');",
-    "botão Carregar jogos",
-)
-
-replace_once(
-    "    state.currentRodada=String(b.rodadaInicial||b.rodada||b.proximaRodada||1);",
-    "    state.currentRodada=String(rodadaExplicitaDoBolao()||'');",
-    "rodada inicial ao selecionar bolão",
-)
-
-new_load_rodadas = r"""  function totalRodadasCamp(camp){return {CUP:7,BRA:38,ENG:38,ESP:38,FRA:34,ITA:38,SUP:38}[camp]||38}
+bloco = r"""  function totalRodadasCamp(camp){return {CUP:7,BRA:38,ENG:38,ESP:38,FRA:34,ITA:38,SUP:38}[camp]||38}
   function rodadaExplicitaDoBolao(){
     const b=state.bolao||{};
     const formato=ctrl(b.formatoBolao||b.modoBolao||b.recorteTipo||'');
@@ -116,83 +62,26 @@ new_load_rodadas = r"""  function totalRodadasCamp(camp){return {CUP:7,BRA:38,EN
         state.currentRodada=alvo;
       }
     }
-  }"""
-regex_once(
-    r"  async function loadRodadas\(camp\)\{.*?\n  \}\n  \$\('#selCamp'\)",
-    new_load_rodadas + "\n  $('#selCamp')",
-    "loadRodadas",
-)
+  }
+"""
 
-new_rodadas_proximos = r"""  function rodadasParaProximosJogos(camp){
-    const opts=Array.from($('#selRod')?.options||[]).map(o=>String(o.value)).filter(Boolean);
-    let base=opts.length?opts:Array.from({length:totalRodadasCamp(camp)},(_,i)=>String(i+1));
-    const b=state.bolao||{};
-    const formato=ctrl(b.formatoBolao||b.modoBolao||b.recorteTipo||'');
-    const ri=Number(b.rodadaInicial||b.rodada_inicio||b.rodada||'');
-    const rf=Number(b.rodadaFinal||b.rodada_fim||'');
-    if(formato.includes('RODADA')&&!formato.includes('INTERVALO')&&ri)return [String(ri)];
-    if(ri&&rf)base=base.filter(r=>Number(r)>=ri&&Number(r)<=rf);
-    const atual=Number(state.currentRodada||$('#selRod')?.value||0);
-    if(atual>0)base=base.filter(r=>Number(r)>=atual);
-    return base;
-  }"""
-regex_once(
-    r"  function rodadasParaProximosJogos\(camp\)\{.*?\n  \}",
-    new_rodadas_proximos,
-    "rodadasParaProximosJogos",
-)
+inicio = text.find("  function totalRodadasCamp(camp)")
+fim = text.find("  $('#selCamp')", inicio)
 
-new_carregar_proximos = r"""  async function carregarProximosJogosBolao(camp){
-    if(!state.bolao)return;
-    const rodadas=rodadasParaProximosJogos(camp);
-    const encontrados=[];
-    const vistos=new Set();
-    const agora=Date.now();
-    const adicionar=(rows,r)=>{
-      (rows||[]).forEach((row,i)=>{
-        const g={...row,id:String(row.id||row.id_jogo||row.jogo_id||`${camp}_${r}_${i}`),__rodada:String(r),__camp:camp};
-        if(vistos.has(g.id))return;
-        vistos.add(g.id);
-        if(!jogoDentroDoRecorteBolao(g))return;
-        const st=statusJogo(g),d=dataDoJogo(g);
-        if(st==='AO VIVO'||st==='ABERTO'||(d&&d.getTime()>=agora))encontrados.push(g);
-      });
-    };
+if inicio < 0 or fim < 0:
+    raise SystemExit("Bloco de rodadas não localizado para limpeza.")
 
-    if(String(state.currentCamp||'').toUpperCase()===String(camp).toUpperCase()&&state.jogos.length){
-      adicionar(state.jogos,state.currentRodada||$('#selRod')?.value||1);
-      state.proximosJogos=ordenarJogosRodada(encontrados).slice(0,6);
-      renderProximosResumo();
-      if(encontrados.length>=6)return;
-    }
+text = text[:inicio] + bloco + text[fim:]
 
-    for(const r of rodadas){
-      if(String(r)===String(state.currentRodada)&&state.jogos.length)continue;
-      let rows=[];
-      try{rows=await buscarJogos(camp,r)}catch(e){rows=[]}
-      adicionar(rows,r);
-      state.proximosJogos=ordenarJogosRodada(encontrados).slice(0,6);
-      renderProximosResumo();
-      if(encontrados.length>=8)break;
-    }
-
-    state.proximosJogos=ordenarJogosRodada(encontrados).slice(0,6);
-    renderProximosResumo();
-  }"""
-regex_once(
-    r"  async function carregarProximosJogosBolao\(camp\)\{.*?\n  \}\n\n\n  async function carregarPalpitesUsuario",
-    new_carregar_proximos + "\n\n\n  async function carregarPalpitesUsuario",
-    "carregarProximosJogosBolao",
-)
-
-replace_once(
-    "    state.jogos=ordenarJogosRodada(rows.map((g,i)=>({...g,id:String(g.id||g.id_jogo||g.jogo_id||`${camp}_${rodada}_${i}`),__rodada:rodada,__camp:camp})));\n    renderCatalogo(); renderBoloes();",
-    "    state.jogos=ordenarJogosRodada(rows.map((g,i)=>({...g,id:String(g.id||g.id_jogo||g.jogo_id||`${camp}_${rodada}_${i}`),__rodada:rodada,__camp:camp})));\n    const futurosDaRodada=state.jogos.filter(g=>{const st=statusJogo(g),d=dataDoJogo(g);return st==='AO VIVO'||st==='ABERTO'||(d&&d.getTime()>=Date.now())});\n    if(futurosDaRodada.length){state.proximosJogos=ordenarJogosRodada(futurosDaRodada).slice(0,6);renderProximosResumo();}\n    renderCatalogo(); renderBoloes();",
-    "próximos jogos imediatos após carregar rodada",
-)
+if text.count("function totalRodadasCamp") != 1:
+    raise SystemExit("A função totalRodadasCamp permaneceu duplicada.")
+if text.count("function rodadaEstimadaPeloProgresso") != 1:
+    raise SystemExit("A função rodadaEstimadaPeloProgresso permaneceu duplicada.")
+if "V062_RODADA_ATUAL_PROXIMOS_INSTANTANEOS" not in text:
+    raise SystemExit("A versão V062 não foi localizada.")
 
 if text == original:
-    print("Nenhuma alteração necessária.")
+    print("Estrutura de rodadas já está limpa.")
 else:
     path.write_text(text, encoding="utf-8")
-    print("Rodada atual/próxima e próximos jogos instantâneos aplicados.")
+    print("Duplicações removidas e V062 preservada.")
