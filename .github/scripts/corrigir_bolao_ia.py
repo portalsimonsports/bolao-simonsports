@@ -4,13 +4,13 @@ path = Path("bolao.html")
 text = path.read_text(encoding="utf-8")
 original = text
 
-versao_antiga = "<!-- V064_PROGRESSO_REAL_COPA_2026-07-18 -->"
+versao_base = "<!-- V064_PROGRESSO_REAL_COPA_2026-07-18 -->"
 versao_nova = "<!-- V065_RANKING_DESTAQUE_LEGIVEL_2026-07-18 -->"
 
-if versao_antiga in text:
-    text = text.replace(versao_antiga, versao_nova, 1)
-elif versao_nova not in text:
-    raise SystemExit("Marcador da versão do bolao.html não localizado.")
+if versao_nova not in text:
+    if versao_base not in text:
+        raise SystemExit("Marcador da versão-base do bolao.html não localizado.")
+    text = text.replace(versao_base, versao_base + "\n" + versao_nova, 1)
 
 css = """  /* V065 - ranking em destaque mais legível */
   .ranking-resumo-list{display:grid;gap:8px;width:100%}
@@ -36,8 +36,8 @@ elif linha_nova not in text:
 
 if text.count("function progressoBolao") != 1:
     raise SystemExit("A função progressoBolao está duplicada ou ausente.")
-if "V065_RANKING_DESTAQUE_LEGIVEL" not in text:
-    raise SystemExit("A versão V065 não foi aplicada.")
+if versao_base not in text or versao_nova not in text:
+    raise SystemExit("Os marcadores V064/V065 não foram preservados.")
 if text.count("ranking-resumo-list") < 2:
     raise SystemExit("O ranking em destaque não foi atualizado corretamente.")
 if ".info-table th,.info-table td{text-align:center}" not in text:
