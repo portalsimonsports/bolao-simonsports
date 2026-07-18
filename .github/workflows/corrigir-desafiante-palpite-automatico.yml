@@ -6,6 +6,9 @@ on:
     paths:
       - '.github/workflows/corrigir-desafiante-palpite-automatico.yml'
       - '.github/scripts/corrigir_bolao_ia.py'
+  pull_request:
+    paths:
+      - '.github/scripts/corrigir_bolao_ia.py'
 
 permissions:
   contents: write
@@ -16,6 +19,8 @@ jobs:
     steps:
       - name: Baixar repositório
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Aplicar ajuste pontual no bolao.html
         run: python3 .github/scripts/corrigir_bolao_ia.py
@@ -26,7 +31,7 @@ jobs:
           grep -q 'function ensureUser' bolao.html
           grep -q 'function detalhePontuacao' bolao.html
           grep -q 'function teamMiniHtml' bolao.html
-          grep -Eq 'V061_CATALOGO_TEMPORADAS_2026_2027|V062_RODADA_ATUAL_PROXIMOS_INSTANTANEOS' bolao.html
+          grep -q 'V062_RODADA_ATUAL_PROXIMOS_INSTANTANEOS' bolao.html
 
       - name: Publicar bolao.html atualizado
         run: |
@@ -38,4 +43,5 @@ jobs:
           git config user.email 'actions@users.noreply.github.com'
           git add bolao.html
           git commit -m 'Corrigir rodada atual e próximos jogos do bolão'
-          git push
+          BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          git push origin "HEAD:${BRANCH}"
