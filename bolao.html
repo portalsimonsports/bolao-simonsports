@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- V061_CATALOGO_TEMPORADAS_2026_2027_2026-07-17 -->
+<!-- V062_RODADA_ATUAL_PROXIMOS_INSTANTANEOS_2026-07-18 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -429,11 +429,18 @@
   async function refreshAll(){await Promise.allSettled([loadCatalogo(),loadPublicos(),loadMeus()]); renderSelected();}
 
   function setAppTab(name){$$('.side-panel .tab[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===name)); $$('.tab-section').forEach(s=>s.classList.toggle('active',s.id==='sec-'+name)); $('#painel')?.classList.toggle('create-mode',name==='criar');}
-  function setView(name){$$('.view-tab').forEach(b=>b.classList.toggle('active',b.dataset.view===name)); $$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name)); if(name==='jogos'&&!state.jogos.length)carregarJogos().catch(e=>toast('Erro nos jogos: '+e.message)); if(name==='ranking')carregarRanking().catch(e=>toast('Erro no ranking: '+e.message)); if(name==='palpites')carregarPalpitesTodos().catch(e=>toast('Erro nos palpites: '+e.message)); if(name==='ultimos')carregarUltimosPalpites().catch(e=>toast('Erro nos últimos palpites: '+e.message)); if(name==='participantes')carregarParticipantes().catch(e=>toast('Erro nos participantes: '+e.message));}
+  async function abrirJogosRodadaAtual(){
+    if(!state.bolao)return;
+    const camp=String(state.bolao.campeonato||state.bolao.camp||'CUP').toUpperCase();
+    setSelectValue('#selCamp',camp,campInfo(camp).nome||camp);
+    await loadRodadas(camp);
+    await carregarJogos();
+  }
+  function setView(name){$$('.view-tab').forEach(b=>b.classList.toggle('active',b.dataset.view===name)); $$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name)); if(name==='jogos'&&!state.jogos.length)abrirJogosRodadaAtual().catch(e=>toast('Erro nos jogos: '+e.message)); if(name==='ranking')carregarRanking().catch(e=>toast('Erro no ranking: '+e.message)); if(name==='palpites')carregarPalpitesTodos().catch(e=>toast('Erro nos palpites: '+e.message)); if(name==='ultimos')carregarUltimosPalpites().catch(e=>toast('Erro nos últimos palpites: '+e.message)); if(name==='participantes')carregarParticipantes().catch(e=>toast('Erro nos participantes: '+e.message));}
   $$('.side-panel .tab[data-tab]').forEach(b=>b.onclick=()=>setAppTab(b.dataset.tab)); $$('.view-tab').forEach(b=>b.onclick=()=>setView(b.dataset.view));
   $('#btnExplorarTopo').onclick=()=>setAppTab('publicos'); $('#btnCriarTopo').onclick=()=>{ if(state.admin) location.href='admin-oficiais.html'; else setAppTab('criar'); }; $('#btnAtualizar').onclick=()=>refreshAll();
 
-  function renderSelected(){const d=$('#detailArea'); if(!state.bolao){$('#detailTitle').textContent='Detalhe do bolão'; $('#detailHint').textContent='Selecione um bolão para abrir o painel.'; $('#bolaoViews').style.display='none'; d.innerHTML='<div class="empty">Depois de selecionar um bolão, aparecem aqui jogos, progresso, ranking e palpites.</div>';return} const b=state.bolao,st=statusBolao(b),p=progressoBolao(b),camp=String(b.campeonato||b.camp||'CUP').toUpperCase(); $('#detailTitle').textContent=bolaoTitulo(b); $('#detailHint').textContent='Painel carregado'; $('#bolaoViews').style.display='block'; d.innerHTML=`<div class="selected-title"><h2>${esc(bolaoTitulo(b))}</h2><p>${esc(b.publico?'Bolão público':'Bolão privado')} • ${esc(campInfo(camp).nome||camp)} • ${esc(st.label)}</p><div class="badge-row"><span class="badge ${st.classe}">${st.label}</span><span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Entrada automática':'Aprovação do criador'}</span>${isAdminBolao(b)?'<span class="badge admin">Administrador</span>':''}</div></div><div class="metric-grid"><div class="metric"><strong>${esc(camp)}</strong><span>Campeonato</span></div><div class="metric"><strong>${esc(periodoCatalogo({...campInfo(camp),...b}))}</strong><span>Período</span></div><div class="metric"><strong>${esc(st.label)}</strong><span>Status</span></div><div class="metric"><strong>${p.pct}%</strong><span>Progresso</span></div><div class="metric"><strong>${formatNum(p.finalizados)}/${formatNum(p.total)}</strong><span>Jogos</span></div><div class="metric"><strong>${esc(modoBolaoLabel(b.modoBolao||b.formatoBolao))}</strong><span>Formato</span></div><div class="metric"><strong>${esc(recorteBolaoResumo(b))}</strong><span>Recorte</span></div></div><div class="progress"><div class="progress-top"><span>Progresso real do campeonato</span><span>${p.pct}%</span></div><div class="bar"><span style="width:${p.pct}%"></span></div><div class="progress-note">Calculado por jogos finalizados/realizados nos dados publicados.</div></div><div class="share-box">${esc(shareUrl(b.id))}</div><div class="card-actions"><button class="btn blue mini" id="btnCopyShare" type="button">Copiar convite</button><button class="btn dark mini" id="btnOpenGames" type="button">Carregar jogos</button><button class="btn ghost mini" id="btnOpenParticipants" type="button">Participantes</button></div>`; $('#btnCopyShare').onclick=()=>copiarConvite(b.id); $('#btnOpenGames').onclick=()=>{setView('jogos'); carregarJogos().catch(e=>toast('Erro ao carregar jogos: '+e.message));}; $('#btnOpenParticipants').onclick=()=>setView('participantes'); if($('#selCamp')){setSelectValue('#selCamp',camp,campInfo(camp).nome||camp); loadRodadas(camp).then(()=>setSelectValue('#selCamp',camp,campInfo(camp).nome||camp)).catch(()=>{})}}
+  function renderSelected(){const d=$('#detailArea'); if(!state.bolao){$('#detailTitle').textContent='Detalhe do bolão'; $('#detailHint').textContent='Selecione um bolão para abrir o painel.'; $('#bolaoViews').style.display='none'; d.innerHTML='<div class="empty">Depois de selecionar um bolão, aparecem aqui jogos, progresso, ranking e palpites.</div>';return} const b=state.bolao,st=statusBolao(b),p=progressoBolao(b),camp=String(b.campeonato||b.camp||'CUP').toUpperCase(); $('#detailTitle').textContent=bolaoTitulo(b); $('#detailHint').textContent='Painel carregado'; $('#bolaoViews').style.display='block'; d.innerHTML=`<div class="selected-title"><h2>${esc(bolaoTitulo(b))}</h2><p>${esc(b.publico?'Bolão público':'Bolão privado')} • ${esc(campInfo(camp).nome||camp)} • ${esc(st.label)}</p><div class="badge-row"><span class="badge ${st.classe}">${st.label}</span><span class="badge ${b.publico?'publico':'privado'}">${b.publico?'Entrada automática':'Aprovação do criador'}</span>${isAdminBolao(b)?'<span class="badge admin">Administrador</span>':''}</div></div><div class="metric-grid"><div class="metric"><strong>${esc(camp)}</strong><span>Campeonato</span></div><div class="metric"><strong>${esc(periodoCatalogo({...campInfo(camp),...b}))}</strong><span>Período</span></div><div class="metric"><strong>${esc(st.label)}</strong><span>Status</span></div><div class="metric"><strong>${p.pct}%</strong><span>Progresso</span></div><div class="metric"><strong>${formatNum(p.finalizados)}/${formatNum(p.total)}</strong><span>Jogos</span></div><div class="metric"><strong>${esc(modoBolaoLabel(b.modoBolao||b.formatoBolao))}</strong><span>Formato</span></div><div class="metric"><strong>${esc(recorteBolaoResumo(b))}</strong><span>Recorte</span></div></div><div class="progress"><div class="progress-top"><span>Progresso real do campeonato</span><span>${p.pct}%</span></div><div class="bar"><span style="width:${p.pct}%"></span></div><div class="progress-note">Calculado por jogos finalizados/realizados nos dados publicados.</div></div><div class="share-box">${esc(shareUrl(b.id))}</div><div class="card-actions"><button class="btn blue mini" id="btnCopyShare" type="button">Copiar convite</button><button class="btn dark mini" id="btnOpenGames" type="button">Carregar jogos</button><button class="btn ghost mini" id="btnOpenParticipants" type="button">Participantes</button></div>`; $('#btnCopyShare').onclick=()=>copiarConvite(b.id); $('#btnOpenGames').onclick=()=>setView('jogos'); $('#btnOpenParticipants').onclick=()=>setView('participantes'); if($('#selCamp')){setSelectValue('#selCamp',camp,campInfo(camp).nome||camp); loadRodadas(camp).then(()=>setSelectValue('#selCamp',camp,campInfo(camp).nome||camp)).catch(()=>{})}}
   function selectBolao(b){
     if(!b)return;
     if(typeof state.unsubscribePalpites==='function'){try{state.unsubscribePalpites()}catch(e){} state.unsubscribePalpites=null;}
@@ -444,7 +451,7 @@
     state.palpites={};
     state.proximosJogos=[];
     state.currentCamp=String(b.campeonato||b.camp||'CUP').toUpperCase();
-    state.currentRodada=String(b.rodadaInicial||b.rodada||b.proximaRodada||1);
+    state.currentRodada=String(rodadaExplicitaDoBolao()||'');
     renderBoloes();
     renderSelected();
     iniciarTempoRealPalpites();
@@ -565,20 +572,64 @@
   $('#btnEntrarConvite').onclick=()=>{let v=$('#inviteCode').value.trim(); if(!v){toast('Cole o código ou link.');return} try{if(v.includes('bolao='))v=new URL(v).searchParams.get('bolao')||v}catch(e){} entrarBolao(v).catch(e=>toast('Erro no convite: '+e.message));}
   async function copiarConvite(id){const url=shareUrl(id); const txt=`Participe do meu bolão no Portal SimonSports: ${url}`; try{await navigator.clipboard.writeText(txt); toast('Link de convite copiado.')}catch(e){prompt('Copie o link:',url)}}
 
+  function totalRodadasCamp(camp){return {CUP:7,BRA:38,ENG:38,ESP:38,FRA:34,ITA:38,SUP:38}[camp]||38}
+  function rodadaExplicitaDoBolao(){
+    const b=state.bolao||{};
+    const formato=ctrl(b.formatoBolao||b.modoBolao||b.recorteTipo||'');
+    const ri=Number(b.rodadaInicial||b.rodada_inicio||b.rodada||0);
+    if(formato.includes('CAMPEONATO')||formato.includes('COMPLETO'))return 0;
+    if((formato.includes('RODADA')||formato.includes('INTERVALO'))&&ri>0)return ri;
+    return 0;
+  }
+  function rodadaEstimadaPeloProgresso(camp,nums){
+    const explicita=rodadaExplicitaDoBolao();
+    if(explicita)return explicita;
+    const totalRodadas=Math.max(1,nums.length||totalRodadasCamp(camp));
+    let total=0,feitos=0;
+    if(camp==='SUP'){
+      const bra=campInfo('BRA')||{};
+      total=Number(bra.qtd_jogos||bra.total_jogos||bra.totalJogos||380)||380;
+      feitos=Number(bra.jogos_realizados||bra.jogos_finalizados||bra.realizados||bra.finalizados||0)||0;
+    }else{
+      const base=campInfo(camp)||{};
+      const prog=progressoBolao(state.bolao||{});
+      total=Number(prog.total||base.qtd_jogos||base.total_jogos||base.totalJogos||0)||0;
+      feitos=Number(prog.finalizados||base.jogos_realizados||base.jogos_finalizados||base.realizados||base.finalizados||0)||0;
+    }
+    if(total>0){
+      const media=Math.max(1,total/totalRodadas);
+      let alvo=feitos>=total?totalRodadas:Math.floor(feitos/media)+1;
+      alvo=Math.max(1,Math.min(totalRodadas,alvo));
+      return alvo;
+    }
+    return 1;
+  }
   async function loadRodadas(camp){
     const sel=$('#selRod');
-    const atual=String(sel?.value||state.currentRodada||state.bolao?.rodadaInicial||state.bolao?.rodada||1);
     try{
       const j=await apiGet(withAction('rodadas',`camp=${encodeURIComponent(camp)}`));
-      let nums=unwrapArray(j).map(x=>typeof x==='number'?x:(x.n||x.rodada||x)).filter(Boolean);
-      if(!nums.length){const total={CUP:7,BRA:38,ENG:38,ESP:38,FRA:38,ITA:38,SUP:10}[camp]||38; nums=Array.from({length:total},(_,i)=>i+1)}
+      let nums=unwrapArray(j).map(x=>{
+        const v=typeof x==='number'?x:pick(x,['n','rodada','rodada_bolao','numero','numeroRodada','rodadaNumero'],x);
+        const m=String(v??'').match(/\d+/);
+        return m?Number(m[0]):0;
+      }).filter(n=>Number.isFinite(n)&&n>0);
+      nums=Array.from(new Set(nums)).sort((a,b)=>a-b);
+      if(!nums.length)nums=Array.from({length:totalRodadasCamp(camp)},(_,i)=>i+1);
       if(!sel)return;
       sel.innerHTML='';
-      nums.forEach(n=>{const o=document.createElement('option'); o.value=String(n); o.textContent=`${n}ª Rodada`; sel.appendChild(o)});
-      const existe=Array.from(sel.options).some(o=>String(o.value)===atual);
-      sel.value=existe?atual:(sel.options[0]?.value||'1');
-      state.currentRodada=String(sel.value||atual||1);
-    }catch(e){if(sel){sel.innerHTML='<option value="1">1ª Rodada</option>'; sel.value=atual||'1'; state.currentRodada=String(sel.value||1)}}
+      nums.forEach(n=>{const o=document.createElement('option');o.value=String(n);o.textContent=`${n}ª Rodada`;sel.appendChild(o)});
+      const alvo=String(rodadaEstimadaPeloProgresso(camp,nums));
+      const existe=Array.from(sel.options).some(o=>String(o.value)===alvo);
+      sel.value=existe?alvo:(sel.options[0]?.value||'1');
+      state.currentRodada=String(sel.value||alvo||1);
+    }catch(e){
+      if(sel){
+        const alvo=String(rodadaEstimadaPeloProgresso(camp,Array.from({length:totalRodadasCamp(camp)},(_,i)=>i+1)));
+        sel.innerHTML=`<option value="${alvo}">${alvo}ª Rodada</option>`;
+        sel.value=alvo;
+        state.currentRodada=alvo;
+      }
+    }
   }
   $('#selCamp')?.addEventListener('change',async e=>{state.currentCamp=String(e.target.value||'CUP').toUpperCase(); await loadRodadas(state.currentCamp); carregarJogos().catch(err=>toast('Erro: '+err.message));});
   $('#selRod')?.addEventListener('change',e=>{state.currentRodada=String(e.target.value||1); carregarJogos().catch(err=>toast('Erro: '+err.message));});
@@ -895,13 +946,15 @@
 
   function rodadasParaProximosJogos(camp){
     const opts=Array.from($('#selRod')?.options||[]).map(o=>String(o.value)).filter(Boolean);
-    let base=opts.length?opts:Array.from({length:({CUP:7,BRA:38,ENG:38,ESP:38,FRA:38,ITA:38,SUP:10}[camp]||38)},(_,i)=>String(i+1));
+    let base=opts.length?opts:Array.from({length:totalRodadasCamp(camp)},(_,i)=>String(i+1));
     const b=state.bolao||{};
     const formato=ctrl(b.formatoBolao||b.modoBolao||b.recorteTipo||'');
     const ri=Number(b.rodadaInicial||b.rodada_inicio||b.rodada||'');
     const rf=Number(b.rodadaFinal||b.rodada_fim||'');
     if(formato.includes('RODADA')&&!formato.includes('INTERVALO')&&ri)return [String(ri)];
-    if(ri&&rf)return base.filter(r=>Number(r)>=ri&&Number(r)<=rf);
+    if(ri&&rf)base=base.filter(r=>Number(r)>=ri&&Number(r)<=rf);
+    const atual=Number(state.currentRodada||$('#selRod')?.value||0);
+    if(atual>0)base=base.filter(r=>Number(r)>=atual);
     return base;
   }
 
@@ -920,27 +973,36 @@
   }
 
   async function carregarProximosJogosBolao(camp){
-    state.proximosJogos=[];
     if(!state.bolao)return;
     const rodadas=rodadasParaProximosJogos(camp);
     const encontrados=[];
     const vistos=new Set();
     const agora=Date.now();
+    const adicionar=(rows,r)=>{
+      (rows||[]).forEach((row,i)=>{
+        const g={...row,id:String(row.id||row.id_jogo||row.jogo_id||`${camp}_${r}_${i}`),__rodada:String(r),__camp:camp};
+        if(vistos.has(g.id))return;
+        vistos.add(g.id);
+        if(!jogoDentroDoRecorteBolao(g))return;
+        const st=statusJogo(g),d=dataDoJogo(g);
+        if(st==='AO VIVO'||st==='ABERTO'||(d&&d.getTime()>=agora))encontrados.push(g);
+      });
+    };
+
+    if(String(state.currentCamp||'').toUpperCase()===String(camp).toUpperCase()&&state.jogos.length){
+      adicionar(state.jogos,state.currentRodada||$('#selRod')?.value||1);
+      state.proximosJogos=ordenarJogosRodada(encontrados).slice(0,6);
+      renderProximosResumo();
+      if(encontrados.length>=6)return;
+    }
 
     for(const r of rodadas){
+      if(String(r)===String(state.currentRodada)&&state.jogos.length)continue;
       let rows=[];
       try{rows=await buscarJogos(camp,r)}catch(e){rows=[]}
-      for(let i=0;i<rows.length;i++){
-        const g={...rows[i],id:String(rows[i].id||rows[i].id_jogo||rows[i].jogo_id||`${camp}_${r}_${i}`),__rodada:r,__camp:camp};
-        if(vistos.has(g.id))continue;
-        vistos.add(g.id);
-        if(!jogoDentroDoRecorteBolao(g))continue;
-        const st=statusJogo(g);
-        const d=dataDoJogo(g);
-        if(st==='AO VIVO'||st==='ABERTO'||(d&&d.getTime()>=agora)){
-          encontrados.push(g);
-        }
-      }
+      adicionar(rows,r);
+      state.proximosJogos=ordenarJogosRodada(encontrados).slice(0,6);
+      renderProximosResumo();
       if(encontrados.length>=8)break;
     }
 
@@ -1031,6 +1093,8 @@
     const rows=await buscarJogos(camp,rodada);
     state.currentCamp=camp; state.currentRodada=rodada;
     state.jogos=ordenarJogosRodada(rows.map((g,i)=>({...g,id:String(g.id||g.id_jogo||g.jogo_id||`${camp}_${rodada}_${i}`),__rodada:rodada,__camp:camp})));
+    const futurosDaRodada=state.jogos.filter(g=>{const st=statusJogo(g),d=dataDoJogo(g);return st==='AO VIVO'||st==='ABERTO'||(d&&d.getTime()>=Date.now())});
+    if(futurosDaRodada.length){state.proximosJogos=ordenarJogosRodada(futurosDaRodada).slice(0,6);renderProximosResumo();}
     renderCatalogo(); renderBoloes();
     await carregarPalpitesUsuario(camp,rodada);
     await garantirPalpitesDesafiante(camp,rodada).catch(e=>console.warn('Desafiante IA:',e.message||e));
