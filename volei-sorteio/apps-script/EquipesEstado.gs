@@ -27,10 +27,10 @@ function cancelarSorteio_(origem) {
 }
 function resetarSorteio_() {
   limparDadosAbaixoCabecalho_(VOLEI.SHEETS.EQUIPES,12);
-  limparDadosAbaixoCabecalho_(VOLEI.SHEETS.CHAVEAMENTO,13);
+  limparDadosAbaixoCabecalho_(VOLEI.SHEETS.CHAVEAMENTO,22);
   const id=gerarId_('SOR');
   aba_(VOLEI.SHEETS.SORTEIOS).appendRow([id,'RASCUNHO','','',new Date(),'','','','','','ADMIN','Inscrições abertas.']);
-  log_('SORTEIO_RESETADO',id,'PAINEL_WEB','ADMIN','Equipes e chaveamento limpos.');
+  log_('SORTEIO_RESETADO',id,'PAINEL_WEB','ADMIN','Equipes, placares e chaveamento limpos.');
   return {mensagem:'Sorteio reiniciado.',estado:obterEstadoAdmin_()};
 }
 function obterEstadoPublico_() {
@@ -42,8 +42,9 @@ function obterEstadoPublicoSemVerificacao_() {
   const equipes=atual.status==='SORTEADO'?lerEquipes_():[];
   const rounds=atual.status==='SORTEADO'?lerRounds_():[];
   return {
-    versao:VOLEI.VERSION,modo:'PRODUCAO',titulo:texto_(c.TITULO_EVENTO||'Sorteio de Duplas de Vôlei'),status:atual.status,
+    versao:'V004_MELHOR_DE_3_PLACAR_INTERVALO_2026-07-21',modo:'PRODUCAO',titulo:texto_(c.TITULO_EVENTO||'Sorteio de Duplas de Vôlei'),status:atual.status,
     mensagem:atual.mensagem||mensagemStatus_(atual.status),serverTime:new Date(),countdownSeconds:Number(c.DURACAO_CONTAGEM_SEGUNDOS||600),
+    regras:{melhorDe:3,setsParaVencer:2,pontosSetNormal:21,pontosDesempate:15,vantagemMinima:2,intervaloPartidasMinutos:Number(c.INTERVALO_ENTRE_PARTIDAS_MINUTOS||10)},
     jogadores:lerJogadores_().map(p=>({id:p.id,nome:p.nome,dataNascimento:p.dataNascimento,idade:p.idade,pote:p.pote,categoria:p.categoria,nota:p.nota,notaAjustada:p.notaAjustada,ativo:p.ativo})),
     equipes:equipes,rounds:rounds,inicioPrevisto:atual.inicioPrevisto||'',realizadoEm:atual.realizadoEm||'',seed:atual.seed||'',hashAuditoria:atual.hashAuditoria||'',sorteioId:atual.id||''
   };
@@ -58,5 +59,5 @@ function obterEstadoAdmin_() {
   return obterEstadoAdminSemVerificacao_();
 }
 function mensagemStatus_(status) {
-  return ({RASCUNHO:'Inscrições abertas.',AGENDADO:'Código gerado. Aguardando ativação.',EM_CONTAGEM:'Sorteio ativado. Acompanhe a contagem regressiva.',SORTEADO:'Sorteio concluído. Equipes e chaveamento revelados.',CANCELADO:'O sorteio foi cancelado.'})[status]||status;
+  return ({RASCUNHO:'Inscrições abertas.',AGENDADO:'Código gerado. Aguardando ativação.',EM_CONTAGEM:'Sorteio ativado. Acompanhe a contagem regressiva.',SORTEADO:'Sorteio concluído. Preencha os placares das partidas.',CANCELADO:'O sorteio foi cancelado.'})[status]||status;
 }
