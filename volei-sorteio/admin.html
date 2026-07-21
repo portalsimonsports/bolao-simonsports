@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#061426">
   <meta name="robots" content="noindex,nofollow">
-  <title>Administração do Sorteio de Vôlei | Portal SimonSports</title>
+  <title>Administração do Sorteio de Vôlei</title>
   <link rel="stylesheet" href="assets/style.css">
   <style>
     .draw-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px}
@@ -18,27 +18,29 @@
     .match-result-status{font-size:10px;font-weight:950;border-radius:999px;padding:6px 9px;background:#e2e8f0;color:#475569;white-space:nowrap}
     .champion-box{padding:18px;border-radius:18px;background:linear-gradient(135deg,#fff7ed,#fef3c7);border:1px solid #f59e0b;margin-bottom:14px;text-align:center}
     .champion-box strong{display:block;font-size:24px;color:#92400e}.empty-results{padding:22px;text-align:center;border:1px dashed #cbd5e1;border-radius:16px;color:#64748b}
-    @media(max-width:700px){.admin-match{grid-template-columns:1fr}.draw-tools{grid-template-columns:1fr}}
+    .auto-category{padding:12px;border-radius:14px;background:#f1f5f9;color:#334155;font-size:12px;font-weight:900;margin-top:14px}.auto-category strong{display:block;margin-top:3px;font-size:16px}
+    .player-form{grid-template-columns:1.8fr 1fr .8fr .8fr auto}.admin-table-wrap table{min-width:980px}
+    @media(max-width:850px){.player-form{grid-template-columns:1fr 1fr}.player-form label:first-of-type{grid-column:1/-1}.player-form button{grid-column:1/-1}}
+    @media(max-width:700px){.admin-match{grid-template-columns:1fr}.draw-tools{grid-template-columns:1fr}.player-form{grid-template-columns:1fr}.player-form label:first-of-type,.player-form button{grid-column:auto}}
   </style>
 </head>
 <body data-page="admin">
   <header class="topbar">
-    <a class="brand" href="index.html"><span class="brand-ball">🏐</span><span><strong>Portal SimonSports</strong><small>Painel do sorteio de vôlei</small></span></a>
+    <a class="brand" href="index.html"><span class="brand-ball">🏐</span><span><strong>Sorteio de Vôlei</strong><small>Painel administrativo</small></span></a>
     <a class="btn ghost small" href="index.html">Abrir página pública</a>
   </header>
 
   <main class="admin-main">
     <section class="admin-hero">
-      <div><span class="eyebrow">Controle do evento</span><h1>Administração do sorteio</h1><p>Cadastre os jogadores, confira a equivalência, gere o código, ative a contagem e registre os vencedores.</p></div>
+      <div><span class="eyebrow">Controle do evento</span><h1>Administração do sorteio</h1><p>Gerencie inscrições, ative o sorteio e registre os vencedores.</p></div>
       <div class="admin-state"><span id="adminMode">Verificando conexão</span><strong id="adminStatus">RASCUNHO</strong></div>
     </section>
 
     <div class="admin-grid">
       <section class="panel auth-panel">
         <div class="panel-head"><div><span class="section-kicker">Segurança</span><h2>Chave administrativa</h2></div></div>
-        <label>Chave configurada nas propriedades do Apps Script<input id="adminKey" type="password" autocomplete="current-password" placeholder="Digite a chave administrativa"></label>
+        <label>Chave do Apps Script<input id="adminKey" type="password" autocomplete="current-password" placeholder="Digite a chave administrativa"></label>
         <button class="btn primary full" id="saveAdminKey" type="button">Salvar nesta sessão</button>
-        <p class="help">A chave não é gravada no GitHub; permanece somente nesta aba do navegador.</p>
       </section>
 
       <section class="panel activation-panel">
@@ -52,44 +54,40 @@
         </div>
         <label>Código recebido<input id="activationInput" inputmode="numeric" maxlength="6" placeholder="000000"></label>
         <button class="btn gold full" id="activateDraw" type="button">Ativar sorteio e iniciar 10 minutos</button>
-        <div class="draw-tools">
-          <button class="btn ghost dark-text" id="drawNow" type="button">Sortear agora</button>
-          <button class="btn danger" id="resetDraw" type="button">Reiniciar sorteio</button>
-        </div>
+        <div class="draw-tools"><button class="btn ghost dark-text" id="drawNow" type="button">Sortear agora</button><button class="btn danger" id="resetDraw" type="button">Reiniciar sorteio</button></div>
       </section>
     </div>
 
     <section class="panel players-panel">
-      <div class="panel-head"><div><span class="section-kicker">Cadastro</span><h2>Jogadores dos potes A e B</h2><p>Os dois potes devem ter a mesma quantidade de jogadores.</p></div><button class="btn ghost dark-text" id="refreshAdmin" type="button">Atualizar</button></div>
+      <div class="panel-head"><div><span class="section-kicker">Inscrições</span><h2>Adultos e crianças</h2><p>O pote é definido automaticamente pela data de nascimento.</p></div><button class="btn ghost dark-text" id="refreshAdmin" type="button">Atualizar</button></div>
       <form class="player-form" id="playerForm">
         <input type="hidden" id="playerId">
-        <label>Nome<input id="playerName" required maxlength="80" placeholder="Nome do jogador"></label>
-        <label>Pote<select id="playerPot" required><option value="A">Pote A</option><option value="B">Pote B</option></select></label>
-        <label>Peso técnico<input id="playerWeight" required type="number" min="0" step="0.01" placeholder="10"></label>
+        <label>Nome completo<input id="playerName" required maxlength="80" placeholder="Nome do participante"></label>
+        <label>Data de nascimento<input id="playerBirth" required type="date"></label>
+        <label>Nota de desempenho<input id="playerScore" required type="number" min="0" max="10" step="1" placeholder="0 a 10"></label>
         <label>Ativo<select id="playerActive"><option value="SIM">SIM</option><option value="NAO">NÃO</option></select></label>
-        <button class="btn primary" type="submit">Salvar jogador</button>
+        <button class="btn primary" type="submit">Salvar participante</button>
       </form>
-      <div class="admin-table-wrap"><table><thead><tr><th>ID</th><th>Nome</th><th>Pote</th><th>Peso</th><th>Ativo</th><th>Ações</th></tr></thead><tbody id="playersTableBody"></tbody></table></div>
+      <div class="auto-category" id="autoCategory">Informe a data de nascimento e a nota.<strong>Categoria automática</strong></div>
+      <div class="admin-table-wrap"><table><thead><tr><th>ID</th><th>Nome</th><th>Idade</th><th>Categoria</th><th>Nota</th><th>Índice</th><th>Ativo</th><th>Ações</th></tr></thead><tbody id="playersTableBody"></tbody></table></div>
     </section>
 
     <section class="panel preview-panel">
-      <div class="panel-head"><div><span class="section-kicker">Prévia</span><h2>Equilíbrio calculado</h2><p>Esta prévia não define as posições do chaveamento.</p></div></div>
+      <div class="panel-head"><div><span class="section-kicker">Prévia</span><h2>Equipes calculadas</h2></div></div>
       <div class="teams-grid compact" id="adminTeamsPreview"></div>
     </section>
 
     <section class="panel results-panel">
-      <div class="panel-head"><div><span class="section-kicker">Competição</span><h2>Resultados e avanço no chaveamento</h2><p>Após cada partida, clique na equipe vencedora. O sistema a posicionará automaticamente no jogo seguinte.</p></div></div>
+      <div class="panel-head"><div><span class="section-kicker">Competição</span><h2>Resultados e avanço</h2><p>Clique na equipe vencedora de cada partida.</p></div></div>
       <div class="results-list" id="matchesAdmin"></div>
     </section>
 
     <section class="panel technical-panel">
-      <div class="panel-head"><div><span class="section-kicker">Configuração</span><h2>Conexões externas</h2></div></div>
+      <div class="panel-head"><div><span class="section-kicker">Configuração</span><h2>Conexões</h2></div></div>
       <div class="config-list">
         <p><strong>Planilha Google:</strong> <a id="sheetLink" target="_blank" rel="noopener">Abrir base administrativa</a></p>
         <p><strong>API Apps Script:</strong> <code id="apiLabel">Não configurada</code></p>
-        <p><strong>Automação:</strong> execute <code>INSTALAR_SISTEMA_COMPLETO</code> uma vez no Apps Script.</p>
-        <p><strong>Telegram:</strong> botão interativo e ativação pelo webhook do bot.</p>
-        <p><strong>WhatsApp:</strong> botão interativo pela WhatsApp Cloud API.</p>
+        <p><strong>Automação:</strong> execute <code>INSTALAR_SISTEMA_COMPLETO</code> uma vez.</p>
       </div>
     </section>
   </main>
@@ -97,7 +95,6 @@
   <div class="toast-stack" id="toastStack"></div>
   <script src="config.js"></script>
   <script src="assets/app.js"></script>
-  <script src="assets/demo-v2.js"></script>
   <script src="assets/admin.js"></script>
 </body>
 </html>
