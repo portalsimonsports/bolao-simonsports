@@ -1,0 +1,1 @@
+/** Módulo de integrações V003 — conteúdo publicado no próximo commit. */
