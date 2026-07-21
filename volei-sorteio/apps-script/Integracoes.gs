@@ -1,0 +1,1 @@
+/** Integrações Telegram e WhatsApp. As funções permanecem no arquivo Integracoes_LEGADO.txt até a conexão do Apps Script. */
