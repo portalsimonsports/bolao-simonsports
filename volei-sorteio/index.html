@@ -19,80 +19,34 @@
 </head>
 <body data-page="public">
   <div class="ambient" aria-hidden="true"><span></span><span></span><span></span></div>
-
   <header class="topbar">
-    <a class="brand" href="./" aria-label="Sorteio de Vôlei">
-      <span class="brand-ball">🏐</span>
-      <span><strong>Sorteio de Vôlei</strong><small>Adultos e crianças</small></span>
-    </a>
+    <a class="brand" href="./" aria-label="Sorteio de Vôlei"><span class="brand-ball">🏐</span><span><strong>Sorteio de Vôlei</strong><small>Adultos e crianças</small></span></a>
     <div class="top-status"><span id="connectionDot" class="status-dot"></span><span id="connectionText">Carregando...</span></div>
   </header>
-
   <main>
     <section class="ceremony" id="ceremony">
-      <div class="spotlight spotlight-a"></div><div class="spotlight spotlight-b"></div>
-      <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
-      <div class="volleyball" aria-hidden="true"><span>🏐</span></div>
-      <div class="ceremony-copy">
-        <span class="eyebrow">Pote A — Adultos • Pote B — Crianças</span>
-        <h1 id="eventTitle">Sorteio de Duplas de Vôlei</h1>
-        <p id="eventMessage">Inscrições abertas.</p>
-        <div class="countdown-wrap" id="countdownWrap" hidden>
-          <span class="countdown-label">O sorteio começa em</span>
-          <div class="countdown" id="countdown">10:00</div>
-          <div class="progress-track"><span id="countdownProgress"></span></div>
-        </div>
-        <div class="hero-actions"><a class="btn primary" href="#inscricao">Fazer inscrição</a><a class="btn ghost" href="#chaveamento">Ver chaveamento</a></div>
-        <div class="audit-line" id="auditLine">Aguardando sincronização</div>
+      <div class="spotlight spotlight-a"></div><div class="spotlight spotlight-b"></div><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="volleyball" aria-hidden="true"><span>🏐</span></div>
+      <div class="ceremony-copy"><span class="eyebrow">Pote A — Adultos • Pote B — Crianças</span><h1 id="eventTitle">Sorteio de Duplas de Vôlei</h1><p id="eventMessage">Inscrições abertas.</p>
+        <div class="countdown-wrap" id="countdownWrap" hidden><span class="countdown-label">O sorteio começa em</span><div class="countdown" id="countdown">10:00</div><div class="progress-track"><span id="countdownProgress"></span></div></div>
+        <div class="hero-actions"><a class="btn primary" href="#inscricao">Fazer inscrição</a><a class="btn ghost" href="#chaveamento">Ver chaveamento</a></div><div class="audit-line" id="auditLine">Aguardando sincronização</div>
       </div>
     </section>
-
     <section class="section signup-section" id="inscricao">
-      <div class="signup-panel">
-        <div class="section-head">
-          <div><span class="section-kicker">Inscrição</span><h2>Inscreva-se no sorteio</h2></div>
-        </div>
-        <form class="signup-form" id="signupForm">
-          <label>Nome completo<input id="signupName" maxlength="80" autocomplete="name" required placeholder="Nome do participante"></label>
-          <label>Data de nascimento<input id="signupBirth" type="date" required></label>
-          <label>Nota de desempenho<input id="signupScore" type="number" min="0" max="10" step="1" required placeholder="0 a 10"></label>
-          <button class="btn primary" id="signupButton" type="submit">Confirmar inscrição</button>
-        </form>
-        <div class="signup-info"><span>18 anos ou mais: Pote A — Adultos</span><span>Menos de 18 anos: Pote B — Crianças</span><span>Adultos: nota mínima 5</span></div>
-        <div class="signup-message" id="signupMessage" aria-live="polite"></div>
+      <div class="signup-panel"><div class="section-head"><div><span class="section-kicker">Inscrição</span><h2>Inscreva-se no sorteio</h2></div></div>
+        <form class="signup-form" id="signupForm"><label>Nome completo<input id="signupName" maxlength="80" autocomplete="name" required placeholder="Nome do participante"></label><label>Data de nascimento<input id="signupBirth" type="date" required></label><label>Nota de desempenho<input id="signupScore" type="number" min="0" max="10" step="1" required placeholder="0 a 10"></label><button class="btn primary" id="signupButton" type="submit">Confirmar inscrição</button></form>
+        <div class="signup-info"><span>18 anos ou mais: Pote A — Adultos</span><span>Menos de 18 anos: Pote B — Crianças</span><span>Adultos: nota mínima 5</span></div><div class="signup-message" id="signupMessage" aria-live="polite"></div>
       </div>
     </section>
-
-    <section class="section" id="participantes">
-      <div class="section-head">
-        <div><span class="section-kicker">Inscritos</span><h2>Participantes por categoria</h2></div>
-        <div class="kpi-row"><article><strong id="countA">0</strong><span>Adultos</span></article><article><strong id="countB">0</strong><span>Crianças</span></article><article><strong id="countTeams">0</strong><span>Duplas</span></article></div>
-      </div>
-      <div class="pots-grid">
-        <article class="pot-card pot-a"><header><span>A</span><div><h3>Adultos</h3></div></header><div class="players-list" id="potAList"></div></article>
-        <article class="pot-card pot-b"><header><span>B</span><div><h3>Crianças</h3></div></header><div class="players-list" id="potBList"></div></article>
-      </div>
+    <section class="section" id="participantes"><div class="section-head"><div><span class="section-kicker">Inscritos</span><h2>Participantes por categoria</h2></div><div class="kpi-row"><article><strong id="countA">0</strong><span>Adultos</span></article><article><strong id="countB">0</strong><span>Crianças</span></article><article><strong id="countTeams">0</strong><span>Duplas</span></article></div></div>
+      <div class="pots-grid"><article class="pot-card pot-a"><header><span>A</span><div><h3>Adultos</h3></div></header><div class="players-list" id="potAList"></div></article><article class="pot-card pot-b"><header><span>B</span><div><h3>Crianças</h3></div></header><div class="players-list" id="potBList"></div></article></div>
     </section>
-
-    <section class="section teams-section" id="equipes">
-      <div class="section-head"><div><span class="section-kicker">Duplas</span><h2>Equipes formadas</h2><p id="balanceSummary">As equipes serão reveladas quando o sorteio for concluído.</p></div></div>
-      <div class="teams-grid" id="teamsGrid"></div>
-    </section>
-
-    <section class="section bracket-section" id="chaveamento">
-      <div class="section-head"><div><span class="section-kicker">Competição</span><h2>Chaveamento</h2></div></div>
-      <div class="bracket-shell"><div class="bracket" id="bracket"></div></div>
-    </section>
+    <section class="section teams-section" id="equipes"><div class="section-head"><div><span class="section-kicker">Duplas</span><h2>Equipes formadas</h2><p id="balanceSummary">As equipes serão reveladas quando o sorteio for concluído.</p></div></div><div class="teams-grid" id="teamsGrid"></div></section>
+    <section class="section bracket-section" id="chaveamento"><div class="section-head"><div><span class="section-kicker">Competição</span><h2>Chaveamento</h2></div></div><div class="bracket-shell"><div class="bracket" id="bracket"></div></div></section>
   </main>
-
-  <div class="opening-overlay" id="openingOverlay" hidden>
-    <button class="overlay-close" id="closeOpening" type="button" aria-label="Fechar">×</button>
-    <div class="opening-stage"><div class="opening-rings"><i></i><i></i><i></i></div><div class="opening-ball">🏐</div><p>Sorteio oficial</p><h2>Sorteio de Vôlei</h2><strong id="openingStatus">Preparando os participantes...</strong></div>
-  </div>
-
+  <div class="opening-overlay" id="openingOverlay" hidden><button class="overlay-close" id="closeOpening" type="button" aria-label="Fechar">×</button><div class="opening-stage"><div class="opening-rings"><i></i><i></i><i></i></div><div class="opening-ball">🏐</div><p>Sorteio oficial</p><h2>Sorteio de Vôlei</h2><strong>Preparando os participantes...</strong></div></div>
   <footer><span>Sorteio de Vôlei</span><span>Adultos e crianças • Formação automática das duplas</span></footer>
-
   <script src="config.js"></script>
-  <script src="assets/app.js"></script>
+  <script src="assets/v3-core.js"></script>
+  <script src="assets/v3-public.js"></script>
 </body>
 </html>
