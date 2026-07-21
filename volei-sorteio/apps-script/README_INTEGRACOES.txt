@@ -1,0 +1,1 @@
+As integrações com Telegram e WhatsApp permanecem configuradas exclusivamente pelas Propriedades do Script. Nunca publique tokens ou credenciais no GitHub.
