@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#061426">
+  <meta name="description" content="Sorteio público de duplas e chaveamento de vôlei com equilíbrio por potes A e B.">
+  <title>Sorteio de Vôlei | Portal SimonSports</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="public">
+  <div class="ambient" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Portal SimonSports">
+      <span class="brand-ball">🏐</span>
+      <span><strong>Portal SimonSports</strong><small>Sorteio oficial de vôlei</small></span>
+    </a>
+    <div class="top-status"><span id="connectionDot" class="status-dot"></span><span id="connectionText">Carregando...</span></div>
+  </header>
+
+  <main>
+    <section class="ceremony" id="ceremony">
+      <div class="spotlight spotlight-a"></div>
+      <div class="spotlight spotlight-b"></div>
+      <div class="orbit orbit-one"></div>
+      <div class="orbit orbit-two"></div>
+      <div class="volleyball" aria-hidden="true"><span>🏐</span></div>
+      <div class="ceremony-copy">
+        <span class="eyebrow">Potes A + B • Equilíbrio técnico • Chaveamento auditável</span>
+        <h1 id="eventTitle">Sorteio de Duplas de Vôlei</h1>
+        <p id="eventMessage">Aguardando a ativação oficial do sorteio.</p>
+        <div class="countdown-wrap" id="countdownWrap" hidden>
+          <span class="countdown-label">O sorteio começa em</span>
+          <div class="countdown" id="countdown">10:00</div>
+          <div class="progress-track"><span id="countdownProgress"></span></div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn primary" id="btnCeremony" type="button">Assistir à abertura</button>
+          <a class="btn ghost" href="#chaveamento">Ver chaveamento</a>
+        </div>
+        <div class="audit-line" id="auditLine">Versão inicial • aguardando sincronização</div>
+      </div>
+    </section>
+
+    <section class="section" id="participantes">
+      <div class="section-head">
+        <div><span class="section-kicker">Participantes</span><h2>Potes de jogadores</h2><p>As duplas são formadas pelo maior peso do Pote A com o menor peso do Pote B, seguindo sucessivamente.</p></div>
+        <div class="kpi-row">
+          <article><strong id="countA">0</strong><span>Pote A</span></article>
+          <article><strong id="countB">0</strong><span>Pote B</span></article>
+          <article><strong id="countTeams">0</strong><span>Duplas</span></article>
+        </div>
+      </div>
+      <div class="pots-grid">
+        <article class="pot-card pot-a"><header><span>A</span><div><h3>Pote A</h3><p>Ordenação do maior para o menor peso.</p></div></header><div class="players-list" id="potAList"></div></article>
+        <article class="balance-card"><div class="balance-icon">⚖️</div><h3>Regra de equivalência</h3><p>Exemplo: A=10 com B=5 e A2=7 com B2=8. Resultado: duas equipes com total 15.</p><div class="formula">A ↓ + B ↑</div></article>
+        <article class="pot-card pot-b"><header><span>B</span><div><h3>Pote B</h3><p>Ordenação do menor para o maior peso.</p></div></header><div class="players-list" id="potBList"></div></article>
+      </div>
+    </section>
+
+    <section class="section teams-section" id="equipes">
+      <div class="section-head"><div><span class="section-kicker">Duplas</span><h2>Equipes equilibradas</h2><p id="balanceSummary">As equipes serão reveladas quando o sorteio for concluído.</p></div></div>
+      <div class="teams-grid" id="teamsGrid"></div>
+    </section>
+
+    <section class="section bracket-section" id="chaveamento">
+      <div class="section-head"><div><span class="section-kicker">Competição</span><h2>Chaveamento da disputa</h2><p>As posições das equipes são sorteadas de forma aleatória após a composição balanceada das duplas.</p></div></div>
+      <div class="bracket-shell"><div class="bracket" id="bracket"></div></div>
+    </section>
+  </main>
+
+  <div class="opening-overlay" id="openingOverlay" hidden>
+    <button class="overlay-close" id="closeOpening" type="button" aria-label="Fechar">×</button>
+    <div class="opening-stage">
+      <div class="opening-rings"><i></i><i></i><i></i></div>
+      <div class="opening-ball">🏐</div>
+      <p>Portal SimonSports apresenta</p>
+      <h2>Sorteio Oficial de Vôlei</h2>
+      <strong id="openingStatus">Preparando os potes...</strong>
+    </div>
+  </div>
+
+  <footer><span>© <span id="year"></span> Portal SimonSports</span><span>Sorteio transparente • Peso técnico • Auditoria por hash</span></footer>
+
+  <script src="config.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

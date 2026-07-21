@@ -1,0 +1,64 @@
+SORTEIO DE DUPLAS DE VÔLEI — PORTAL SIMONSPORTS
+VERSÃO V001 — 21/07/2026
+
+ENDEREÇOS
+- Página pública: https://bolao.portalsimonsports.com/volei-sorteio/
+- Painel administrativo: https://bolao.portalsimonsports.com/volei-sorteio/admin.html
+- Planilha Google: https://docs.google.com/spreadsheets/d/1lg0HKljL93wD5riajKbCYcShzKYW0qAVYkPTwjerVAo/edit
+
+REGRA DE EQUILÍBRIO
+1. Os jogadores ativos do Pote A são ordenados do maior peso para o menor.
+2. Os jogadores ativos do Pote B são ordenados do menor peso para o maior.
+3. Os jogadores são pareados pela mesma posição das duas listas.
+4. As equipes prontas são embaralhadas com uma seed auditável para ocupar o chaveamento.
+
+Exemplo:
+- Pote A: Jogador A = 10; Jogador A2 = 7
+- Pote B: Jogador B = 5; Jogador B2 = 8
+- Equipe 1: Jogador A + Jogador B = 15
+- Equipe 2: Jogador A2 + Jogador B2 = 15
+
+IMPLANTAÇÃO DO APPS SCRIPT
+1. Abra a Planilha Google.
+2. Acesse Extensões > Apps Script.
+3. Cole o conteúdo de apps-script/Code.gs no arquivo Code.gs.
+4. No editor do Apps Script, crie ou substitua o manifesto pelo arquivo apps-script/appsscript.json.
+5. Execute CONFIGURAR_SISTEMA_INICIAL uma vez e autorize o projeto.
+6. Abra o Registro de execução e copie a ADMIN_KEY gerada.
+7. Em Configurações do projeto > Propriedades do script, configure os dados opcionais abaixo.
+8. Clique em Implantar > Nova implantação > Aplicativo da Web.
+9. Executar como: você. Quem pode acessar: qualquer pessoa.
+10. Copie a URL terminada em /exec.
+11. Abra config.js no GitHub, cole a URL em API_BASE e altere DEMO_MODE para false.
+
+PROPRIEDADES DO SCRIPT
+Obrigatória:
+- ADMIN_KEY: gerada por CONFIGURAR_SISTEMA_INICIAL
+- ACTIVATION_SALT: gerada automaticamente
+
+Telegram:
+- TELEGRAM_BOT_TOKEN
+- TELEGRAM_CHAT_ID
+
+WhatsApp Cloud API:
+- WHATSAPP_TOKEN
+- WHATSAPP_PHONE_NUMBER_ID
+- WHATSAPP_TO
+- WHATSAPP_VERIFY_TOKEN
+- WHATSAPP_GRAPH_VERSION: versão configurada na aplicação Meta
+
+WEBHOOKS
+- Telegram: execute CONFIGURAR_WEBHOOKS("URL_DO_WEB_APP_EXEC").
+- WhatsApp: cadastre a mesma URL /exec no painel da Meta e use o valor WHATSAPP_VERIFY_TOKEN.
+
+ATIVAÇÃO
+- Código: o administrador gera seis dígitos e pode digitá-los no painel.
+- Telegram: a mensagem contém o botão “Ativar sorteio”; o clique envia ATIVAR_XXXXXX ao webhook.
+- WhatsApp: a mensagem interativa contém o botão “Ativar sorteio”; a resposta chega ao webhook.
+- Após a ativação, o site inicia 10 minutos de contagem regressiva.
+- No término, o backend forma as equipes, sorteia as posições e publica o chaveamento.
+
+SEGURANÇA
+- Nunca coloque ADMIN_KEY, tokens do Telegram ou tokens da Meta no GitHub.
+- Os códigos de ativação são gravados na planilha somente como hash e dois dígitos finais.
+- O código expira conforme ATIVACAO_EXPIRA_MINUTOS na aba CONFIG.

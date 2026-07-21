@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#061426">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Administração do Sorteio de Vôlei | Portal SimonSports</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="admin">
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="brand-ball">🏐</span><span><strong>Portal SimonSports</strong><small>Painel do sorteio de vôlei</small></span></a>
+    <a class="btn ghost small" href="index.html">Abrir página pública</a>
+  </header>
+
+  <main class="admin-main">
+    <section class="admin-hero">
+      <div><span class="eyebrow">Controle do evento</span><h1>Administração do sorteio</h1><p>Cadastre os jogadores, confira a equivalência, gere o código e envie o botão de ativação.</p></div>
+      <div class="admin-state"><span id="adminMode">Verificando conexão</span><strong id="adminStatus">RASCUNHO</strong></div>
+    </section>
+
+    <div class="admin-grid">
+      <section class="panel auth-panel">
+        <div class="panel-head"><div><span class="section-kicker">Segurança</span><h2>Chave administrativa</h2></div></div>
+        <label>Chave configurada nas propriedades do Apps Script<input id="adminKey" type="password" autocomplete="current-password" placeholder="Digite a chave administrativa"></label>
+        <button class="btn primary full" id="saveAdminKey" type="button">Salvar nesta sessão</button>
+        <p class="help">A chave não é gravada no GitHub; permanece somente nesta aba do navegador.</p>
+      </section>
+
+      <section class="panel activation-panel">
+        <div class="panel-head"><div><span class="section-kicker">Ativação</span><h2>Contagem regressiva</h2></div></div>
+        <div class="activation-code"><span>Código atual</span><strong id="activationCode">— — — — — —</strong></div>
+        <div class="button-grid">
+          <button class="btn primary" id="generateCode" type="button">Gerar código</button>
+          <button class="btn telegram" id="sendTelegram" type="button">Enviar Telegram</button>
+          <button class="btn whatsapp" id="sendWhatsApp" type="button">Enviar WhatsApp</button>
+          <button class="btn danger" id="cancelDraw" type="button">Cancelar sorteio</button>
+        </div>
+        <label>Código recebido<input id="activationInput" inputmode="numeric" maxlength="6" placeholder="000000"></label>
+        <button class="btn gold full" id="activateDraw" type="button">Ativar sorteio e iniciar 10 minutos</button>
+      </section>
+    </div>
+
+    <section class="panel players-panel">
+      <div class="panel-head"><div><span class="section-kicker">Cadastro</span><h2>Jogadores dos potes A e B</h2><p>Os dois potes devem ter a mesma quantidade de jogadores.</p></div><button class="btn ghost dark-text" id="refreshAdmin" type="button">Atualizar</button></div>
+      <form class="player-form" id="playerForm">
+        <input type="hidden" id="playerId">
+        <label>Nome<input id="playerName" required maxlength="80" placeholder="Nome do jogador"></label>
+        <label>Pote<select id="playerPot" required><option value="A">Pote A</option><option value="B">Pote B</option></select></label>
+        <label>Peso técnico<input id="playerWeight" required type="number" min="0" step="0.01" placeholder="10"></label>
+        <label>Ativo<select id="playerActive"><option value="SIM">SIM</option><option value="NAO">NÃO</option></select></label>
+        <button class="btn primary" type="submit">Salvar jogador</button>
+      </form>
+      <div class="admin-table-wrap"><table><thead><tr><th>ID</th><th>Nome</th><th>Pote</th><th>Peso</th><th>Ativo</th><th>Ações</th></tr></thead><tbody id="playersTableBody"></tbody></table></div>
+    </section>
+
+    <section class="panel preview-panel">
+      <div class="panel-head"><div><span class="section-kicker">Prévia</span><h2>Equilíbrio calculado</h2><p>Esta prévia não define as posições do chaveamento.</p></div></div>
+      <div class="teams-grid compact" id="adminTeamsPreview"></div>
+    </section>
+
+    <section class="panel technical-panel">
+      <div class="panel-head"><div><span class="section-kicker">Configuração</span><h2>Conexões externas</h2></div></div>
+      <div class="config-list">
+        <p><strong>Planilha Google:</strong> <a id="sheetLink" target="_blank" rel="noopener">Abrir base administrativa</a></p>
+        <p><strong>API Apps Script:</strong> <code id="apiLabel">Não configurada</code></p>
+        <p><strong>Telegram:</strong> token e chat ID nas Propriedades do Script.</p>
+        <p><strong>WhatsApp:</strong> token, phone number ID e destinatário nas Propriedades do Script.</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast-stack" id="toastStack"></div>
+  <script src="config.js"></script>
+  <script src="assets/app.js"></script>
+  <script src="assets/admin.js"></script>
+</body>
+</html>
