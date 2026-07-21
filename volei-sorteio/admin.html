@@ -7,6 +7,19 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Administração do Sorteio de Vôlei | Portal SimonSports</title>
   <link rel="stylesheet" href="assets/style.css">
+  <style>
+    .draw-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px}
+    .results-list{display:grid;gap:14px}.admin-round{border:1px solid var(--line);border-radius:18px;padding:14px;background:#f8fafc}
+    .admin-round h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#334155}
+    .admin-match{display:grid;grid-template-columns:100px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;margin-top:8px}
+    .admin-match-meta{font-size:10px;font-weight:950;color:#64748b;text-transform:uppercase}.admin-match-teams{display:grid;gap:7px}
+    .winner-choice{width:100%;border:1px solid #dbe3ed;border-radius:11px;background:#f8fafc;color:#0f172a;padding:9px 10px;text-align:left;font-weight:850}
+    .winner-choice:hover{border-color:#22c55e;background:#ecfdf5}.winner-choice.selected{background:#dcfce7;border-color:#22c55e;color:#166534}
+    .match-result-status{font-size:10px;font-weight:950;border-radius:999px;padding:6px 9px;background:#e2e8f0;color:#475569;white-space:nowrap}
+    .champion-box{padding:18px;border-radius:18px;background:linear-gradient(135deg,#fff7ed,#fef3c7);border:1px solid #f59e0b;margin-bottom:14px;text-align:center}
+    .champion-box strong{display:block;font-size:24px;color:#92400e}.empty-results{padding:22px;text-align:center;border:1px dashed #cbd5e1;border-radius:16px;color:#64748b}
+    @media(max-width:700px){.admin-match{grid-template-columns:1fr}.draw-tools{grid-template-columns:1fr}}
+  </style>
 </head>
 <body data-page="admin">
   <header class="topbar">
@@ -16,7 +29,7 @@
 
   <main class="admin-main">
     <section class="admin-hero">
-      <div><span class="eyebrow">Controle do evento</span><h1>Administração do sorteio</h1><p>Cadastre os jogadores, confira a equivalência, gere o código e envie o botão de ativação.</p></div>
+      <div><span class="eyebrow">Controle do evento</span><h1>Administração do sorteio</h1><p>Cadastre os jogadores, confira a equivalência, gere o código, ative a contagem e registre os vencedores.</p></div>
       <div class="admin-state"><span id="adminMode">Verificando conexão</span><strong id="adminStatus">RASCUNHO</strong></div>
     </section>
 
@@ -39,6 +52,10 @@
         </div>
         <label>Código recebido<input id="activationInput" inputmode="numeric" maxlength="6" placeholder="000000"></label>
         <button class="btn gold full" id="activateDraw" type="button">Ativar sorteio e iniciar 10 minutos</button>
+        <div class="draw-tools">
+          <button class="btn ghost dark-text" id="drawNow" type="button">Sortear agora</button>
+          <button class="btn danger" id="resetDraw" type="button">Reiniciar sorteio</button>
+        </div>
       </section>
     </div>
 
@@ -60,13 +77,19 @@
       <div class="teams-grid compact" id="adminTeamsPreview"></div>
     </section>
 
+    <section class="panel results-panel">
+      <div class="panel-head"><div><span class="section-kicker">Competição</span><h2>Resultados e avanço no chaveamento</h2><p>Após cada partida, clique na equipe vencedora. O sistema a posicionará automaticamente no jogo seguinte.</p></div></div>
+      <div class="results-list" id="matchesAdmin"></div>
+    </section>
+
     <section class="panel technical-panel">
       <div class="panel-head"><div><span class="section-kicker">Configuração</span><h2>Conexões externas</h2></div></div>
       <div class="config-list">
         <p><strong>Planilha Google:</strong> <a id="sheetLink" target="_blank" rel="noopener">Abrir base administrativa</a></p>
         <p><strong>API Apps Script:</strong> <code id="apiLabel">Não configurada</code></p>
-        <p><strong>Telegram:</strong> token e chat ID nas Propriedades do Script.</p>
-        <p><strong>WhatsApp:</strong> token, phone number ID e destinatário nas Propriedades do Script.</p>
+        <p><strong>Automação:</strong> execute <code>INSTALAR_SISTEMA_COMPLETO</code> uma vez no Apps Script.</p>
+        <p><strong>Telegram:</strong> botão interativo e ativação pelo webhook do bot.</p>
+        <p><strong>WhatsApp:</strong> botão interativo pela WhatsApp Cloud API.</p>
       </div>
     </section>
   </main>
