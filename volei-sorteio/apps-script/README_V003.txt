@@ -1,0 +1,1 @@
+Módulos executáveis: Code.gs, Cadastro.gs, EquipesEstado.gs, AtivacaoSorteio.gs, Chaveamento.gs, Integracoes.gs e Automacao.gs.
