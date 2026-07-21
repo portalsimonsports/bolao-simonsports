@@ -1,0 +1,1 @@
+Telegram e WhatsApp são configurados pelas Propriedades do Script e pelos webhooks do aplicativo da Web. O código executável será mantido no módulo Integracoes.gs.
